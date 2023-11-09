@@ -30,12 +30,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/retr0h/go-gilt/git"
-	"github.com/retr0h/go-gilt/repositories"
-	"github.com/retr0h/go-gilt/repository"
-	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/retr0h/go-gilt/internal/git"
+	"github.com/retr0h/go-gilt/internal/repositories"
+	"github.com/retr0h/go-gilt/internal/repository"
+	"github.com/retr0h/go-gilt/test/testutil"
 )
 
 type RepositoryIntegrationTestSuite struct {

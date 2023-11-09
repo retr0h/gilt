@@ -25,8 +25,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/retr0h/go-gilt/repositories"
-	"github.com/retr0h/go-gilt/util"
+	"github.com/retr0h/go-gilt/internal/repositories"
+	"github.com/retr0h/go-gilt/internal/util"
 	"github.com/spf13/cobra"
 )
 

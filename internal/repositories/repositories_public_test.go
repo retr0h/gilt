@@ -27,11 +27,12 @@ import (
 	"path"
 	"testing"
 
-	"github.com/retr0h/go-gilt/git"
-	"github.com/retr0h/go-gilt/repositories"
 	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/retr0h/go-gilt/internal/git"
+	"github.com/retr0h/go-gilt/internal/repositories"
 )
 
 type RepositoriesTestSuite struct {
@@ -113,7 +114,7 @@ func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFileReturnsErrorWithMissing
 }
 
 func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFile() {
-	suite.r.Filename = path.Join("..", "test", "gilt.yml")
+	suite.r.Filename = path.Join("..", "..", "test", "gilt.yml")
 	err := suite.r.UnmarshalYAMLFile()
 	assert.NoError(suite.T(), err)
 

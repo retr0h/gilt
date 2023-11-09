@@ -25,10 +25,11 @@ import (
 	"testing"
 
 	"github.com/ghodss/yaml"
-	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/xeipuuv/gojsonschema"
+
+	"github.com/retr0h/go-gilt/test/testutil"
 )
 
 type RepositoriesTestSuite struct {

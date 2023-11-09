@@ -28,8 +28,9 @@ import (
 	"testing"
 
 	capturer "github.com/kami-zh/go-capturer"
-	"github.com/retr0h/go-gilt/util"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/retr0h/go-gilt/internal/util"
 )
 
 func TestPrintError(t *testing.T) {
@@ -93,8 +94,8 @@ func TestRunCommandPrintsStreamingStderr(t *testing.T) {
 }
 
 func TestCopyFile(t *testing.T) {
-	srcFile := path.Join("..", "test", "resources", "copy", "file")
-	dstFile := path.Join("..", "test", "resources", "copy", "copiedFile")
+	srcFile := path.Join("..", "..", "test", "resources", "copy", "file")
+	dstFile := path.Join("..", "..", "test", "resources", "copy", "copiedFile")
 	err := util.CopyFile(srcFile, dstFile)
 	defer func() { _ = os.Remove(dstFile) }()
 
@@ -103,7 +104,7 @@ func TestCopyFile(t *testing.T) {
 }
 
 func TestCopyFileReturnsError(t *testing.T) {
-	srcFile := path.Join("..", "test", "resources", "copy", "file")
+	srcFile := path.Join("..", "..", "test", "resources", "copy", "file")
 	invalidDstFile := "/super/invalid/path/to/write/to"
 	err := util.CopyFile(srcFile, invalidDstFile)
 
@@ -111,8 +112,8 @@ func TestCopyFileReturnsError(t *testing.T) {
 }
 
 func TestCopyDir(t *testing.T) {
-	srcDir := path.Join("..", "test", "resources", "copy", "dir")
-	dstDir := path.Join("..", "test", "resources", "copy", "copiedDir")
+	srcDir := path.Join("..", "..", "test", "resources", "copy", "dir")
+	dstDir := path.Join("..", "..", "test", "resources", "copy", "copiedDir")
 	err := util.CopyDir(srcDir, dstDir)
 	defer func() { _ = os.RemoveAll(dstDir) }()
 
@@ -121,7 +122,7 @@ func TestCopyDir(t *testing.T) {
 }
 
 func TestCopyDirReturnsError(t *testing.T) {
-	srcDir := path.Join("..", "test", "resources", "copy", "dir")
+	srcDir := path.Join("..", "..", "test", "resources", "copy", "dir")
 	invalidDstDir := "/super/invalid/path/to/write/to"
 	err := util.CopyDir(srcDir, invalidDstDir)
 
