@@ -1,4 +1,6 @@
+//go:build integration
 // +build integration
+
 // Copyright (c) 2018 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy

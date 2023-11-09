@@ -52,7 +52,11 @@ func NewGit(debug bool) *Git {
 func (g *Git) Clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
 
-	msg := fmt.Sprintf("[%s@%s]:", aurora.Magenta(repository.Git), aurora.Magenta(repository.Version))
+	msg := fmt.Sprintf(
+		"[%s@%s]:",
+		aurora.Magenta(repository.Git),
+		aurora.Magenta(repository.Version),
+	)
 	fmt.Println(msg)
 
 	msg = fmt.Sprintf("%-2s - Cloning to '%s'", "", aurora.Cyan(cloneDir))

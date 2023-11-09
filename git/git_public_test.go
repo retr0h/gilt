@@ -57,12 +57,12 @@ func (suite *GitTestSuite) TearDownTest() {
 func (suite *GitTestSuite) TestCloneAlreadyExists() {
 	cloneDir := filepath.Join(suite.r.GiltDir, "https---example.com-user-repo.git-abc1234")
 	if _, err := os.Stat(cloneDir); os.IsNotExist(err) {
-		os.Mkdir(cloneDir, 0755)
+		_ = os.Mkdir(cloneDir, 0o755)
 	}
 
-	suite.g.Clone(suite.r)
+	_ = suite.g.Clone(suite.r)
 
-	defer os.RemoveAll(cloneDir)
+	defer func() { _ = os.RemoveAll(cloneDir) }()
 }
 
 func (suite *GitTestSuite) TestCloneErrorsOnCloneReturnsError() {
@@ -97,8 +97,10 @@ func (suite *GitTestSuite) TestClone() {
 
 	got := git.MockRunCommand(anon)
 	want := []string{
-		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
-			suite.r.GiltDir),
+		fmt.Sprintf(
+			"git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
+			suite.r.GiltDir,
+		),
 		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 reset --hard abc1234",
 			suite.r.GiltDir),
 	}
@@ -139,8 +141,11 @@ func (suite *GitTestSuite) TestCheckoutIndex() {
 	dstDir, _ := git.FilePathAbs(suite.r.DstDir)
 	got := git.MockRunCommand(anon)
 	want := []string{
-		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
-			suite.r.GiltDir, (dstDir + string(os.PathSeparator))),
+		fmt.Sprintf(
+			"git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
+			suite.r.GiltDir,
+			(dstDir + string(os.PathSeparator)),
+		),
 	}
 
 	assert.Equal(suite.T(), want, got)

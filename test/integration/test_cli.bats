@@ -31,6 +31,9 @@ setup() {
 	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
 	GILT_CLONED_REPO_1_DST_DIR=/tmp/retr0h.ansible-etcd
 
+  # TODO(retr0h): go-gilt should create this dir
+  mkdir -p ${GILT_DIR}
+
 	mkdir -p ${GILT_LIBRARY_DIR}
 	mkdir -p ${GILT_ROLES_DIR}
 	cp test/gilt.yml ${GILT_TEST_BASE_DIR}/gilt.yml

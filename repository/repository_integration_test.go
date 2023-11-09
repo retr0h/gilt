@@ -1,4 +1,6 @@
+//go:build integration
 // +build integration
+
 // Copyright (c) 2018 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -83,7 +85,7 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenFileCopy
 	r := suite.rr.Items[0]
 	r.GiltDir = tempDir
 	suite.g.Clone(r)
-	os.Mkdir(dstDir, 0755)
+	os.Mkdir(dstDir, 0o755)
 
 	originalCopyFile := repository.CopyFile
 	repository.CopyFile = func(src string, dst string) error {
@@ -131,7 +133,7 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesFile() {
 	r := suite.rr.Items[0]
 	r.GiltDir = tempDir
 	suite.g.Clone(r)
-	os.Mkdir(dstDir, 0755)
+	os.Mkdir(dstDir, 0o755)
 	err := r.CopySources()
 
 	assert.NoError(suite.T(), err)
@@ -178,7 +180,7 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesDir() {
 	suite.rr.UnmarshalYAML([]byte(data))
 	r := suite.rr.Items[0]
 	r.GiltDir = tempDir
-	os.Mkdir(dstDir, 0755) // execute the dstDir cleanup code prior to copy.
+	os.Mkdir(dstDir, 0o755) // execute the dstDir cleanup code prior to copy.
 	suite.g.Clone(r)
 	err := r.CopySources()
 

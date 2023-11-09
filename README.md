@@ -2,7 +2,7 @@
 [![Coveralls github](https://img.shields.io/coveralls/github/retr0h/go-gilt.svg?style=flat-square)](https://coveralls.io/github/retr0h/go-gilt)
 [![Go Report Card](https://goreportcard.com/badge/github.com/retr0h/go-gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/go-gilt)
 
-# go-gilt
+# Gilt
 
 Gilt is a tool which aims to make repo management, manageable.  Gilt
 clones repositories at a particular version, then overlays the repository to
@@ -11,18 +11,15 @@ the provided destination.  An alternate approach to "vendoring".
 What makes Gilt interesting, is the ability to overlay particular files and/or
 directories from the specified repository to given destinations.  This is quite
 helpful for those using Ansible, since libraries, plugins, and playbooks are
-often shared, but Ansible's [Galaxy][1] has no mechanism to handle this.
-
-[1]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
+often shared, but Ansible's [Galaxy][] has no mechanism to handle this.
 
 ## Port
 
-This project is a port of [Gilt](http://gilt.readthedocs.io/en/latest/), it is
+This project is a port of [Gilt][], it is
 not 100% compatible with the python version, and aims to correct some poor decisions
 made in the python version of Gilt.
 
-This version of Gilt does not provide built in locking, unlike our python friend. If one
-wishes to use locking, [flock(1)](https://linux.die.net/man/1/flock) should be used.
+This version of Gilt does not provide built in locking, unlike our python friend.
 
 ## Installation
 
@@ -100,10 +97,22 @@ $ tree .build/
 
 ## Testing
 
-```bash
-$ make test
-```
+To execute tests:
+
+    $ task test
+
+Auto format code:
+
+    $ task fmt
+
+List helpful targets:
+
+    $ task
 
 ## License
 
-MIT
+The [MIT][] License.
+
+[Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
+[Gilt]: http://gilt.readthedocs.io/en/latest/
+[MIT]: LICENSE

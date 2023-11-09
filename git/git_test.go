@@ -71,8 +71,10 @@ func (suite *GitTestSuite) TestClone() {
 
 	got := MockRunCommand(anon)
 	want := []string{
-		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
-			suite.r.GiltDir),
+		fmt.Sprintf(
+			"git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
+			suite.r.GiltDir,
+		),
 	}
 
 	assert.Equal(suite.T(), want, got)

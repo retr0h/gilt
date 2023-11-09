@@ -73,5 +73,6 @@ func Execute(v string, bh string, bd string) {
 
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable or disable debug mode")
-	rootCmd.PersistentFlags().StringVarP(&giltDir, "giltdir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
+	rootCmd.PersistentFlags().
+		StringVarP(&giltDir, "giltdir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
 }
