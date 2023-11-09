@@ -1,0 +1,92 @@
+---
+version: "3"
+
+vars:
+  GIT_ROOT:
+    sh: git rev-parse --show-toplevel
+  MAIN_PACKAGE: main.go
+
+tasks:
+  deps:
+    desc: Install dependencies
+    cmds:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+      - go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@v1.1.0
+      - go install golang.org/x/vuln/cmd/govulncheck@v1.0.1
+      - go install github.com/jstemmer/go-junit-report@v0.9.1
+      - go install github.com/segmentio/golines@v0.11.0
+      - go install github.com/golang/mock/mockgen@v1.6.0
+      - go install github.com/boumenot/gocover-cobertura@v1.2.0
+      - go install mvdan.cc/gofumpt@fd93f1d8818fc86a956b9706ad8b81734c81cc1e
+      - go install github.com/goreleaser/goreleaser@latest
+
+  mod:
+    desc: Module maintenance
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  vet:
+    desc: Report likely mistakes in packages
+    cmds:
+      - $(go env GOPATH)/bin/golangci-lint run --config {{ .GIT_ROOT }}/.golangci.yml
+
+  vuln:
+    desc: Run Go's vulnerability scanner
+    cmds:
+      - govulncheck ./...
+
+  run:
+    desc: Compile and run Go program
+    cmds:
+      - go run {{ .MAIN_PACKAGE }} {{.CLI_ARGS}}
+
+  unit:
+    desc: Test packages
+    cmds:
+      - go test -parallel 5 -race -v ./...
+
+  unit:int:
+    desc: Integration test packages
+    cmds:
+      - go test -tags=integration -parallel 5 -race -v ./...
+
+  test:
+    desc: Test all
+    cmds:
+      - task: deps
+      - task: mod
+      - task: fmt:check
+      - task: vet
+      - task: cov
+      - task: unit:int
+
+  cov:
+    desc: Generate coverage
+    cmds:
+      - go test -race -coverprofile cover.out -v 2>&1 ./... | go-junit-report --set-exit-code > result.xml || (cat result.xml && echo "fail" && exit 1)
+      - $(go env GOPATH)/bin/gocover-cobertura < cover.out > cobertura.xml
+
+  covmap:
+    desc: Generate coverage and show heatmap
+    cmds:
+      - task: cov
+      - go tool cover -html=cover.out
+
+  fmt:
+    desc: Reformat files whose formatting differs from `go_fmt_command`
+    cmds:
+      - gofumpt -l -w .
+      - golines --base-formatter=gofumpt -w .
+
+  fmt:check:
+    desc: Check files whose formatting differs from `go_fmt_command`
+    cmds:
+      # https://github.com/mvdan/gofumpt/issues/114
+      - test -z "$(gofumpt -d -e . | tee /dev/stderr)"
+      - test -z "$(golines -l --dry-run --base-formatter=gofumpt -w .)"
+
+  build:
+    desc: Build ARCH compatible binary.
+    cmds:
+      - goreleaser release --snapshot --clean

@@ -18,15 +18,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// Package copy taken from terraform, and added as copy package to avoid testing
+// Package io taken from terraform, and added as io package to avoid testing
 // directly and dropping coverage of util package.
 // https://github.com/hashicorp/terraform/blob/master/helper/copy/copy.go
-package copy
+
+package io
 
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -43,7 +43,7 @@ func File(src, dst string) (err error) {
 	if err != nil {
 		return
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 
 	out, err := os.Create(dst)
 	if err != nil {
@@ -105,30 +105,30 @@ func Dir(src string, dst string) (err error) {
 		return
 	}
 
-	entries, err := ioutil.ReadDir(src)
+	entries, err := os.ReadDir(src)
 	if err != nil {
 		return
 	}
 
+	var fileInfo os.FileInfo
 	for _, entry := range entries {
 		srcPath := filepath.Join(src, entry.Name())
 		dstPath := filepath.Join(dst, entry.Name())
 
 		// If the entry is a symlink, we copy the contents
-		for entry.Mode()&os.ModeSymlink != 0 {
-
+		if entry.Type()&os.ModeSymlink != 0 {
 			target, err := filepath.EvalSymlinks(srcPath)
 			if err != nil {
 				return err
 			}
 
-			entry, err = os.Stat(target)
+			fileInfo, err = os.Stat(target)
 			if err != nil {
 				return err
 			}
 		}
 
-		if entry.IsDir() {
+		if fileInfo.IsDir() {
 			err = Dir(srcPath, dstPath)
 			if err != nil {
 				return

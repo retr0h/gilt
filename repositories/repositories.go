@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -72,7 +71,7 @@ func (r *Repositories) UnmarshalYAML(data []byte) error {
 // data byte slice to UnmarshalYAML for decoding.
 func (r *Repositories) UnmarshalYAMLFile() error {
 	// Open and Read the provided filename.
-	source, err := ioutil.ReadFile(r.Filename)
+	source, err := os.ReadFile(r.Filename)
 	if err != nil {
 		return err
 	}
@@ -123,7 +122,9 @@ func (r *Repositories) Overlay() error {
 			// Delete dstDir since Checkout-Index does not clean old files that may
 			// no longer exist in repository.
 			if info, err := os.Stat(repository.DstDir); err == nil && info.Mode().IsDir() {
-				os.RemoveAll(repository.DstDir)
+				if err := os.RemoveAll(repository.DstDir); err != nil {
+					return err
+				}
 			}
 			if err := g.CheckoutIndex(repository); err != nil {
 				return err

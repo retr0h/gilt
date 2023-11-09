@@ -30,9 +30,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	fileName string
-)
+var fileName string
 
 // newRepositories constructs a new `repositories.Repositories`.
 func newRepositories(debug bool, fileName string) (*repositories.Repositories, error) {
@@ -58,7 +56,9 @@ func newGiltDir() error {
 	repositories.GiltDir = cacheGiltDir
 
 	if _, err := os.Stat(cacheGiltDir); os.IsNotExist(err) {
-		os.Mkdir(cacheGiltDir, 0755)
+		if err := os.Mkdir(cacheGiltDir, 0o755); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -95,6 +95,7 @@ var overlayCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&fileName, "filename", "f", "gilt.yml", "Path to config file")
+	rootCmd.PersistentFlags().
+		StringVarP(&fileName, "filename", "f", "gilt.yml", "Path to config file")
 	rootCmd.AddCommand(overlayCmd)
 }

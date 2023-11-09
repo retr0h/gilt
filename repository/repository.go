@@ -107,7 +107,9 @@ func (r *Repository) CopySources() error {
 				// The source is a directory.
 			} else if info, err := os.Stat(src); err == nil && info.Mode().IsDir() {
 				if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
-					os.RemoveAll(rSource.DstDir)
+					if err := os.RemoveAll(rSource.DstDir); err != nil {
+						return err
+					}
 				}
 				if err := CopyDir(src, rSource.DstDir); err != nil {
 					return err
