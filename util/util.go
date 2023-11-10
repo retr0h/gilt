@@ -107,7 +107,7 @@ func CopyFile(src string, dst string) error {
 	)
 	fmt.Println(msg)
 
-	if err := io.File(src, dst); err != nil {
+	if err := io.CopyFile(src, dst); err != nil {
 		return err
 	}
 
@@ -125,8 +125,7 @@ func CopyDir(src string, dst string) error {
 	)
 	fmt.Println(msg)
 
-	if err := io.Dir(src, dst); err != nil {
-		fmt.Println(err)
+	if err := io.CopyDir(src, dst); err != nil {
 		return err
 	}
 
