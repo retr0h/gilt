@@ -1,6 +1,5 @@
-[![Build Status](http://img.shields.io/travis/retr0h/go-gilt.svg?style=flat-square)](https://travis-ci.org/retr0h/go-gilt)
-[![Coveralls github](https://img.shields.io/coveralls/github/retr0h/go-gilt.svg?style=flat-square)](https://coveralls.io/github/retr0h/go-gilt)
-[![Go Report Card](https://goreportcard.com/badge/github.com/retr0h/go-gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/go-gilt)
+![codecov](https://img.shields.io/codecov/c/github/retr0h/go-gilt?token=clAMnFQCEQ&style=flat-square)
+[![go report card](https://goreportcard.com/badge/github.com/retr0h/go-gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/go-gilt)
 
 # Gilt
 
