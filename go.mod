@@ -5,7 +5,7 @@ go 1.21.0
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/kami-zh/go-capturer v0.0.0-20171211120116-e492ea43421d
-	github.com/logrusorgru/aurora v0.0.0-20180419164547-d694e6f975a9
+	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xeipuuv/gojsonschema v0.0.0-20171230112544-511d08a359d1
