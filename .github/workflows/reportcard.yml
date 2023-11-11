@@ -1,0 +1,14 @@
+---
+name: Go Report Card
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  action_goreportcard:
+    runs-on: ubuntu-latest
+    name: A job to run go report card
+    steps:
+      - name: Go Report Card
+        uses: creekorful/goreportcard-action@v1.0
