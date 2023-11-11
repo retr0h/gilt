@@ -1,0 +1,14 @@
+---
+test/unit:
+  - "**/*_test.go"
+
+test/integration:
+  - tests/*
+  - tests/*/**
+
+kind/yaml:
+  - "**/*.yaml"
+  - "**/*.yml"
+
+github/action:
+  - ".github/**/*.yml"
