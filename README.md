@@ -22,7 +22,7 @@ This version of Gilt does not provide built in locking, unlike our python friend
 
 ## Installation
 
-    $  go get github.com/retr0h/go-gilt
+    $  go install github.com/retr0h/go-gilt@latest
 
 ## Usage
 
