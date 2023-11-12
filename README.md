@@ -106,6 +106,7 @@ The [MIT][] License.
 
 The logo is licensed under the [Creative Commons NoDerivatives 4.0 License][],
 and designed by [@nanotron][].
+If you have some other use in mind, contact us.
 
 [Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
 [Gilt]: http://gilt.readthedocs.io/en/latest/
