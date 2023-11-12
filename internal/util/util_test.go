@@ -25,31 +25,8 @@ import (
 	"os/user"
 	"testing"
 
-	capturer "github.com/kami-zh/go-capturer"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestPrintErrorAndExit(t *testing.T) {
-	oldOsExit := osExit
-	defer func() { osExit = oldOsExit }()
-
-	var got int
-	myExit := func(code int) {
-		got = code
-	}
-
-	osExit = myExit
-
-	out := capturer.CaptureStderr(func() {
-		PrintErrorAndExit("foo")
-	})
-
-	assert.Equal(t, "\x1b[31mERROR\x1b[0m: foo\n", out)
-	assert.Equal(t, 1, got)
-
-	PrintErrorAndExit("foo", 5)
-	assert.Equal(t, 5, got)
-}
 
 func TestExpandUserReturnsError(t *testing.T) {
 	originalCurrentUser := currentUser

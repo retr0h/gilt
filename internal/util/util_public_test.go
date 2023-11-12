@@ -33,19 +33,6 @@ import (
 	"github.com/retr0h/go-gilt/internal/util"
 )
 
-func TestPrintError(t *testing.T) {
-	got := capturer.CaptureStderr(func() {
-		util.PrintError("foo")
-	})
-	want := "\x1b[31mERROR\x1b[0m: foo\n"
-
-	assert.Equal(t, want, got)
-}
-
-func TestPrintErrorAndExit(t *testing.T) {
-	// Located in utils_test for mocking.
-}
-
 func TestExpandUserReturnsError(t *testing.T) {
 	// Located in utils_test for mocking.
 }

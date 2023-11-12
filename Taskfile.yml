@@ -20,6 +20,20 @@ tasks:
       - go install mvdan.cc/gofumpt@fd93f1d8818fc86a956b9706ad8b81734c81cc1e
       - go install github.com/goreleaser/goreleaser@latest
 
+  deps:check:
+    desc: Check dependencies needed for development
+    cmds:
+      - echo "Dependency check OK"
+    preconditions:
+      - sh: "[ '{{OS}}' = 'darwin' ]"
+        msg: Operating System '{{OS}}' not supported
+
+      - sh: command -v jq
+        msg: |
+          'jq' not found in $PATH
+
+          Suggested action: 'brew install jq'
+
   mod:
     desc: Module maintenance
     cmds:
@@ -50,6 +64,13 @@ tasks:
     desc: Integration test packages
     cmds:
       - go test -tags=integration -parallel 5 -race -v ./...
+      - task: unit:bats
+
+  unit:bats:
+    desc: Integration bats test packages
+    cmds:
+      - ./test/integration/vendor/bats/bin/bats test/integration
+
 
   test:
     desc: Test all

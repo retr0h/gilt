@@ -35,29 +35,8 @@ import (
 	"github.com/retr0h/go-gilt/internal/io"
 )
 
-var (
-	// osExit is mocked for tests.
-	osExit = os.Exit
-	// currentUser is mocked for tests.
-	currentUser = user.Current
-)
-
-// PrintError formats and prints the provided string for error messages.
-func PrintError(msg string) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", aurora.Red("ERROR"), msg)
-}
-
-// PrintErrorAndExit prints the error message and os.Exits with the optionally
-// provided error code.
-func PrintErrorAndExit(msg string, exitCodeOptional ...int) {
-	exitCode := 1
-	if len(exitCodeOptional) > 0 {
-		exitCode = exitCodeOptional[0]
-	}
-
-	PrintError(msg)
-	osExit(exitCode)
-}
+// currentUser is mocked for tests.
+var currentUser = user.Current
 
 // ExpandUser expands the path to user's home directory when path begins with '~'.
 func ExpandUser(path string) (string, error) {

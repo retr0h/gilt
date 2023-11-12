@@ -77,6 +77,12 @@ Display the git commands being executed.
 
 ## Testing
 
+### Dependencies
+
+Check installed dependencies:
+
+    $ task deps:check
+
 To execute tests:
 
     $ task test

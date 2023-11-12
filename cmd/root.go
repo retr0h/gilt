@@ -21,15 +21,19 @@
 package cmd
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
+	"time"
 
+	"github.com/lmittmann/tint"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
 	debug   bool
 	giltDir string
+	logger  *slog.Logger
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -57,15 +61,31 @@ https://github.com/retr0h/go-gilt
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v string, bh string, bd string) {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+func Execute() {
+	err := rootCmd.Execute()
+	if err != nil {
 		os.Exit(1)
 	}
 }
 
 func init() {
+	cobra.OnInitialize(initLogger)
+
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable or disable debug mode")
 	rootCmd.PersistentFlags().
 		StringVarP(&giltDir, "giltdir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
+}
+
+func initLogger() {
+	logLevel := slog.LevelInfo
+	if viper.GetBool("debug") {
+		logLevel = slog.LevelDebug
+	}
+
+	logger = slog.New(
+		tint.NewHandler(os.Stderr, &tint.Options{
+			Level:      logLevel,
+			TimeFormat: time.Kitchen,
+		}),
+	)
 }

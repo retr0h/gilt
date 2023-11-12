@@ -61,10 +61,9 @@ teardown() {
 	run go run main.go version
 
 	[ "$status" -eq 0 ]
-	echo "${output}" | grep "Date:"
-	echo "${output}" | grep "Build:"
-	echo "${output}" | grep "Version:"
-	echo "${output}" | grep "Git Hash:"
+	echo "${output}" | jq '.date'
+	echo "${output}" | jq '.build'
+	echo "${output}" | jq '.version'
 }
 
 @test "invoke gilt overlay subcommand" {
