@@ -8,6 +8,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xeipuuv/gojsonschema v0.0.0-20171230112544-511d08a359d1
+	go.hein.dev/go-version v0.1.0
 	sigs.k8s.io/yaml v1.4.0
 )
 

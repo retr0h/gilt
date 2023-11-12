@@ -21,29 +21,74 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
-	"runtime"
 
 	"github.com/spf13/cobra"
+	goVersion "go.hein.dev/go-version"
 )
 
-const debugHeader = `
-Date: %s
-Build: %s
-Version: %s
-Git Hash: %s
-`
-
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display the version of go-gilt",
-	Run: func(cmd *cobra.Command, args []string) {
-		goVersion := fmt.Sprintf("%s %s/%s", runtime.Version(), runtime.GOOS, runtime.GOARCH)
-		fmt.Printf(debugHeader, buildDate, goVersion, version, buildHash)
-	},
+// Info creates a formattable struct for output.
+type Info struct {
+	Version string `json:"version,omitempty"`
+	Commit  string `json:"commit,omitempty"`
+	Date    string `json:"date,omitempty"`
 }
+
+// getVersion return the sensor's VersionInfo details.
+func getVersion() *Info {
+	versionOutput := goVersion.New(version, commit, date)
+
+	output := &Info{
+		Version: versionOutput.Version,
+		Commit:  versionOutput.Commit,
+		Date:    versionOutput.Date,
+	}
+
+	return output
+}
+
+// toJSON converts the Info into a JSON String.
+func (v *Info) toJSON() string {
+	bytes, _ := json.Marshal(v)
+
+	return string(bytes)
+}
+
+// toShortened converts the Version into a String.
+func (v *Info) toShortened() string {
+	return fmt.Sprintf("Version: %s\n", v.Version)
+}
+
+// versionCmd represents the version command.
+var (
+	shortened  = false
+	version    = "dev"
+	commit     = "none"
+	date       = "unknown"
+	output     = "json"
+	versionCmd = &cobra.Command{
+		Use:   "version",
+		Short: "Display the version of tool",
+		Run: func(cmd *cobra.Command, args []string) {
+			var response string
+
+			versionInfo := getVersion()
+
+			if shortened {
+				response = versionInfo.toShortened()
+			} else {
+				response = versionInfo.toJSON()
+			}
+
+			fmt.Printf("%s\n", response)
+		},
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+	versionCmd.Flags().BoolVarP(&shortened, "short", "s", false, "Print just the version number.")
+	versionCmd.Flags().
+		StringVarP(&output, "output", "o", "json", "Output format. One of 'yaml' or 'json'.")
 }
