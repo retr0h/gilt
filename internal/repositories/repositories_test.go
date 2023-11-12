@@ -24,10 +24,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ghodss/yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/xeipuuv/gojsonschema"
+	"sigs.k8s.io/yaml"
 
 	"github.com/retr0h/go-gilt/test/testutil"
 )

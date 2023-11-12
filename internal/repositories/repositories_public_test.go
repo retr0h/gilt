@@ -55,7 +55,7 @@ func (suite *RepositoriesTestSuite) TestUnmarshalYAMLDoesNotParseYAMLAndReturnsE
 %foo:
 `
 	err := suite.r.UnmarshalYAML([]byte(data))
-	want := "yaml: line 2: found unexpected non-alphabetical character"
+	want := "yaml: line 3: found unexpected non-alphabetical character"
 
 	assert.Equal(suite.T(), want, err.Error())
 	assert.Error(suite.T(), err)
