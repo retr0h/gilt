@@ -55,44 +55,25 @@ and/or directories to the desired destinations.
 
 Overlay a remote repository into the destination provided.
 
-```bash
-$ gilt overlay
-```
+    $ gilt overlay
 
 Use an alternate config file (default `gilt.yml`).
 
-```bash
-$ gilt overlay --filename /path/to/gilt.yml
-```
+    $ gilt overlay --filename /path/to/gilt.yml
 
 Optionally, override gilt's cache location (defaults to `~/.gilt/clone`):
 
-```bash
-$ gilt --giltdir ~/alternate/directory overlay
-```
+    $ gilt --giltdir ~/alternate/directory overlay
 
 ### Debug
 
 Display the git commands being executed.
 
-```bash
-$ gilt --debug overlay
-```
-
-[![asciicast](https://asciinema.org/a/195036.png)](https://asciinema.org/a/195036?speed=2&autoplay=1&loop=1)
-
-## Dependencies
-
-```bash
-$ go get github.com/golang/dep/cmd/dep
-```
+    $ gilt --debug overlay
 
 ## Building
 
-```bash
-$ make build
-$ tree .build/
-```
+    $ task build
 
 ## Testing
 
