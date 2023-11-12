@@ -24,8 +24,9 @@ import (
 	"path/filepath"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/retr0h/go-gilt/repository"
-	"github.com/retr0h/go-gilt/util"
+
+	"github.com/retr0h/go-gilt/internal/repository"
+	"github.com/retr0h/go-gilt/internal/util"
 )
 
 var (
