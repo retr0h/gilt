@@ -73,7 +73,7 @@ func (g *Git) Clone(repository repository.Repository) error {
 		}
 	} else {
 		bang := aurora.Bold(aurora.Red("!"))
-		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Brown("Clone already exists"))
+		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Yellow("Clone already exists"))
 		fmt.Println(msg)
 	}
 
