@@ -1,4 +1,8 @@
 cobertura.xml
 cover.out
-result.xml
 dist/
+result.xml
+
+# TODO(retr0h): Move these these paths
+tests/
+library/

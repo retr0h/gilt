@@ -115,7 +115,6 @@ func CopyDir(src string, dst string) (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println(fileInfo)
 		srcPath := filepath.Join(src, fileInfo.Name())
 		dstPath := filepath.Join(dst, fileInfo.Name())
 

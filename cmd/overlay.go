@@ -21,7 +21,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -69,25 +69,46 @@ var overlayCmd = &cobra.Command{
 	Use:   "overlay",
 	Short: "Install gilt dependencies",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// By the time we reach this point, we know that the arguments were
+		// properly parsed, and we don't want to show the usage if an error
+		// occurs
+		cmd.SilenceUsage = true
+		// We are logging errors, no need for cobra to re-log the error
+		cmd.SilenceErrors = true
+
 		r, err := newRepositories(debug, fileName)
 		if err != nil {
-			msg := fmt.Sprintf("An error occurred creating r.Repositories'.\n%s\n", err)
-			util.PrintErrorAndExit(msg)
+			logger.Error(
+				"error creating new Repositories",
+				slog.String("err", err.Error()),
+			)
+			return err
 		}
 
 		if err := newGiltDir(); err != nil {
-			msg := fmt.Sprintf("An error occurred expanding '%s'.\n%s\n", giltDir, err)
-			util.PrintErrorAndExit(msg)
+			logger.Error(
+				"error expanding dir",
+				slog.String("giltDir", giltDir),
+				slog.String("err", err.Error()),
+			)
+			return err
 		}
 
 		if err := r.UnmarshalYAMLFile(); err != nil {
-			msg := fmt.Sprintf("An error occurred unmarshalling '%s'.\n%s\n", fileName, err)
-			util.PrintErrorAndExit(msg)
+			logger.Error(
+				"error occurred unmarshalling",
+				slog.String("err", err.Error()),
+			)
+			return err
 		}
 
 		if err := r.Overlay(); err != nil {
-			msg := fmt.Sprintf("An error occurred cloning repository.\n%s\n", err)
-			util.PrintErrorAndExit(msg)
+			logger.Error(
+				"error cloning repository",
+				slog.String("err", err.Error()),
+			)
+			return err
+
 		}
 
 		return nil
