@@ -27,8 +27,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ghodss/yaml"
 	"github.com/xeipuuv/gojsonschema"
+	"sigs.k8s.io/yaml"
 
 	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/retr0h/go-gilt/internal/repository"
