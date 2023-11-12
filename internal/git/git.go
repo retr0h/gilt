@@ -23,7 +23,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/logrusorgru/aurora"
+	"github.com/logrusorgru/aurora/v4"
 
 	"github.com/retr0h/go-gilt/internal/repository"
 	"github.com/retr0h/go-gilt/internal/util"
@@ -73,7 +73,7 @@ func (g *Git) Clone(repository repository.Repository) error {
 		}
 	} else {
 		bang := aurora.Bold(aurora.Red("!"))
-		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Brown("Clone already exists"))
+		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Yellow("Clone already exists"))
 		fmt.Println(msg)
 	}
 
