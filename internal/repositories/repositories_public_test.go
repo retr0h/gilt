@@ -114,7 +114,7 @@ func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFileReturnsErrorWithMissing
 }
 
 func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFile() {
-	suite.r.Filename = path.Join("..", "..", "test", "gilt.yml")
+	suite.r.Filename = path.Join("..", "..", "test", "Giltfile.yml")
 	err := suite.r.UnmarshalYAMLFile()
 	assert.NoError(suite.T(), err)
 

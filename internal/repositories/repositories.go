@@ -44,7 +44,7 @@ var (
 // Repositories is an object which implements the business logic interface.
 type Repositories struct {
 	Debug    bool                    // Debug option set from CLI with debug state.
-	Filename string                  // Filename option set from CLI with path to gilt.yml.
+	Filename string                  // Filename option set from CLI with path to Giltfile.yml.
 	Items    []repository.Repository // Items slice containing Repository items.
 }
 
