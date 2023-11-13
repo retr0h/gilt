@@ -36,7 +36,7 @@ setup() {
 
 	mkdir -p ${GILT_LIBRARY_DIR}
 	mkdir -p ${GILT_ROLES_DIR}
-	cp test/gilt.yml ${GILT_TEST_BASE_DIR}/gilt.yml
+	cp test/Giltfile.yml ${GILT_TEST_BASE_DIR}/Giltfile.yml
 }
 
 teardown() {
@@ -47,7 +47,7 @@ teardown() {
 	rm -rf ${GILT_LIBRARY_DIR}
 	rm -rf ${GILT_ROLES_DIR}
 	rm -rf ${GILT_TEST_DIR}
-	rm -f ${GILT_TEST_BASE_DIR}/gilt.yml
+	rm -f ${GILT_TEST_BASE_DIR}/Giltfile.yml
 }
 
 @test "invoke gilt without arguments prints usage" {
@@ -72,14 +72,14 @@ teardown() {
 	[ "$status" -eq 0 ]
 }
 
-@test "invoke gilt overlay subcommand with filename flag" {
-	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay --filename gilt.yml"
+@test "invoke gilt overlay subcommand with giltfile flag" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} --giltfile Giltfile.yml overlay"
 
 	[ "$status" -eq 0 ]
 }
 
 @test "invoke gilt overlay subcommand with f flag" {
-	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay -f gilt.yml"
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} -f Giltfile.yml overlay"
 
 	[ "$status" -eq 0 ]
 }

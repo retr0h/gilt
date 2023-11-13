@@ -31,9 +31,10 @@ import (
 )
 
 var (
-	debug   bool
-	giltDir string
-	logger  *slog.Logger
+	debug    bool
+	giltDir  string
+	giltFile string
+	logger   *slog.Logger
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -74,6 +75,12 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable or disable debug mode")
 	rootCmd.PersistentFlags().
 		StringVarP(&giltDir, "giltdir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
+	rootCmd.PersistentFlags().
+		StringVarP(&giltFile, "giltfile", "f", "Giltfile.yml", "Path to config file")
+
+	if err := viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug")); err != nil {
+		return
+	}
 }
 
 func initLogger() {

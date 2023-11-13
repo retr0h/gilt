@@ -33,7 +33,7 @@ This version of Gilt does not provide built in locking, unlike our python friend
 
 ### Overlay Repository
 
-Create the giltfile (`gilt.yml`).
+Create the giltfile (`Giltfile.yml`).
 
 Clone the specified `url`@`version` to the configurable path `--giltdir`.
 Extract the repo the `dstDir` when `dstDir` is provided.  Otherwise, copy files
@@ -62,9 +62,9 @@ Overlay a remote repository into the destination provided.
 
     $ gilt overlay
 
-Use an alternate config file (default `gilt.yml`).
+Use an alternate config file (default `Giltfile.yml`).
 
-    $ gilt overlay --filename /path/to/gilt.yml
+    $ gilt --giltfile /path/to/Giltfile.yml overlay
 
 Optionally, override gilt's cache location (defaults to `~/.gilt/clone`):
 

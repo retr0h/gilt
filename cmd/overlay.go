@@ -30,11 +30,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var fileName string
-
 // newRepositories constructs a new `repositories.Repositories`.
-func newRepositories(debug bool, fileName string) (*repositories.Repositories, error) {
-	expandedFileName, err := util.ExpandUser(fileName)
+func newRepositories(debug bool, giltFile string) (*repositories.Repositories, error) {
+	expandedFileName, err := util.ExpandUser(giltFile)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +74,7 @@ var overlayCmd = &cobra.Command{
 		// We are logging errors, no need for cobra to re-log the error
 		cmd.SilenceErrors = true
 
-		r, err := newRepositories(debug, fileName)
+		r, err := newRepositories(debug, giltFile)
 		if err != nil {
 			logger.Error(
 				"error creating new Repositories",
@@ -116,7 +114,5 @@ var overlayCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().
-		StringVarP(&fileName, "filename", "f", "gilt.yml", "Path to config file")
 	rootCmd.AddCommand(overlayCmd)
 }
