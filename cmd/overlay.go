@@ -25,41 +25,26 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/retr0h/go-gilt/internal/repositories"
 	"github.com/retr0h/go-gilt/internal/util"
 	"github.com/spf13/cobra"
 )
 
-// newRepositories constructs a new `repositories.Repositories`.
-func newRepositories(debug bool, giltFile string) (*repositories.Repositories, error) {
-	expandedFileName, err := util.ExpandUser(giltFile)
+// getGiltDir create the GiltDir if it doesn't exist.
+func getGiltDir() (string, error) {
+	expandedGiltDir, err := util.ExpandUser(r.GiltDir)
 	if err != nil {
-		return nil, err
-	}
-
-	return &repositories.Repositories{
-		Debug:    debug,
-		Filename: expandedFileName,
-	}, nil
-}
-
-// newGiltDir create the GiltDir if it doesn't exist.
-func newGiltDir() error {
-	expandedGiltDir, err := util.ExpandUser(giltDir)
-	if err != nil {
-		return err
+		return "", err
 	}
 
 	cacheGiltDir := filepath.Join(expandedGiltDir, "cache")
-	repositories.GiltDir = cacheGiltDir
 
 	if _, err := os.Stat(cacheGiltDir); os.IsNotExist(err) {
 		if err := os.Mkdir(cacheGiltDir, 0o755); err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	return nil
+	return cacheGiltDir, nil
 }
 
 // overlayCmd represents the overlay command
@@ -74,39 +59,23 @@ var overlayCmd = &cobra.Command{
 		// We are logging errors, no need for cobra to re-log the error
 		cmd.SilenceErrors = true
 
-		r, err := newRepositories(debug, giltFile)
+		cacheDir, err := getGiltDir()
 		if err != nil {
 			logger.Error(
-				"error creating new Repositories",
-				slog.String("err", err.Error()),
-			)
-			return err
-		}
-
-		if err := newGiltDir(); err != nil {
-			logger.Error(
 				"error expanding dir",
-				slog.String("giltDir", giltDir),
+				slog.String("giltDir", r.GiltDir),
 				slog.String("err", err.Error()),
 			)
 			return err
 		}
 
-		if err := r.UnmarshalYAMLFile(); err != nil {
-			logger.Error(
-				"error occurred unmarshalling",
-				slog.String("err", err.Error()),
-			)
-			return err
-		}
-
+		r.GiltDir = cacheDir
 		if err := r.Overlay(); err != nil {
 			logger.Error(
-				"error cloning repository",
+				"error overlaying repositories",
 				slog.String("err", err.Error()),
 			)
 			return err
-
 		}
 
 		return nil

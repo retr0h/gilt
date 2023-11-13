@@ -1,0 +1,18 @@
+---
+giltDir: ~/.gilt/clone
+debug: false
+repositories:
+  - git: https://github.com/retr0h/ansible-etcd.git
+    version: 77a95b7
+    dstDir: /tmp/retr0h.ansible-etcd
+  - git: https://github.com/lorin/openstack-ansible-modules.git
+    version: 2677cc3
+    sources:
+      - src: "*_manage"
+        dstDir: /tmp/library
+      - src: nova_quota
+        dstDir: /tmp/library
+      - src: neutron_router
+        dstFile: /tmp/library/neutron_router.py
+      - src: tests
+        dstDir: /tmp/tests

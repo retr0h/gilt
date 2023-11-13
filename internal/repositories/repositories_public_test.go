@@ -21,18 +21,16 @@
 package repositories_test
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"path"
 	"testing"
 
-	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/retr0h/go-gilt/internal/repositories"
+	helper "github.com/retr0h/go-gilt/internal/testing"
 )
 
 type RepositoriesTestSuite struct {
@@ -40,100 +38,17 @@ type RepositoriesTestSuite struct {
 	r repositories.Repositories
 }
 
+func (suite *RepositoriesTestSuite) unmarshalYAML(data []byte) error {
+	return helper.UnmarshalYAML([]byte(data), &suite.r.Repositories)
+}
+
 func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.r = repositories.Repositories{}
-	repositories.GiltDir = testutil.CreateTempDirectory()
+	suite.r.GiltDir = helper.CreateTempDirectory()
 }
 
 func (suite *RepositoriesTestSuite) TearDownTest() {
-	testutil.RemoveTempDirectory(repositories.GiltDir)
-}
-
-func (suite *RepositoriesTestSuite) TestUnmarshalYAMLDoesNotParseYAMLAndReturnsError() {
-	data := `
----
-%foo:
-`
-	err := suite.r.UnmarshalYAML([]byte(data))
-	want := "yaml: line 3: found unexpected non-alphabetical character"
-
-	assert.Equal(suite.T(), want, err.Error())
-	assert.Error(suite.T(), err)
-}
-
-func (suite *RepositoriesTestSuite) TestUnmarshalYAMLDoesNotValidateYAMLAndReturnsError() {
-	data := `
----
-foo: bar
-`
-	err := suite.r.UnmarshalYAML([]byte(data))
-	want := errors.New("(root): Invalid type. Expected: array, given: object")
-
-	assert.Equal(suite.T(), want, err)
-}
-
-func (suite *RepositoriesTestSuite) TestUnmarshalYAML() {
-	data := `
----
-- git: https://example.com/user/repo.git
-  version: abc1234
-  dstDir: path/user.repo
-
-- git: https://example.com/user/repo.git
-  version: abc6789
-  sources:
-    - src: foo
-      dstFile: bar
-`
-	err := suite.r.UnmarshalYAML([]byte(data))
-
-	assert.NoError(suite.T(), err)
-
-	firstItem := suite.r.Items[0]
-	assert.Equal(suite.T(), "https://example.com/user/repo.git", firstItem.Git)
-	assert.Equal(suite.T(), "abc1234", firstItem.Version)
-	assert.Equal(suite.T(), "path/user.repo", firstItem.DstDir)
-	assert.Empty(suite.T(), firstItem.Sources)
-
-	secondItem := suite.r.Items[1]
-	fmt.Println(secondItem)
-	assert.Equal(suite.T(), "https://example.com/user/repo.git", secondItem.Git)
-	assert.Equal(suite.T(), "abc6789", secondItem.Version)
-	assert.Empty(suite.T(), secondItem.DstDir)
-	assert.Equal(suite.T(), "foo", secondItem.Sources[0].Src)
-	assert.Equal(suite.T(), "bar", secondItem.Sources[0].DstFile)
-}
-
-func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFileReturnsErrorWithMissingFile() {
-	suite.r.Filename = "missing.yml"
-	err := suite.r.UnmarshalYAMLFile()
-	want := "open missing.yml: no such file or directory"
-
-	assert.Equal(suite.T(), want, err.Error())
-	assert.Error(suite.T(), err)
-}
-
-func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFile() {
-	suite.r.Filename = path.Join("..", "..", "test", "Giltfile.yml")
-	err := suite.r.UnmarshalYAMLFile()
-	assert.NoError(suite.T(), err)
-
-	firstItem := suite.r.Items[0]
-	assert.NotNil(suite.T(), firstItem.Git)
-	assert.NotNil(suite.T(), firstItem.Version)
-	assert.NotNil(suite.T(), firstItem.DstDir)
-	assert.Empty(suite.T(), firstItem.Sources)
-
-	secondItem := suite.r.Items[1]
-	assert.NotNil(suite.T(), secondItem.Git)
-	assert.NotNil(suite.T(), secondItem.Version)
-	assert.Empty(suite.T(), secondItem.DstDir)
-	assert.NotNil(suite.T(), secondItem.Sources[0].Src)
-	assert.NotNil(suite.T(), secondItem.Sources[0].DstFile)
-	assert.NotNil(suite.T(), secondItem.Sources[1].Src)
-	assert.NotNil(suite.T(), secondItem.Sources[1].DstFile)
-	assert.NotNil(suite.T(), secondItem.Sources[2].Src)
-	assert.NotNil(suite.T(), secondItem.Sources[2].DstFile)
+	helper.RemoveTempDirectory(suite.r.GiltDir)
 }
 
 func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
@@ -143,7 +58,7 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
   version: abc1234
   dstDir: path/user.repo
 `
-	err := suite.r.UnmarshalYAML([]byte(data))
+	err := suite.unmarshalYAML([]byte(data))
 	assert.NoError(suite.T(), err)
 
 	anon := func() error {
@@ -163,7 +78,7 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCheckoutIndexReturnsError() 
   version: abc1234
   dstDir: /invalid/directory
 `
-	err := suite.r.UnmarshalYAML([]byte(data))
+	err := suite.unmarshalYAML([]byte(data))
 	assert.NoError(suite.T(), err)
 
 	anon := func() error {
@@ -188,8 +103,9 @@ func (suite *RepositoriesTestSuite) TestOverlay() {
     - src: foo
       dstFile: bar
 `
-	err := suite.r.UnmarshalYAML([]byte(data))
+	err := suite.unmarshalYAML([]byte(data))
 	assert.NoError(suite.T(), err)
+
 	anon := func() error {
 		err := suite.r.Overlay()
 		assert.NoError(suite.T(), err)
@@ -197,26 +113,26 @@ func (suite *RepositoriesTestSuite) TestOverlay() {
 		return err
 	}
 
-	dstDir, _ := git.FilePathAbs(suite.r.Items[0].DstDir)
+	dstDir, _ := git.FilePathAbs(suite.r.Repositories[0].DstDir)
 	got := git.MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf(
 			"git clone https://example.com/user/repo1.git %s/https---example.com-user-repo1.git-abc1234",
-			repositories.GiltDir,
+			suite.r.GiltDir,
 		),
 		fmt.Sprintf("git -C %s/https---example.com-user-repo1.git-abc1234 reset --hard abc1234",
-			repositories.GiltDir),
+			suite.r.GiltDir),
 		fmt.Sprintf(
 			"git -C %s/https---example.com-user-repo1.git-abc1234 checkout-index --force --all --prefix %s",
-			repositories.GiltDir,
+			suite.r.GiltDir,
 			(dstDir + string(os.PathSeparator)),
 		),
 		fmt.Sprintf(
 			"git clone https://example.com/user/repo2.git %s/https---example.com-user-repo2.git-abc1234",
-			repositories.GiltDir,
+			suite.r.GiltDir,
 		),
 		fmt.Sprintf("git -C %s/https---example.com-user-repo2.git-abc1234 reset --hard abc1234",
-			repositories.GiltDir),
+			suite.r.GiltDir),
 	}
 
 	assert.Equal(suite.T(), want, got)

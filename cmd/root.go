@@ -23,18 +23,19 @@ package cmd
 import (
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/lmittmann/tint"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/retr0h/go-gilt/internal/repositories"
 )
 
 var (
-	debug    bool
-	giltDir  string
-	giltFile string
-	logger   *slog.Logger
+	r      repositories.Repositories
+	logger *slog.Logger
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -70,17 +71,19 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLogger)
+	cobra.OnInitialize(initLogger) // initial logger
+	cobra.OnInitialize(initConfig, initLogger)
 
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable or disable debug mode")
+	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable or disable debug mode")
 	rootCmd.PersistentFlags().
-		StringVarP(&giltDir, "giltdir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
+		StringP("gilt-dir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
 	rootCmd.PersistentFlags().
-		StringVarP(&giltFile, "giltfile", "f", "Giltfile.yml", "Path to config file")
+		StringP("gilt-file", "f", "Giltfile.yaml", "Path to config file")
 
-	if err := viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug")); err != nil {
-		return
-	}
+	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
+	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
+	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))
 }
 
 func initLogger() {
@@ -95,4 +98,31 @@ func initLogger() {
 			TimeFormat: time.Kitchen,
 		}),
 	)
+}
+
+func initConfig() {
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	viper.SetConfigType("yaml")
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("gilt")
+	viper.SetConfigFile(viper.GetString("giltFile"))
+
+	if err := viper.ReadInConfig(); err != nil {
+		logger.Error(
+			"failed to read config",
+			slog.String("Giltfile", viper.ConfigFileUsed()),
+			slog.String("err", err.Error()),
+		)
+		os.Exit(1)
+	}
+
+	if err := viper.Unmarshal(&r); err != nil {
+		logger.Error(
+			"failed to unmarshal config",
+			slog.String("Giltfile", viper.ConfigFileUsed()),
+			slog.String("err", err.Error()),
+		)
+		os.Exit(1)
+	}
 }

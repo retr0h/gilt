@@ -29,46 +29,66 @@ This version of Gilt does not provide built in locking, unlike our python friend
 
     $  go install github.com/retr0h/go-gilt@latest
 
-## Usage
+## Configuration
 
-### Overlay Repository
+Gilt uses [Viper][] to load configuation through multpile methods.
 
-Create the giltfile (`Giltfile.yml`).
+### Config File
 
-Clone the specified `url`@`version` to the configurable path `--giltdir`.
+Create the giltfile (`Giltfile.yaml`).
+
+Clone the specified `url`@`version` to the configurable path `--gilt-dir`.
 Extract the repo the `dstDir` when `dstDir` is provided.  Otherwise, copy files
 and/or directories to the desired destinations.
 
 ```yaml
 ---
-- git: https://github.com/retr0h/ansible-etcd.git
-  version: 77a95b7
-  dstDir: roles/retr0h.ansible-etcd
+giltDir: ~/.gilt/clone
+debug: false
+repositories:
+  - git: https://github.com/retr0h/ansible-etcd.git
+    version: 77a95b7
+    dstDir: roles/retr0h.ansible-etcd
 
-- git: https://github.com/lorin/openstack-ansible-modules.git
-  version: 2677cc3
-  sources:
-    - src: "*_manage"
-      dstDir: library
-    - src: nova_quota
-      dstDir: library
-    - src: neutron_router
-      dstFile: library/neutron_router.py
-    - src: tests
-      dstDir: tests
+  - git: https://github.com/lorin/openstack-ansible-modules.git
+    version: 2677cc3
+    sources:
+      - src: "*_manage"
+        dstDir: library
+      - src: nova_quota
+        dstDir: library
+      - src: neutron_router
+        dstFile: library/neutron_router.py
+      - src: tests
+        dstDir: tests
 ```
+
+### Env Vars
+
+The config file can be overriden/defined through env vars.
+
+    $ GILT_GILTFILE=Giltfile.yaml \
+      GILT_GILTDIR=~/.gilt/clone \
+      GILT_DEBUG=false \
+      go-gilt overlay
+
+### Command Flags
+
+The config file and/or env vars can be overriden/defined through cli flags.
+
+    $ go-gilt \
+      --gilt-file=Giltfile.yaml \
+      --gilt-dir=~/.gilt/clone \
+      --debug \
+      overlay
+
+## Usage
+
+### Overlay Repository
 
 Overlay a remote repository into the destination provided.
 
     $ gilt overlay
-
-Use an alternate config file (default `Giltfile.yml`).
-
-    $ gilt --giltfile /path/to/Giltfile.yml overlay
-
-Optionally, override gilt's cache location (defaults to `~/.gilt/clone`):
-
-    $ gilt --giltdir ~/alternate/directory overlay
 
 ### Debug
 
@@ -110,6 +130,7 @@ If you have some other use in mind, contact us.
 
 [Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
 [Gilt]: http://gilt.readthedocs.io/en/latest/
+[Viper]: https://github.com/spf13/viper
 [MIT]: LICENSE
 [Creative Commons NoDerivatives 4.0 License]: https://creativecommons.org/licenses/by-nd/4.0/
 [@nanotron]: https://github.com/nanotron

@@ -39,22 +39,6 @@ var (
 	CopyDir = util.CopyDir
 )
 
-// Sources mapping of files and/or directories needing copied.
-type Sources struct {
-	Src     string `yaml:"src"`     // Src source file or directory to copy.
-	DstFile string `yaml:"dstFile"` // DstFile destination of file copy.
-	DstDir  string `yaml:"dstDir"`  // DstDir destination of directory copy.
-}
-
-// Repository containing the repository's details.
-type Repository struct {
-	Git     string    `yaml:"git"`     // Git url of Git repository to clone.
-	Version string    `yaml:"version"` // Version of Git repository to use.
-	DstDir  string    `yaml:"dstDir"`  // DstDir destination directory to copy clone to.
-	Sources []Sources // Sources containing files and/or directories to copy.
-	GiltDir string    // GiltDir option set from CLI.
-}
-
 // GetCloneDir returns the path to the Repository's clone directory.
 func (r *Repository) GetCloneDir() string {
 	return filepath.Join(r.GiltDir, r.getCloneHash())

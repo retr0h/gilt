@@ -25,23 +25,28 @@ package repositories_test
 
 import (
 	"fmt"
+	"testing"
 
-	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+
+	helper "github.com/retr0h/go-gilt/internal/testing"
 )
 
 func (suite *RepositoriesTestSuite) TestOverlayRemovesSrcDirPriorToCheckoutIndex() {
-	tempDir := testutil.CreateTempDirectory()
+	tempDir := helper.CreateTempDirectory()
 	data := fmt.Sprintf(`
 ---
 - git: https://github.com/retr0h/ansible-etcd.git
   version: 77a95b7
   dstDir: %s/retr0h.ansible-etcd
 `, tempDir)
-	suite.r.UnmarshalYAML([]byte(data))
-	suite.r.Overlay()
-	err := suite.r.Overlay()
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
 
+	suite.r.Overlay()
+
+	err = suite.r.Overlay()
 	assert.NoError(suite.T(), err)
 }
 
@@ -54,8 +59,15 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCopySourcesReturnsError() {
     - src: "*_manage"
       dstDir: /super/invalid/path/to/write/to
 `
-	suite.r.UnmarshalYAML([]byte(data))
-	err := suite.r.Overlay()
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
 
+	err = suite.r.Overlay()
 	assert.Error(suite.T(), err)
+}
+
+// In order for `go test` to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run.
+func TestRepositoryTestSuite(t *testing.T) {
+	suite.Run(t, new(RepositoriesTestSuite))
 }

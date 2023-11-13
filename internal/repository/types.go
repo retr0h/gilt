@@ -1,4 +1,4 @@
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -18,26 +18,28 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repositories
+package repository
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-)
-
-type RepositoriesTestSuite struct {
-	suite.Suite
+// Sources mapping of files and/or directories needing copied.
+type Sources struct {
+	// Src source file or directory to copy.
+	Src string `mapstructure:"src"`
+	// DstFile destination of file copy.
+	DstFile string `mapstructure:"dstFile"`
+	// DstDir destination of directory copy.
+	DstDir string `mapstructure:"dstDir"`
 }
 
-func (suite *RepositoriesTestSuite) SetupTest() {
-}
-
-func (suite *RepositoriesTestSuite) TearDownTest() {
-}
-
-// In order for `go test` to run this suite, we need to create
-// a normal test function and pass our suite to suite.Run.
-func TestRepositoriesTestSuite(t *testing.T) {
-	suite.Run(t, new(RepositoriesTestSuite))
+// Repository containing the repository's details.
+type Repository struct {
+	// Git url of Git repository to clone.
+	Git string `mapstructure:"git"`
+	// Version of Git repository to use.
+	Version string `mapstructure:"version"`
+	// DstDir destination directory to copy clone to.
+	DstDir string `mapstructure:"dstDir"`
+	// Sources containing files and/or directories to copy.
+	Sources []Sources `mapstructure:"sources"`
+	// GiltDir path to Gilt's clone dir option set from CLI.
+	GiltDir string
 }

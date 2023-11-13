@@ -1,4 +1,4 @@
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -18,26 +18,40 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repositories
+package testing
 
 import (
-	"testing"
+	"encoding/json"
+	"fmt"
+	"os"
 
-	"github.com/stretchr/testify/suite"
+	"sigs.k8s.io/yaml"
 )
 
-type RepositoriesTestSuite struct {
-	suite.Suite
+// CreateTempDirectory generate and create a temp directory for tests.
+func CreateTempDirectory() string {
+	dir, err := os.MkdirTemp("", "git-test")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Created temporary directory: '%s'.\n", dir)
+
+	return dir
 }
 
-func (suite *RepositoriesTestSuite) SetupTest() {
+// RemoveTempDirectory removes the temp directory created for tests.
+func RemoveTempDirectory(dir string) {
+	fmt.Printf("Removed temporary directory: '%s'.\n", dir)
+
+	_ = os.RemoveAll(dir)
 }
 
-func (suite *RepositoriesTestSuite) TearDownTest() {
-}
-
-// In order for `go test` to run this suite, we need to create
-// a normal test function and pass our suite to suite.Run.
-func TestRepositoriesTestSuite(t *testing.T) {
-	suite.Run(t, new(RepositoriesTestSuite))
+// UnmarshalYAML decodes YAML document into dest type.
+func UnmarshalYAML(data []byte, dest interface{}) error {
+	jsonData, err := yaml.YAMLToJSON([]byte(data))
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(jsonData, &dest)
 }
