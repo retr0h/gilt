@@ -36,7 +36,7 @@ import (
 	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/retr0h/go-gilt/internal/repositories"
 	"github.com/retr0h/go-gilt/internal/repository"
-	"github.com/retr0h/go-gilt/test/testutil"
+	helper "github.com/retr0h/go-gilt/internal/testing"
 )
 
 type RepositoryIntegrationTestSuite struct {
@@ -46,13 +46,17 @@ type RepositoryIntegrationTestSuite struct {
 	g  *git.Git
 }
 
+func (suite *RepositoryIntegrationTestSuite) unmarshalYAML(data []byte) error {
+	return helper.UnmarshalYAML([]byte(data), &suite.rr.Repositories)
+}
+
 func (suite *RepositoryIntegrationTestSuite) SetupTest() {
 	suite.rr = repositories.Repositories{}
 	suite.g = git.NewGit(suite.rr.Debug)
 }
 
 func (suite *RepositoryIntegrationTestSuite) TearDownTest() {
-	testutil.RemoveTempDirectory(suite.r.GiltDir)
+	helper.RemoveTempDirectory(suite.r.GiltDir)
 }
 
 func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDstDirDoesNotExist() {
@@ -63,17 +67,20 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDstDirDo
     - src: "*_manage"
       dstDir: invalid/path
 `
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
-	r.GiltDir = testutil.CreateTempDirectory()
-	suite.g.Clone(r)
-	err := r.CopySources()
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
 
+	r := suite.rr.Repositories[0]
+	r.GiltDir = helper.CreateTempDirectory()
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
+
+	err = r.CopySources()
 	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenFileCopyFails() {
-	tempDir := testutil.CreateTempDirectory()
+	tempDir := helper.CreateTempDirectory()
 	dstDir := filepath.Join(tempDir, "library")
 	data := fmt.Sprintf(`
 - git: https://github.com/lorin/openstack-ansible-modules.git
@@ -82,10 +89,15 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenFileCopy
     - src: cinder_manage
       dstDir: %s
 `, dstDir)
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
+
+	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
-	suite.g.Clone(r)
+
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
+
 	os.Mkdir(dstDir, 0o755)
 
 	originalCopyFile := repository.CopyFile
@@ -94,8 +106,7 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenFileCopy
 	}
 	defer func() { repository.CopyFile = originalCopyFile }()
 
-	err := r.CopySources()
-
+	err = r.CopySources()
 	assert.Error(suite.T(), err)
 }
 
@@ -107,17 +118,21 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDstFileD
     - src: cinder_manage
       dstFile: invalid/path
 `
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
-	r.GiltDir = testutil.CreateTempDirectory()
-	suite.g.Clone(r)
-	err := r.CopySources()
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
 
+	r := suite.rr.Repositories[0]
+	r.GiltDir = helper.CreateTempDirectory()
+
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
+
+	err = r.CopySources()
 	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesFile() {
-	tempDir := testutil.CreateTempDirectory()
+	tempDir := helper.CreateTempDirectory()
 	dstFile := filepath.Join(tempDir, "cinder_manage")
 	dstDir := filepath.Join(tempDir, "library")
 	dstDirFile := filepath.Join(tempDir, "library", "glance_manage")
@@ -130,20 +145,24 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesFile() {
     - src: glance_manage
       dstDir: %s
 `, dstFile, dstDir)
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
-	r.GiltDir = tempDir
-	suite.g.Clone(r)
-	os.Mkdir(dstDir, 0o755)
-	err := r.CopySources()
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
 
+	r := suite.rr.Repositories[0]
+	r.GiltDir = tempDir
+
+	os.Mkdir(dstDir, 0o755)
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
+
+	err = r.CopySources()
 	assert.NoError(suite.T(), err)
 	assert.FileExistsf(suite.T(), dstFile, "File does not exist")
 	assert.FileExistsf(suite.T(), dstDirFile, "File does not exist")
 }
 
 func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDirExistsAndDirCopyFails() {
-	tempDir := testutil.CreateTempDirectory()
+	tempDir := helper.CreateTempDirectory()
 	dstDir := filepath.Join(tempDir, "tests")
 	data := fmt.Sprintf(`
 - git: https://github.com/lorin/openstack-ansible-modules.git
@@ -152,10 +171,14 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDirExist
     - src: tests
       dstDir: %s
 `, dstDir)
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
+
+	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
-	suite.g.Clone(r)
+
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
 
 	originalCopyDir := repository.CopyDir
 	repository.CopyDir = func(src string, dst string) error {
@@ -163,13 +186,12 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDirExist
 	}
 	defer func() { repository.CopyDir = originalCopyDir }()
 
-	err := r.CopySources()
-
+	err = r.CopySources()
 	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesDir() {
-	tempDir := testutil.CreateTempDirectory()
+	tempDir := helper.CreateTempDirectory()
 	dstDir := filepath.Join(tempDir, "tests")
 	data := fmt.Sprintf(`
 - git: https://github.com/lorin/openstack-ansible-modules.git
@@ -178,13 +200,17 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesDir() {
     - src: tests
       dstDir: %s
 `, dstDir)
-	suite.rr.UnmarshalYAML([]byte(data))
-	r := suite.rr.Items[0]
+	err := suite.unmarshalYAML([]byte(data))
+	assert.NoError(suite.T(), err)
+
+	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
 	os.Mkdir(dstDir, 0o755) // execute the dstDir cleanup code prior to copy.
-	suite.g.Clone(r)
-	err := r.CopySources()
 
+	err = suite.g.Clone(r)
+	assert.NoError(suite.T(), err)
+
+	err = r.CopySources()
 	assert.NoError(suite.T(), err)
 	assert.DirExistsf(suite.T(), dstDir, "Dir does not exist")
 }

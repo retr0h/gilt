@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/retr0h/go-gilt/internal/repository"
-	"github.com/retr0h/go-gilt/test/testutil"
+	helper "github.com/retr0h/go-gilt/internal/testing"
 )
 
 type RepositoryTestSuite struct {
@@ -42,11 +42,11 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Version: "abc1234",
 		DstDir:  "path/user.repo",
 	}
-	suite.r.GiltDir = testutil.CreateTempDirectory()
+	suite.r.GiltDir = helper.CreateTempDirectory()
 }
 
 func (suite *RepositoryTestSuite) TearDownTest() {
-	testutil.RemoveTempDirectory(suite.r.GiltDir)
+	helper.RemoveTempDirectory(suite.r.GiltDir)
 }
 
 func (suite *RepositoryTestSuite) TestGetCloneDir() {

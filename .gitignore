@@ -2,7 +2,4 @@ cobertura.xml
 cover.out
 dist/
 result.xml
-
-# TODO(retr0h): Move these these paths
-tests/
-library/
+test/integration/tmp/

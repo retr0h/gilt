@@ -1,4 +1,4 @@
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -18,28 +18,20 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package testutil
+package repositories
 
 import (
-	"fmt"
-	"os"
+	"github.com/retr0h/go-gilt/internal/repository"
 )
 
-// CreateTempDirectory generate and create a temp directory for tests.
-func CreateTempDirectory() string {
-	dir, err := os.MkdirTemp("", "git-test")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Created temporary directory: '%s'.\n", dir)
-
-	return dir
-}
-
-// RemoveTempDirectory removes the temp directory created for tests.
-func RemoveTempDirectory(dir string) {
-	fmt.Printf("Removed temporary directory: '%s'.\n", dir)
-
-	_ = os.RemoveAll(dir)
+// Repositories representing the Giltfile.yaml file.
+type Repositories struct {
+	// Debug enable or disable debug option set from CLI.
+	Debug bool `mapstruture:"debug"`
+	// GiltFile path to Gilt's config file option set from CLI.
+	GiltFile string `mapstructure:"giltFile"`
+	// GiltDir path to Gilt's clone dir option set from CLI.
+	GiltDir string `mapstructure:"giltDir"`
+	// Repositories a slice of repository configurations to overlay.
+	Repositories []repository.Repository `mapstruture:"repositories"`
 }
