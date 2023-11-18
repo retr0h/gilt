@@ -29,14 +29,7 @@ import (
 
 	"github.com/logrusorgru/aurora/v4"
 
-	"github.com/retr0h/go-gilt/internal/util"
-)
-
-var (
-	// CopyFile is mocked for tests.
-	CopyFile = util.CopyFile
-	// CopyDir is mocked for tests.
-	CopyDir = util.CopyDir
+	"github.com/retr0h/go-gilt/internal/ioutil"
 )
 
 // GetCloneDir returns the path to the Repository's clone directory.
@@ -73,7 +66,7 @@ func (r *Repository) CopySources() error {
 			if info, err := os.Stat(src); err == nil && info.Mode().IsRegular() {
 				// ... and the destination is declared a directory.
 				if rSource.DstFile != "" {
-					if err := CopyFile(src, rSource.DstFile); err != nil {
+					if err := ioutil.CopyFile(r.AppFs, src, rSource.DstFile); err != nil {
 						return err
 					}
 				} else if rSource.DstDir != "" {
@@ -81,7 +74,7 @@ func (r *Repository) CopySources() error {
 					if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
 						srcBaseFile := filepath.Base(src)
 						newDst := filepath.Join(rSource.DstDir, srcBaseFile)
-						if err := CopyFile(src, newDst); err != nil {
+						if err := ioutil.CopyFile(r.AppFs, src, newDst); err != nil {
 							return err
 						}
 					} else {
@@ -96,7 +89,7 @@ func (r *Repository) CopySources() error {
 						return err
 					}
 				}
-				if err := CopyDir(src, rSource.DstDir); err != nil {
+				if err := ioutil.CopyDir(r.AppFs, src, rSource.DstDir); err != nil {
 					return err
 				}
 			}

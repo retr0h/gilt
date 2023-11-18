@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"testing"
 
+	capturer "github.com/kami-zh/go-capturer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -107,6 +108,32 @@ func (suite *GitTestSuite) TestReset() {
 	}
 
 	assert.Equal(suite.T(), want, got)
+}
+
+func TestRunCommandReturnsError(t *testing.T) {
+	err := runCmd(false, "false")
+
+	assert.Error(t, err)
+}
+
+func TestRunCommandPrintsStreamingStdout(t *testing.T) {
+	got := capturer.CaptureStdout(func() {
+		err := runCmd(true, "echo", "-n", "foo")
+		assert.NoError(t, err)
+	})
+	want := "COMMAND: \x1b[30;41mecho -n foo\x1b[0m\nfoo"
+
+	assert.Equal(t, want, got)
+}
+
+func TestRunCommandPrintsStreamingStderr(t *testing.T) {
+	got := capturer.CaptureStderr(func() {
+		err := runCmd(true, "cat", "foo")
+		assert.Error(t, err)
+	})
+	want := "cat: foo: No such file or directory\n"
+
+	assert.Equal(t, want, got)
 }
 
 // In order for `go test` to run this suite, we need to create

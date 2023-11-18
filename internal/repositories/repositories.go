@@ -24,6 +24,7 @@ import (
 	"os"
 
 	"github.com/retr0h/go-gilt/internal/git"
+	"github.com/spf13/afero"
 )
 
 // Overlay clone and extract the Repository items.
@@ -32,6 +33,7 @@ func (r *Repositories) Overlay() error {
 
 	for _, repository := range r.Repositories {
 		repository.GiltDir = r.GiltDir
+		repository.AppFs = afero.NewOsFs()
 		err := g.Clone(repository)
 		if err != nil {
 			return err

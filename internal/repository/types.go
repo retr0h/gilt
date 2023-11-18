@@ -18,7 +18,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package repository TODO change to lower cases members.
 package repository
+
+import (
+	"github.com/spf13/afero"
+)
 
 // Sources mapping of files and/or directories needing copied.
 type Sources struct {
@@ -30,7 +35,7 @@ type Sources struct {
 	DstDir string `mapstructure:"dstDir"`
 }
 
-// Repository containing the repository's details.
+// Repository contains the repository's details for cloning.
 type Repository struct {
 	// Git url of Git repository to clone.
 	Git string `mapstructure:"git"`
@@ -42,4 +47,7 @@ type Repository struct {
 	Sources []Sources `mapstructure:"sources"`
 	// GiltDir path to Gilt's clone dir option set from CLI.
 	GiltDir string
+	// AppFs file system mocking.
+	// TODO(retr0h): Needs passed in as repo pattern.
+	AppFs afero.Fs
 }

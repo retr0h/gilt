@@ -23,15 +23,28 @@ package cmd
 import (
 	"log/slog"
 	"os"
+	"os/user"
 	"path/filepath"
 
-	"github.com/retr0h/go-gilt/internal/util"
 	"github.com/spf13/cobra"
 )
 
+func expandUser(path string) (string, error) {
+	if len(path) == 0 || path[0] != '~' {
+		return path, nil
+	}
+
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(usr.HomeDir, path[1:]), nil
+}
+
 // getGiltDir create the GiltDir if it doesn't exist.
 func getGiltDir() (string, error) {
-	expandedGiltDir, err := util.ExpandUser(r.GiltDir)
+	expandedGiltDir, err := expandUser(r.GiltDir)
 	if err != nil {
 		return "", err
 	}

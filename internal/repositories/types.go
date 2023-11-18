@@ -18,13 +18,14 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package repositories TODO change to lower cases members.
 package repositories
 
 import (
 	"github.com/retr0h/go-gilt/internal/repository"
 )
 
-// Repositories representing the Giltfile.yaml file.
+// Repositories perform repository operations.
 type Repositories struct {
 	// Debug enable or disable debug option set from CLI.
 	Debug bool `mapstruture:"debug"`
