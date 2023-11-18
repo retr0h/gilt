@@ -18,36 +18,37 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// Package io taken from terraform, and added as io package to avoid testing
-// directly and dropping coverage of util package.
-// https://github.com/hashicorp/terraform/blob/master/helper/copy/copy.go
-
-package io
+package ioutil
 
 import (
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/logrusorgru/aurora/v4"
+	"github.com/spf13/afero"
 )
 
-// From: https://gist.github.com/m4ng0squ4sh/92462b38df26839a3ca324697c8cba04
-
-// CopyFile copies the contents of the file named src to the file named
+// copyFile copies the contents of the file named src to the file named
 // by dst. The file will be created if it does not already exist. If the
 // destination file exists, all it's contents will be replaced by the contents
 // of the source file. The file mode will be copied from the source and
 // the copied data is synced/flushed to stable storage.
-func CopyFile(src, dst string) (err error) {
-	in, err := os.Open(src)
+func copyFile(
+	appFs afero.Fs,
+	src string,
+	dst string,
+) (err error) {
+	in, err := appFs.Open(src)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() { _ = in.Close() }()
 
-	out, err := os.Create(dst)
+	out, err := appFs.Create(dst)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() {
 		if e := out.Close(); e != nil {
@@ -57,34 +58,57 @@ func CopyFile(src, dst string) (err error) {
 
 	_, err = io.Copy(out, in)
 	if err != nil {
-		return
+		return err
 	}
 
 	err = out.Sync()
 	if err != nil {
-		return
+		return err
 	}
 
-	si, err := os.Stat(src)
+	si, err := appFs.Stat(src)
 	if err != nil {
-		return
-	}
-	err = os.Chmod(dst, si.Mode())
-	if err != nil {
-		return
+		return err
 	}
 
-	return
+	err = appFs.Chmod(dst, si.Mode())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// CopyDir recursively copies a directory tree, attempting to preserve permissions.
+// CopyFile copies src file to dst.
+func CopyFile(
+	appFs afero.Fs,
+	src string,
+	dst string,
+) error {
+	baseSrc := filepath.Base(src)
+	msg := fmt.Sprintf(
+		"%-4s - Copying file '%s' to '%s'",
+		"",
+		aurora.Cyan(baseSrc),
+		aurora.Cyan(dst),
+	)
+	fmt.Println(msg)
+
+	return copyFile(appFs, src, dst)
+}
+
+// copyDir recursively copies a directory tree, attempting to preserve permissions.
 // Source directory must exist, destination directory must *not* exist.
 // Symlinks are ignored and skipped.
-func CopyDir(src string, dst string) (err error) {
+func copyDir(
+	appFs afero.Fs,
+	src string,
+	dst string,
+) (err error) {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
 
-	si, err := os.Stat(src)
+	si, err := appFs.Stat(src)
 	if err != nil {
 		return err
 	}
@@ -92,7 +116,7 @@ func CopyDir(src string, dst string) (err error) {
 		return fmt.Errorf("source is not a directory")
 	}
 
-	_, err = os.Stat(dst)
+	_, err = appFs.Stat(dst)
 	if err != nil && !os.IsNotExist(err) {
 		return
 	}
@@ -100,44 +124,40 @@ func CopyDir(src string, dst string) (err error) {
 		return fmt.Errorf("destination already exists")
 	}
 
-	err = os.MkdirAll(dst, si.Mode())
+	err = appFs.MkdirAll(dst, si.Mode())
 	if err != nil {
 		return
 	}
 
-	entries, err := os.ReadDir(src)
+	entries, err := afero.ReadDir(appFs, src)
 	if err != nil {
 		return
 	}
 
 	for _, entry := range entries {
-		fileInfo, err := entry.Info()
-		if err != nil {
-			return err
-		}
-		srcPath := filepath.Join(src, fileInfo.Name())
-		dstPath := filepath.Join(dst, fileInfo.Name())
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
 
 		// If a symlink, we copy the contents
-		if fileInfo.Mode()&os.ModeSymlink != 0 {
+		if entry.Mode()&os.ModeSymlink != 0 {
 			target, err := filepath.EvalSymlinks(srcPath)
 			if err != nil {
 				return err
 			}
 
-			fileInfo, err = os.Stat(target)
+			entry, err = appFs.Stat(target)
 			if err != nil {
 				return err
 			}
 		}
 
-		if fileInfo.IsDir() {
-			err = CopyDir(srcPath, dstPath)
+		if entry.IsDir() {
+			err = CopyDir(appFs, srcPath, dstPath)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = CopyFile(srcPath, dstPath)
+			err = CopyFile(appFs, srcPath, dstPath)
 			if err != nil {
 				return err
 			}
@@ -145,4 +165,22 @@ func CopyDir(src string, dst string) (err error) {
 	}
 
 	return
+}
+
+// CopyDir copies src directory to dst.
+func CopyDir(
+	appFs afero.Fs,
+	src string,
+	dst string,
+) error {
+	baseSrc := filepath.Base(src)
+	msg := fmt.Sprintf(
+		"%-4s - Copying dir '%s' to '%s'",
+		"",
+		aurora.Cyan(baseSrc),
+		aurora.Cyan(dst),
+	)
+	fmt.Println(msg)
+
+	return copyDir(appFs, src, dst)
 }

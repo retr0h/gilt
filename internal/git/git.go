@@ -1,3 +1,5 @@
+// Copyright (c) 2018 John Dewey
+
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
 // deal in the Software without restriction, including without limitation the
@@ -16,35 +18,36 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package git package needs reworked into proper Git libraries.  However, this
+// package will remain using exec as it was easiest to port from go-gilt's
+// python counterpart.
 package git
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/logrusorgru/aurora/v4"
 
 	"github.com/retr0h/go-gilt/internal/repository"
-	"github.com/retr0h/go-gilt/internal/util"
 )
 
 var (
 	// RunCommand is mocked for tests.
-	RunCommand = util.RunCmd
+	RunCommand = runCmd
 	// FilePathAbs is mocked for tests.
 	FilePathAbs = filepath.Abs
 )
 
-// Git struct for adding methods.
-type Git struct {
-	Debug bool // Debug option set from CLI with debug state.
-}
-
 // NewGit factory to create a new Git instance.
 func NewGit(debug bool) *Git {
 	return &Git{
-		Debug: debug,
+		debug: debug,
 	}
 }
 
@@ -82,14 +85,14 @@ func (g *Git) Clone(repository repository.Repository) error {
 
 func (g *Git) clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
-	err := RunCommand(g.Debug, "git", "clone", repository.Git, cloneDir)
+	err := RunCommand(g.debug, "git", "clone", repository.Git, cloneDir)
 
 	return err
 }
 
 func (g *Git) reset(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
-	err := RunCommand(g.Debug, "git", "-C", cloneDir, "reset", "--hard", repository.Version)
+	err := RunCommand(g.debug, "git", "-C", cloneDir, "reset", "--hard", repository.Version)
 
 	return err
 }
@@ -115,8 +118,29 @@ func (g *Git) CheckoutIndex(repository repository.Repository) error {
 		// Trailing separator needed by git checkout-index.
 		dstDir + string(os.PathSeparator),
 	}
-	if err := RunCommand(g.Debug, "git", cmdArgs...); err != nil {
-		return err
+
+	return RunCommand(g.debug, "git", cmdArgs...)
+}
+
+// runCmd execute the provided command with args.
+// Yeah, yeah, yeah, I know I cheated by using Exec in this package.
+func runCmd(debug bool, name string, args ...string) error {
+	var stderr bytes.Buffer
+	cmd := exec.Command(name, args...)
+
+	if debug {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		commands := strings.Join(cmd.Args, " ")
+		msg := fmt.Sprintf("COMMAND: %s", aurora.Colorize(commands, aurora.BlackFg|aurora.RedBg))
+		fmt.Println(msg)
+	} else {
+		cmd.Stderr = &stderr
+	}
+
+	if err := cmd.Run(); err != nil {
+		return errors.New(stderr.String())
 	}
 
 	return nil

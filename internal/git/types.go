@@ -1,4 +1,4 @@
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -18,23 +18,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package util
+package git
 
-import (
-	"errors"
-	"os/user"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
-
-func TestExpandUserReturnsError(t *testing.T) {
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
-		return nil, errors.New("Failed user.Current")
-	}
-	defer func() { currentUser = originalCurrentUser }()
-
-	_, err := ExpandUser("~/foo/bar")
-	assert.Error(t, err)
+// Git perform Git operations.
+type Git struct {
+	debug bool
 }

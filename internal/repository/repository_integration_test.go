@@ -24,12 +24,13 @@
 package repository_test
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
-	"os"
+	// "os"
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -41,9 +42,11 @@ import (
 
 type RepositoryIntegrationTestSuite struct {
 	suite.Suite
-	r  repository.Repository
-	rr repositories.Repositories
-	g  *git.Git
+	r      repository.Repository
+	rr     repositories.Repositories
+	g      *git.Git
+	fakeFs afero.Fs
+	realFs afero.Fs
 }
 
 func (suite *RepositoryIntegrationTestSuite) unmarshalYAML(data []byte) error {
@@ -53,6 +56,8 @@ func (suite *RepositoryIntegrationTestSuite) unmarshalYAML(data []byte) error {
 func (suite *RepositoryIntegrationTestSuite) SetupTest() {
 	suite.rr = repositories.Repositories{}
 	suite.g = git.NewGit(suite.rr.Debug)
+	suite.fakeFs = afero.NewMemMapFs()
+	suite.realFs = afero.NewOsFs()
 }
 
 func (suite *RepositoryIntegrationTestSuite) TearDownTest() {
@@ -72,6 +77,8 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDstDirDo
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = helper.CreateTempDirectory()
+	r.AppFs = suite.fakeFs
+
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
 
@@ -94,17 +101,12 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenFileCopy
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
+	r.AppFs = suite.fakeFs
 
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
 
-	os.Mkdir(dstDir, 0o755)
-
-	originalCopyFile := repository.CopyFile
-	repository.CopyFile = func(src string, dst string) error {
-		return errors.New("Failed to copy file")
-	}
-	defer func() { repository.CopyFile = originalCopyFile }()
+	suite.fakeFs.MkdirAll(dstDir, 0o755)
 
 	err = r.CopySources()
 	assert.Error(suite.T(), err)
@@ -123,6 +125,7 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDstFileD
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = helper.CreateTempDirectory()
+	r.AppFs = suite.fakeFs
 
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
@@ -150,8 +153,9 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesFile() {
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
+	r.AppFs = suite.realFs
+	suite.realFs.MkdirAll(dstDir, 0o755)
 
-	os.Mkdir(dstDir, 0o755)
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
 
@@ -176,15 +180,10 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesHasErrorWhenDirExist
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
+	r.AppFs = suite.fakeFs
 
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
-
-	originalCopyDir := repository.CopyDir
-	repository.CopyDir = func(src string, dst string) error {
-		return errors.New("Failed to copy dir")
-	}
-	defer func() { repository.CopyDir = originalCopyDir }()
 
 	err = r.CopySources()
 	assert.Error(suite.T(), err)
@@ -205,7 +204,8 @@ func (suite *RepositoryIntegrationTestSuite) TestCopySourcesCopiesDir() {
 
 	r := suite.rr.Repositories[0]
 	r.GiltDir = tempDir
-	os.Mkdir(dstDir, 0o755) // execute the dstDir cleanup code prior to copy.
+	r.AppFs = suite.realFs
+	suite.realFs.MkdirAll(dstDir, 0o755)
 
 	err = suite.g.Clone(r)
 	assert.NoError(suite.T(), err)
