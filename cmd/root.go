@@ -27,15 +27,21 @@ import (
 	"time"
 
 	"github.com/lmittmann/tint"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/retr0h/go-gilt/internal/repositories"
+	"github.com/retr0h/go-gilt/internal/repository"
 )
 
 var (
-	r      repositories.Repositories
-	logger *slog.Logger
+	repos     internal.RepositoriesManager
+	logger    *slog.Logger
+	appConfig config.Repositories
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -43,17 +49,13 @@ var rootCmd = &cobra.Command{
 	Use:   "go-gilt",
 	Short: "A GIT layering command line tool",
 	Long: `
-
-     ,o888888o.     8 8888 8 8888         8888888 8888888888
-    8888     '88.   8 8888 8 8888               8 8888
- ,8 8888       '8.  8 8888 8 8888               8 8888
- 88 8888            8 8888 8 8888               8 8888
- 88 8888            8 8888 8 8888               8 8888
- 88 8888            8 8888 8 8888               8 8888
- 88 8888   8888888  8 8888 8 8888               8 8888
- '8 8888       .8'  8 8888 8 8888               8 8888
-    8888     ,88'   8 8888 8 8888               8 8888
-     '8888888P'     8 8888 8 888888888888       8 8888
+           o  o
+         o |  |
+    o--o   | -o-
+    |  | | |  |
+    o--O | o  o
+       |
+    o--o
 
 A GIT layering command line tool.
 
@@ -117,7 +119,7 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	if err := viper.Unmarshal(&r); err != nil {
+	if err := viper.Unmarshal(&appConfig); err != nil {
 		logger.Error(
 			"failed to unmarshal config",
 			slog.String("Giltfile", viper.ConfigFileUsed()),
@@ -125,4 +127,35 @@ func initConfig() {
 		)
 		os.Exit(1)
 	}
+
+	appFs := afero.NewOsFs()
+
+	repoManager := repository.NewCopy(
+		appFs,
+		logger,
+	)
+
+	execManager := git.NewExecManagerCmd(
+		appConfig.Debug,
+		logger,
+	)
+
+	g := git.New(
+		appFs,
+		appConfig.Debug,
+		execManager,
+		logger,
+	)
+
+	repos = repositories.New(
+		appFs,
+		appConfig,
+		repository.New(
+			appFs,
+			repoManager,
+			g,
+			logger,
+		),
+		logger,
+	)
 }

@@ -3,15 +3,13 @@ module github.com/retr0h/go-gilt
 go 1.21.0
 
 require (
-	github.com/kami-zh/go-capturer v0.0.0-20171211120116-e492ea43421d
+	github.com/golang/mock v1.4.4
 	github.com/lmittmann/tint v1.0.3
-	github.com/logrusorgru/aurora/v4 v4.0.0
 	github.com/spf13/afero v1.10.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	go.hein.dev/go-version v0.1.0
-	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -37,4 +35,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )

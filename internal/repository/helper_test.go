@@ -1,4 +1,4 @@
-// Copyright (c) 2023 John Dewey
+// Copyright (c) 2018 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -18,32 +18,33 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repository
+package repository_test
 
 import (
-	"log/slog"
-
 	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
 )
 
-// Repository contains the repository's details for cloning.
-type Repository struct {
-	appFs       afero.Fs
-	copyManager CopyManager
-	gitManager  internal.GitManager
-	logger      *slog.Logger
+type FileSpec struct {
+	appFs    afero.Fs
+	srcDir   string
+	srcFile  string
+	srcFiles []string
 }
 
-// CopyManager manager responsible for Copy operations.
-type CopyManager interface {
-	CopyDir(src string, dst string) error
-	CopyFile(src string, dst string) error
-}
+func createFileSpecs(specs []FileSpec) {
+	for _, s := range specs {
+		if s.srcDir != "" {
+			_ = s.appFs.MkdirAll(s.srcDir, 0o755)
+		}
 
-// Copy copy implementation.
-type Copy struct {
-	appFs  afero.Fs
-	logger *slog.Logger
+		if s.srcFile != "" {
+			_, _ = s.appFs.Create(s.srcFile)
+		}
+
+		if len(s.srcFiles) > 0 {
+			for _, f := range s.srcFiles {
+				_, _ = s.appFs.Create(f)
+			}
+		}
+	}
 }

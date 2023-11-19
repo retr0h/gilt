@@ -18,40 +18,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package testing
+package internal
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
-
-	"sigs.k8s.io/yaml"
-)
-
-// CreateTempDirectory generate and create a temp directory for tests.
-func CreateTempDirectory() string {
-	dir, err := os.MkdirTemp("", "git-test")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Created temporary directory: '%s'.\n", dir)
-
-	return dir
-}
-
-// RemoveTempDirectory removes the temp directory created for tests.
-func RemoveTempDirectory(dir string) {
-	fmt.Printf("Removed temporary directory: '%s'.\n", dir)
-
-	_ = os.RemoveAll(dir)
-}
-
-// UnmarshalYAML decodes YAML document into dest type.
-func UnmarshalYAML(data []byte, dest interface{}) error {
-	jsonData, err := yaml.YAMLToJSON([]byte(data))
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(jsonData, &dest)
+// RepositoriesManager manager responsible for Repositories operations.
+type RepositoriesManager interface {
+	Overlay() error
 }

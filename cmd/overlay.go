@@ -22,42 +22,34 @@ package cmd
 
 import (
 	"log/slog"
-	"os"
-	"os/user"
-	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
-func expandUser(path string) (string, error) {
-	if len(path) == 0 || path[0] != '~' {
-		return path, nil
-	}
+func logRepositoriesGroup() []any {
+	logGroups := make([]any, 0, len(appConfig.Repositories))
 
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(usr.HomeDir, path[1:]), nil
-}
-
-// getGiltDir create the GiltDir if it doesn't exist.
-func getGiltDir() (string, error) {
-	expandedGiltDir, err := expandUser(r.GiltDir)
-	if err != nil {
-		return "", err
-	}
-
-	cacheGiltDir := filepath.Join(expandedGiltDir, "cache")
-
-	if _, err := os.Stat(cacheGiltDir); os.IsNotExist(err) {
-		if err := os.Mkdir(cacheGiltDir, 0o755); err != nil {
-			return "", err
+	for i, repo := range appConfig.Repositories {
+		var sourceGroups []any
+		for i, s := range repo.Sources {
+			group := slog.Group(strconv.Itoa(i),
+				slog.String("Src", s.Src),
+				slog.String("DstFile", s.DstFile),
+				slog.String("DstDir", s.DstDir),
+			)
+			sourceGroups = append(sourceGroups, group)
 		}
+		group := slog.Group(strconv.Itoa(i),
+			slog.String("Git", repo.Git),
+			slog.String("Version", repo.Version),
+			slog.String("DstDir", repo.DstDir),
+			slog.Group("Sources", sourceGroups...),
+		)
+		logGroups = append(logGroups, group)
 	}
 
-	return cacheGiltDir, nil
+	return logGroups
 }
 
 // overlayCmd represents the overlay command
@@ -72,18 +64,15 @@ var overlayCmd = &cobra.Command{
 		// We are logging errors, no need for cobra to re-log the error
 		cmd.SilenceErrors = true
 
-		cacheDir, err := getGiltDir()
-		if err != nil {
-			logger.Error(
-				"error expanding dir",
-				slog.String("giltDir", r.GiltDir),
-				slog.String("err", err.Error()),
-			)
-			return err
-		}
+		logger.Debug(
+			"current configuration",
+			slog.String("GiltDir", appConfig.GiltDir),
+			slog.String("GiltFile", appConfig.GiltFile),
+			slog.Bool("Debug", appConfig.Debug),
+			slog.Group("Repository", logRepositoriesGroup()...),
+		)
 
-		r.GiltDir = cacheDir
-		if err := r.Overlay(); err != nil {
+		if err := repos.Overlay(); err != nil {
 			logger.Error(
 				"error overlaying repositories",
 				slog.String("err", err.Error()),

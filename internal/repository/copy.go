@@ -18,35 +18,53 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package ioutil
+package repository
 
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 
-	"github.com/logrusorgru/aurora/v4"
 	"github.com/spf13/afero"
 )
 
-// copyFile copies the contents of the file named src to the file named
+// NewCopy factory to create a new copy instance.
+func NewCopy(
+	appFs afero.Fs,
+	logger *slog.Logger,
+) *Copy {
+	return &Copy{
+		appFs:  appFs,
+		logger: logger,
+	}
+}
+
+// CopyFile copies the contents of the file named src to the file named
 // by dst. The file will be created if it does not already exist. If the
 // destination file exists, all it's contents will be replaced by the contents
 // of the source file. The file mode will be copied from the source and
 // the copied data is synced/flushed to stable storage.
-func copyFile(
-	appFs afero.Fs,
+func (r *Copy) CopyFile(
 	src string,
 	dst string,
 ) (err error) {
-	in, err := appFs.Open(src)
+	baseSrc := filepath.Base(src)
+
+	r.logger.Info(
+		"copying file",
+		slog.String("srcFile", baseSrc),
+		slog.String("dstFile", dst),
+	)
+
+	in, err := r.appFs.Open(src)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = in.Close() }()
 
-	out, err := appFs.Create(dst)
+	out, err := r.appFs.Create(dst)
 	if err != nil {
 		return err
 	}
@@ -66,12 +84,12 @@ func copyFile(
 		return err
 	}
 
-	si, err := appFs.Stat(src)
+	si, err := r.appFs.Stat(src)
 	if err != nil {
 		return err
 	}
 
-	err = appFs.Chmod(dst, si.Mode())
+	err = r.appFs.Chmod(dst, si.Mode())
 	if err != nil {
 		return err
 	}
@@ -79,36 +97,24 @@ func copyFile(
 	return nil
 }
 
-// CopyFile copies src file to dst.
-func CopyFile(
-	appFs afero.Fs,
-	src string,
-	dst string,
-) error {
-	baseSrc := filepath.Base(src)
-	msg := fmt.Sprintf(
-		"%-4s - Copying file '%s' to '%s'",
-		"",
-		aurora.Cyan(baseSrc),
-		aurora.Cyan(dst),
-	)
-	fmt.Println(msg)
-
-	return copyFile(appFs, src, dst)
-}
-
-// copyDir recursively copies a directory tree, attempting to preserve permissions.
+// CopyDir recursively copies a directory tree, attempting to preserve permissions.
 // Source directory must exist, destination directory must *not* exist.
 // Symlinks are ignored and skipped.
-func copyDir(
-	appFs afero.Fs,
+func (r *Copy) CopyDir(
 	src string,
 	dst string,
 ) (err error) {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
+	baseSrc := filepath.Base(src)
 
-	si, err := appFs.Stat(src)
+	r.logger.Info(
+		"copying dir",
+		slog.String("srcDir", baseSrc),
+		slog.String("dstDir", dst),
+	)
+
+	si, err := r.appFs.Stat(src)
 	if err != nil {
 		return err
 	}
@@ -116,22 +122,22 @@ func copyDir(
 		return fmt.Errorf("source is not a directory")
 	}
 
-	_, err = appFs.Stat(dst)
+	_, err = r.appFs.Stat(dst)
 	if err != nil && !os.IsNotExist(err) {
-		return
+		return err
 	}
 	if err == nil {
 		return fmt.Errorf("destination already exists")
 	}
 
-	err = appFs.MkdirAll(dst, si.Mode())
+	err = r.appFs.MkdirAll(dst, si.Mode())
 	if err != nil {
-		return
+		return err
 	}
 
-	entries, err := afero.ReadDir(appFs, src)
+	entries, err := afero.ReadDir(r.appFs, src)
 	if err != nil {
-		return
+		return err
 	}
 
 	for _, entry := range entries {
@@ -145,42 +151,24 @@ func copyDir(
 				return err
 			}
 
-			entry, err = appFs.Stat(target)
+			entry, err = r.appFs.Stat(target)
 			if err != nil {
 				return err
 			}
 		}
 
 		if entry.IsDir() {
-			err = CopyDir(appFs, srcPath, dstPath)
+			err = r.CopyDir(srcPath, dstPath)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = CopyFile(appFs, srcPath, dstPath)
+			err = r.CopyFile(srcPath, dstPath)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	return
-}
-
-// CopyDir copies src directory to dst.
-func CopyDir(
-	appFs afero.Fs,
-	src string,
-	dst string,
-) error {
-	baseSrc := filepath.Base(src)
-	msg := fmt.Sprintf(
-		"%-4s - Copying dir '%s' to '%s'",
-		"",
-		aurora.Cyan(baseSrc),
-		aurora.Cyan(dst),
-	)
-	fmt.Println(msg)
-
-	return copyDir(appFs, src, dst)
+	return nil
 }

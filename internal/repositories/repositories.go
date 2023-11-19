@@ -21,41 +21,125 @@
 package repositories
 
 import (
+	"fmt"
+	"log/slog"
 	"os"
+	"os/user"
+	"path/filepath"
+	"strings"
 
-	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/spf13/afero"
+
+	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/config"
 )
+
+var currentUser = user.Current
+
+// New factory to create a new Repository instance.
+func New(
+	appFs afero.Fs,
+	c config.Repositories,
+	repoManager internal.RepositoryManager,
+	logger *slog.Logger,
+) *Repositories {
+	return &Repositories{
+		appFs:       appFs,
+		config:      c,
+		repoManager: repoManager,
+		logger:      logger,
+	}
+}
+
+func expandUser(
+	path string,
+) (string, error) {
+	if len(path) == 0 || path[0] != '~' {
+		return path, nil
+	}
+
+	usr, err := currentUser()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(usr.HomeDir, path[1:]), nil
+}
+
+// getCloneDir returns the path to the Repository's clone directory.
+func (r *Repositories) getCloneDir(
+	giltDir string,
+	c config.Repository,
+) string {
+	return filepath.Join(giltDir, r.getCloneHash(c))
+}
+
+func (r *Repositories) getCloneHash(
+	c config.Repository,
+) string {
+	replacer := strings.NewReplacer(
+		"/", "-",
+		":", "-",
+	)
+	replacedGitURL := replacer.Replace(c.Git)
+
+	return fmt.Sprintf("%s-%s", replacedGitURL, c.Version)
+}
+
+// getGiltDir create the GiltDir if it doesn't exist.
+func (r *Repositories) getGiltDir() (string, error) {
+	expandedGiltDir, err := expandUser(r.config.GiltDir)
+	if err != nil {
+		return "", err
+	}
+
+	cacheGiltDir := filepath.Join(expandedGiltDir, "cache")
+	if _, err := r.appFs.Stat(cacheGiltDir); os.IsNotExist(err) {
+		if err := r.appFs.Mkdir(cacheGiltDir, 0o755); err != nil {
+			return "", err
+		}
+	}
+
+	return cacheGiltDir, nil
+}
 
 // Overlay clone and extract the Repository items.
 func (r *Repositories) Overlay() error {
-	g := git.NewGit(r.Debug)
+	cacheDir, err := r.getGiltDir()
+	if err != nil {
+		r.logger.Error(
+			"error expanding dir",
+			slog.String("giltDir", r.config.GiltDir),
+			slog.String("cacheDir", cacheDir),
+			slog.String("err", err.Error()),
+		)
+		return err
+	}
 
-	for _, repository := range r.Repositories {
-		repository.GiltDir = r.GiltDir
-		repository.AppFs = afero.NewOsFs()
-		err := g.Clone(repository)
+	for _, c := range r.config.Repositories {
+		cloneDir := r.getCloneDir(cacheDir, c)
+		err = r.repoManager.Clone(c, cloneDir)
 		if err != nil {
 			return err
 		}
 
-		// Checkout into repository.DstDir.
-		if repository.DstDir != "" {
-			// Delete dstDir since Checkout-Index does not clean old files that may
-			// no longer exist in repository.
-			if info, err := os.Stat(repository.DstDir); err == nil && info.Mode().IsDir() {
-				if err := os.RemoveAll(repository.DstDir); err != nil {
+		// checkout into c.DstDir
+		if c.DstDir != "" {
+			// delete dstDir since Checkout-Index does not clean old files that may
+			// no longer exist in config
+			if info, err := r.appFs.Stat(c.DstDir); err == nil && info.Mode().IsDir() {
+				if err := os.RemoveAll(c.DstDir); err != nil {
 					return err
 				}
 			}
-			if err := g.CheckoutIndex(repository); err != nil {
+			if err := r.repoManager.CheckoutIndex(c, cloneDir); err != nil {
 				return err
 			}
 		}
 
-		// Copy sources from Repository.Src to Repository.DstDir or Repository.DstFile.
-		if len(repository.Sources) > 0 {
-			if err := repository.CopySources(); err != nil {
+		// copy sources from Repository.Src to Repository.DstDir or Repository.DstFile
+		if len(c.Sources) > 0 {
+			if err := r.repoManager.CopySources(c, cloneDir); err != nil {
 				return err
 			}
 		}

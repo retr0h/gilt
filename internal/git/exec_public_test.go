@@ -1,7 +1,4 @@
-//go:build integration
-// +build integration
-
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,53 +18,60 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repositories_test
+package git_test
 
 import (
-	"fmt"
+	"log/slog"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	helper "github.com/retr0h/go-gilt/internal/testing"
+	"github.com/retr0h/go-gilt/internal/git"
 )
 
-func (suite *RepositoriesTestSuite) TestOverlayRemovesSrcDirPriorToCheckoutIndex() {
-	tempDir := helper.CreateTempDirectory()
-	data := fmt.Sprintf(`
----
-- git: https://github.com/retr0h/ansible-etcd.git
-  version: 77a95b7
-  dstDir: %s/retr0h.ansible-etcd
-`, tempDir)
-	err := suite.unmarshalYAML([]byte(data))
-	assert.NoError(suite.T(), err)
+type ExecManagerPublicTestSuite struct {
+	suite.Suite
+}
 
-	suite.r.Overlay()
+func (suite *ExecManagerPublicTestSuite) NewTestExecManager(
+	debug bool,
+) git.ExecManager {
+	return git.NewExecManagerCmd(
+		debug,
+		slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})),
+	)
+}
 
-	err = suite.r.Overlay()
+func (suite *ExecManagerPublicTestSuite) TestRunCmdOk() {
+	em := suite.NewTestExecManager(false)
+
+	err := em.RunCmd("ls")
 	assert.NoError(suite.T(), err)
 }
 
-func (suite *RepositoriesTestSuite) TestOverlayFailsCopySourcesReturnsError() {
-	data := `
----
-- git: https://github.com/lorin/openstack-ansible-modules.git
-  version: 2677cc3
-  sources:
-    - src: "*_manage"
-      dstDir: /super/invalid/path/to/write/to
-`
-	err := suite.unmarshalYAML([]byte(data))
-	assert.NoError(suite.T(), err)
+func (suite *ExecManagerPublicTestSuite) TestRunCmdWithDebug() {
+	suite.T().Skip("cannot seem to capture Stdout when logging in em")
 
-	err = suite.r.Overlay()
+	em := suite.NewTestExecManager(true)
+
+	err := em.RunCmd("echo", "-n", "foo")
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
+	em := suite.NewTestExecManager(false)
+
+	err := em.RunCmd("invalid", "foo")
 	assert.Error(suite.T(), err)
+	assert.Contains(suite.T(), err.Error(), "not found")
 }
 
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
-func TestRepositoryTestSuite(t *testing.T) {
-	suite.Run(t, new(RepositoriesTestSuite))
+func TestExecPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(ExecManagerPublicTestSuite))
 }

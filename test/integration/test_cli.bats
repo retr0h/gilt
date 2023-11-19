@@ -31,7 +31,6 @@ setup() {
 	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
 	GILT_CLONED_REPO_1_DST_DIR=${GILT_TEST_BASE_DIR}/retr0h.ansible-etcd
 
-  # TODO(retr0h): go-gilt should create this dir
   mkdir -p ${GILT_DIR}
 
 	mkdir -p ${GILT_LIBRARY_DIR}
@@ -107,14 +106,14 @@ teardown() {
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
-	echo "${output}" | grep -E ".*Cloning to.*https---github.com-retr0h-ansible-etcd.git-77a95b7"
+	echo "${output}" | grep -E ".*cloning.*https---github.com-retr0h-ansible-etcd.git-77a95b7"
 }
 
 @test "invoke gilt overlay when already cloned" {
 	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} overlay"
 	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} overlay"
 
-	echo "${output}" | grep "Clone already exists"
+	echo "${output}" | grep "clone already exists"
 }
 
 @test "invoke gilt overlay and clone" {
