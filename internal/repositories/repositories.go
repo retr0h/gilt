@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
 
@@ -32,9 +31,8 @@ import (
 
 	"github.com/retr0h/go-gilt/internal"
 	"github.com/retr0h/go-gilt/internal/config"
+	giltpath "github.com/retr0h/go-gilt/internal/path"
 )
-
-var currentUser = user.Current
 
 // New factory to create a new Repository instance.
 func New(
@@ -49,21 +47,6 @@ func New(
 		repoManager: repoManager,
 		logger:      logger,
 	}
-}
-
-func expandUser(
-	path string,
-) (string, error) {
-	if len(path) == 0 || path[0] != '~' {
-		return path, nil
-	}
-
-	usr, err := currentUser()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(usr.HomeDir, path[1:]), nil
 }
 
 // getCloneDir returns the path to the Repository's clone directory.
@@ -88,7 +71,7 @@ func (r *Repositories) getCloneHash(
 
 // getGiltDir create the GiltDir if it doesn't exist.
 func (r *Repositories) getGiltDir() (string, error) {
-	expandedGiltDir, err := expandUser(r.config.GiltDir)
+	expandedGiltDir, err := giltpath.ExpandUser(r.config.GiltDir)
 	if err != nil {
 		return "", err
 	}
