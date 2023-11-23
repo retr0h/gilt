@@ -11,3 +11,6 @@ comment:
   layout: "reach,diff,flags,files,footer"
   behavior: default
   require_changes: false
+
+ignore:
+  - "**/*_mock.go"

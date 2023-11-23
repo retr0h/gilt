@@ -52,7 +52,4 @@ type Repository struct {
 	DstDir string `mapstructure:"dstDir"`
 	// Sources containing files and/or directories to copy.
 	Sources []Sources `mapstructure:"sources"`
-
-	// Directory to clone into.
-	CloneDir string
 }
