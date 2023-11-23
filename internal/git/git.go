@@ -24,89 +24,59 @@
 package git
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
+	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 
-	"github.com/logrusorgru/aurora/v4"
-
-	"github.com/retr0h/go-gilt/internal/repository"
+	"github.com/spf13/afero"
 )
 
-var (
-	// RunCommand is mocked for tests.
-	RunCommand = runCmd
-	// FilePathAbs is mocked for tests.
-	FilePathAbs = filepath.Abs
-)
-
-// NewGit factory to create a new Git instance.
-func NewGit(debug bool) *Git {
+// New factory to create a new Git instance.
+func New(
+	appFs afero.Fs,
+	debug bool,
+	execManager ExecManager,
+	logger *slog.Logger,
+) *Git {
 	return &Git{
-		debug: debug,
+		appFs:       appFs,
+		debug:       debug,
+		execManager: execManager,
+		logger:      logger,
 	}
 }
 
-// Clone clone Repository.Git to Repository.getCloneDir, and hard checkout
-// to Repository.Version.
-func (g *Git) Clone(repository repository.Repository) error {
-	cloneDir := repository.GetCloneDir()
-
-	msg := fmt.Sprintf(
-		"[%s@%s]:",
-		aurora.Magenta(repository.Git),
-		aurora.Magenta(repository.Version),
-	)
-	fmt.Println(msg)
-
-	msg = fmt.Sprintf("%-2s - Cloning to '%s'", "", aurora.Cyan(cloneDir))
-	fmt.Println(msg)
-
-	if _, err := os.Stat(cloneDir); os.IsNotExist(err) {
-		if err := g.clone(repository); err != nil {
-			return err
-		}
-
-		if err := g.reset(repository); err != nil {
-			return err
-		}
-	} else {
-		bang := aurora.Bold(aurora.Red("!"))
-		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Yellow("Clone already exists"))
-		fmt.Println(msg)
-	}
-
-	return nil
+// Clone as exec manager to clone repo.
+func (g *Git) Clone(
+	gitURL string,
+	cloneDir string,
+) error {
+	// return g.execManager.Clone(gitURL, cloneDir)
+	return g.execManager.RunCmd("git", "clone", gitURL, cloneDir)
 }
 
-func (g *Git) clone(repository repository.Repository) error {
-	cloneDir := repository.GetCloneDir()
-	err := RunCommand(g.debug, "git", "clone", repository.Git, cloneDir)
-
-	return err
-}
-
-func (g *Git) reset(repository repository.Repository) error {
-	cloneDir := repository.GetCloneDir()
-	err := RunCommand(g.debug, "git", "-C", cloneDir, "reset", "--hard", repository.Version)
-
-	return err
+// Reset to the given git version.
+func (g *Git) Reset(
+	cloneDir string,
+	gitVersion string,
+) error {
+	return g.execManager.RunCmd("git", "-C", cloneDir, "reset", "--hard", gitVersion)
 }
 
 // CheckoutIndex checkout Repository.Git to Repository.DstDir.
-func (g *Git) CheckoutIndex(repository repository.Repository) error {
-	cloneDir := repository.GetCloneDir()
-	dstDir, err := FilePathAbs(repository.DstDir)
+func (g *Git) CheckoutIndex(
+	dstDir string,
+	cloneDir string,
+) error {
+	dst, err := filepath.Abs(dstDir)
 	if err != nil {
 		return err
 	}
 
-	msg := fmt.Sprintf("%-2s - Extracting to '%s'", "", aurora.Cyan(dstDir))
-	fmt.Println(msg)
+	g.logger.Info(
+		"extracting",
+		slog.String("to", dst),
+	)
 
 	cmdArgs := []string{
 		"-C",
@@ -116,32 +86,8 @@ func (g *Git) CheckoutIndex(repository repository.Repository) error {
 		"--all",
 		"--prefix",
 		// Trailing separator needed by git checkout-index.
-		dstDir + string(os.PathSeparator),
+		dst + string(os.PathSeparator),
 	}
 
-	return RunCommand(g.debug, "git", cmdArgs...)
-}
-
-// runCmd execute the provided command with args.
-// Yeah, yeah, yeah, I know I cheated by using Exec in this package.
-func runCmd(debug bool, name string, args ...string) error {
-	var stderr bytes.Buffer
-	cmd := exec.Command(name, args...)
-
-	if debug {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-
-		commands := strings.Join(cmd.Args, " ")
-		msg := fmt.Sprintf("COMMAND: %s", aurora.Colorize(commands, aurora.BlackFg|aurora.RedBg))
-		fmt.Println(msg)
-	} else {
-		cmd.Stderr = &stderr
-	}
-
-	if err := cmd.Run(); err != nil {
-		return errors.New(stderr.String())
-	}
-
-	return nil
+	return g.execManager.RunCmd("git", cmdArgs...)
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2018 John Dewey
+// Copyright (c) 2023 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,138 +22,111 @@ package git_test
 
 import (
 	"errors"
-	"fmt"
+	"log/slog"
 	"os"
-	"path/filepath"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/retr0h/go-gilt/internal"
 	"github.com/retr0h/go-gilt/internal/git"
-	"github.com/retr0h/go-gilt/internal/repository"
-	helper "github.com/retr0h/go-gilt/internal/testing"
 )
 
-type GitTestSuite struct {
+type GitManagerPublicTestSuite struct {
 	suite.Suite
-	g *git.Git
-	r repository.Repository
+
+	ctrl     *gomock.Controller
+	mockExec *git.MockExecManager
+
+	gitURL     string
+	gitVersion string
+	cloneDir   string
+	dstDir     string
+
+	gm internal.GitManager
 }
 
-func (suite *GitTestSuite) SetupTest() {
-	suite.g = git.NewGit(false)
-	suite.r = repository.Repository{
-		Git:     "https://example.com/user/repo.git",
-		Version: "abc1234",
-		DstDir:  "path/user.repo",
-		GiltDir: helper.CreateTempDirectory(),
-	}
+func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager {
+	return git.New(
+		afero.NewMemMapFs(),
+		false,
+		suite.mockExec,
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
+	)
 }
 
-func (suite *GitTestSuite) TearDownTest() {
-	helper.RemoveTempDirectory(suite.r.GiltDir)
+func (suite *GitManagerPublicTestSuite) SetupTest() {
+	suite.ctrl = gomock.NewController(suite.T())
+	suite.mockExec = git.NewMockExecManager(suite.ctrl)
+	defer suite.ctrl.Finish()
+
+	suite.gitURL = "https://example.com/user/repo.git"
+	suite.gitVersion = "abc123"
+	suite.cloneDir = "/cloneDir"
+	suite.dstDir = "/dstDir"
+
+	suite.gm = suite.NewTestGitManager()
 }
 
-func (suite *GitTestSuite) TestCloneAlreadyExists() {
-	cloneDir := filepath.Join(suite.r.GiltDir, "https---example.com-user-repo.git-abc1234")
-	if _, err := os.Stat(cloneDir); os.IsNotExist(err) {
-		_ = os.Mkdir(cloneDir, 0o755)
-	}
+func (suite *GitManagerPublicTestSuite) TestCloneOk() {
+	suite.mockExec.EXPECT().RunCmd("git", "clone", suite.gitURL, suite.cloneDir).Return(nil)
 
-	_ = suite.g.Clone(suite.r)
-
-	defer func() { _ = os.RemoveAll(cloneDir) }()
+	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
+	assert.NoError(suite.T(), err)
 }
 
-func (suite *GitTestSuite) TestCloneErrorsOnCloneReturnsError() {
-	anon := func() error {
-		err := suite.g.Clone(suite.r)
-		assert.Error(suite.T(), err)
+func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 
-		return err
-	}
-
-	git.MockRunCommandErrorsOn("clone", anon)
-}
-
-func (suite *GitTestSuite) TestCloneErrorsOnResetReturnsError() {
-	anon := func() error {
-		err := suite.g.Clone(suite.r)
-		assert.Error(suite.T(), err)
-
-		return err
-	}
-
-	git.MockRunCommandErrorsOn("reset", anon)
-}
-
-func (suite *GitTestSuite) TestClone() {
-	anon := func() error {
-		err := suite.g.Clone(suite.r)
-		assert.NoError(suite.T(), err)
-
-		return err
-	}
-
-	got := git.MockRunCommand(anon)
-	want := []string{
-		fmt.Sprintf(
-			"git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
-			suite.r.GiltDir,
-		),
-		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 reset --hard abc1234",
-			suite.r.GiltDir),
-	}
-
-	assert.Equal(suite.T(), want, got)
-}
-
-func (suite *GitTestSuite) TestCheckoutIndexFailsFilepathAbsReturnsError() {
-	originalFilepathAbs := git.FilePathAbs
-	git.FilePathAbs = func(string) (string, error) {
-		return "", errors.New("Failed filepath.Abs")
-	}
-	defer func() { git.FilePathAbs = originalFilepathAbs }()
-
-	err := suite.g.CheckoutIndex(suite.r)
+	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
 
-func (suite *GitTestSuite) TestCheckoutIndexFailsCheckoutIndexReturnsError() {
-	anon := func() error {
-		err := suite.g.CheckoutIndex(suite.r)
-		assert.Error(suite.T(), err)
+func (suite *GitManagerPublicTestSuite) TestResetOk() {
+	suite.mockExec.EXPECT().RunCmd("git", "-C", suite.cloneDir, "reset", "--hard", suite.gitVersion)
 
-		return err
-	}
-
-	git.MockRunCommandErrorsOn("git", anon)
+	err := suite.gm.Reset(suite.cloneDir, suite.gitVersion)
+	assert.NoError(suite.T(), err)
 }
 
-func (suite *GitTestSuite) TestCheckoutIndex() {
-	anon := func() error {
-		err := suite.g.CheckoutIndex(suite.r)
-		assert.NoError(suite.T(), err)
+func (suite *GitManagerPublicTestSuite) TestResetReturnsError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 
-		return err
+	err := suite.gm.Reset(suite.cloneDir, suite.gitVersion)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *GitManagerPublicTestSuite) TestCheckoutIndexOk() {
+	cmdArgs := []string{
+		"-C",
+		suite.cloneDir,
+		"checkout-index",
+		"--force",
+		"--all",
+		"--prefix",
+		suite.dstDir + string(os.PathSeparator),
 	}
+	suite.mockExec.EXPECT().RunCmd("git", cmdArgs).Return(nil)
 
-	dstDir, _ := git.FilePathAbs(suite.r.DstDir)
-	got := git.MockRunCommand(anon)
-	want := []string{
-		fmt.Sprintf(
-			"git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
-			suite.r.GiltDir,
-			(dstDir + string(os.PathSeparator)),
-		),
-	}
+	err := suite.gm.CheckoutIndex(suite.dstDir, suite.cloneDir)
+	assert.NoError(suite.T(), err)
+}
 
-	assert.Equal(suite.T(), want, got)
+func (suite *GitManagerPublicTestSuite) TestCheckoutIndexReturnsError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
+
+	err := suite.gm.CheckoutIndex(suite.dstDir, suite.cloneDir)
+	assert.Error(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
-func TestGitTestSuite(t *testing.T) {
-	suite.Run(t, new(GitTestSuite))
+func TestGitManagerPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(GitManagerPublicTestSuite))
 }

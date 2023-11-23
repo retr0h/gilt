@@ -18,32 +18,45 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repository
+package git
 
 import (
 	"log/slog"
-
-	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
+	"os/exec"
+	"strings"
 )
 
-// Repository contains the repository's details for cloning.
-type Repository struct {
-	appFs       afero.Fs
-	copyManager CopyManager
-	gitManager  internal.GitManager
-	logger      *slog.Logger
+// NewExecManagerCmd factory to create a new exec manager instance.
+func NewExecManagerCmd(
+	debug bool,
+	logger *slog.Logger,
+) *ExecManagerCmd {
+	return &ExecManagerCmd{
+		debug:  debug,
+		logger: logger,
+	}
 }
 
-// CopyManager manager responsible for Copy operations.
-type CopyManager interface {
-	CopyDir(src string, dst string) error
-	CopyFile(src string, dst string) error
-}
+// RunCmd execute the provided command with args.
+// Yeah, yeah, yeah, I know I cheated by using Exec in this package.
+func (e *ExecManagerCmd) RunCmd(
+	name string,
+	args ...string,
+) error {
+	cmd := exec.Command(name, args...)
 
-// Copy copy implementation.
-type Copy struct {
-	appFs  afero.Fs
-	logger *slog.Logger
+	if e.debug {
+		commands := strings.Join(cmd.Args, " ")
+		e.logger.Debug(
+			"exec",
+			slog.String("command", commands),
+		)
+	}
+
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

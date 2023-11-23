@@ -18,32 +18,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repository
+package internal
 
 import (
-	"log/slog"
-
-	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/config"
 )
 
-// Repository contains the repository's details for cloning.
-type Repository struct {
-	appFs       afero.Fs
-	copyManager CopyManager
-	gitManager  internal.GitManager
-	logger      *slog.Logger
-}
-
-// CopyManager manager responsible for Copy operations.
-type CopyManager interface {
-	CopyDir(src string, dst string) error
-	CopyFile(src string, dst string) error
-}
-
-// Copy copy implementation.
-type Copy struct {
-	appFs  afero.Fs
-	logger *slog.Logger
+// RepositoryManager manager responsible for Repository operations.
+type RepositoryManager interface {
+	Clone(config config.Repository, cloneDir string) error
+	CheckoutIndex(config config.Repository, cloneDir string) error
+	CopySources(config config.Repository, cloneDir string) error
 }

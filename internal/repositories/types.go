@@ -18,21 +18,22 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// Package repositories TODO change to lower cases members.
 package repositories
 
 import (
-	"github.com/retr0h/go-gilt/internal/repository"
+	"log/slog"
+
+	"github.com/spf13/afero"
+
+	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/config"
 )
 
 // Repositories perform repository operations.
 type Repositories struct {
-	// Debug enable or disable debug option set from CLI.
-	Debug bool `mapstruture:"debug"`
-	// GiltFile path to Gilt's config file option set from CLI.
-	GiltFile string `mapstructure:"giltFile"`
-	// GiltDir path to Gilt's clone dir option set from CLI.
-	GiltDir string `mapstructure:"giltDir"`
-	// Repositories a slice of repository configurations to overlay.
-	Repositories []repository.Repository `mapstruture:"repositories"`
+	appFs  afero.Fs
+	config config.Repositories
+	logger *slog.Logger
+
+	repoManager internal.RepositoryManager
 }

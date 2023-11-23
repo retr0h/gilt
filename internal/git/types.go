@@ -20,7 +20,27 @@
 
 package git
 
-// Git perform Git operations.
+import (
+	"log/slog"
+
+	"github.com/spf13/afero"
+)
+
+// Git implementation responsible for Git operations.
 type Git struct {
-	debug bool
+	appFs       afero.Fs
+	debug       bool
+	execManager ExecManager
+	logger      *slog.Logger
+}
+
+// ExecManager interface to managing exec calls.
+type ExecManager interface {
+	RunCmd(name string, args ...string) error
+}
+
+// ExecManagerCmd disk implementation.
+type ExecManagerCmd struct {
+	debug  bool
+	logger *slog.Logger
 }
