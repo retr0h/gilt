@@ -21,11 +21,41 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"log/slog"
+	"path/filepath"
 	"strconv"
 
+	"github.com/danjacques/gofslock/fslock"
 	"github.com/spf13/cobra"
+
+	giltpath "github.com/retr0h/go-gilt/internal/path"
 )
+
+// withLock is a convenience function to create a lock, execute a function while
+// holding that lock, and then release the lock on completion.
+func withLock(fn func() error) error {
+	expandedLockDir, err := giltpath.ExpandUser(appConfig.GiltDir)
+	if err != nil {
+		return err
+	}
+	lockFile := filepath.Join(expandedLockDir, "gilt.lock")
+
+	logger.Info(
+		"acquiring lock",
+		slog.String("lockfile", lockFile),
+	)
+
+	err = fslock.With(lockFile, fn)
+	if err != nil {
+		if errors.Is(err, fslock.ErrLockHeld) {
+			return fmt.Errorf("could not acquire lock on %s: %s", lockFile, err)
+		}
+	}
+
+	return err
+}
 
 func logRepositoriesGroup() []any {
 	logGroups := make([]any, 0, len(appConfig.Repositories))
@@ -72,7 +102,9 @@ var overlayCmd = &cobra.Command{
 			slog.Group("Repository", logRepositoriesGroup()...),
 		)
 
-		if err := repos.Overlay(); err != nil {
+		if err := withLock(func() error {
+			return repos.Overlay()
+		}); err != nil {
 			logger.Error(
 				"error overlaying repositories",
 				slog.String("err", err.Error()),

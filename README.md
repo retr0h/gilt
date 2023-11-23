@@ -23,9 +23,9 @@ This project is a port of [Gilt][], it is not 100% compatible with the python
 version, and aims to correct poor decisions made in the python version of
 Gilt.
 
-This version of Gilt does not provide built in locking, branches, tags, and
-post commands unlike our python friend.  However, these features will be added 
-in the future.
+This version of Gilt does not provide built in branches, tags, and post
+commands unlike our python friend.  However, those features will be added
+soon enough.
 
 ## Installation
 

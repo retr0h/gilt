@@ -21,10 +21,8 @@
 package repositories
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
-	"os/user"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -76,31 +74,6 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
-func (suite *RepositoriesTestSuite) TestexpandUserOk() {
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
-		return &user.User{
-			HomeDir: "/testUser",
-		}, nil
-	}
-	defer func() { currentUser = originalCurrentUser }()
-
-	got, err := expandUser("~/foo/bar")
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), got, "/testUser/foo/bar")
-}
-
-func (suite *RepositoriesTestSuite) TestexpandUserReturnsError() {
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
-		return nil, fmt.Errorf("failed to get current user")
-	}
-	defer func() { currentUser = originalCurrentUser }()
-
-	_, err := expandUser("~/foo/bar")
-	assert.Error(suite.T(), err)
-}
-
 func (suite *RepositoriesTestSuite) TestgetCloneDirOk() {
 	repos := suite.NewTestRepositories(suite.giltDir)
 
@@ -136,19 +109,6 @@ func (suite *RepositoriesTestSuite) TestgetGiltDir() {
 	exists, err := afero.Exists(suite.appFs, expectedDir)
 	assert.NoError(suite.T(), err)
 	assert.True(suite.T(), exists)
-}
-
-func (suite *RepositoriesTestSuite) TestgetGiltDirReturnsErrorWhenexpandUserErrors() {
-	repos := suite.NewTestRepositories("~/foo/bar")
-
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
-		return nil, fmt.Errorf("failed to get current user")
-	}
-	defer func() { currentUser = originalCurrentUser }()
-
-	_, err := repos.getGiltDir()
-	assert.Error(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create
