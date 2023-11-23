@@ -147,19 +147,8 @@ func (suite *RepositoriesTestSuite) TestgetGiltDirReturnsErrorWhenexpandUserErro
 	}
 	defer func() { currentUser = originalCurrentUser }()
 
-	// _, err := expandUser("~/foo/bar")
-	// assert.Error(suite.T(), err)
 	_, err := repos.getGiltDir()
 	assert.Error(suite.T(), err)
-
-	// expectedDir := "/giltDir/cache"
-	// got, err := repos.getGiltDir()
-	// assert.NoError(suite.T(), err)
-	// assert.Equal(suite.T(), got, expectedDir)
-
-	// exists, err := afero.Exists(suite.appFs, expectedDir)
-	// assert.NoError(suite.T(), err)
-	// assert.True(suite.T(), exists)
 }
 
 // In order for `go test` to run this suite, we need to create
