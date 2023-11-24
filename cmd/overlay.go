@@ -33,15 +33,29 @@ import (
 	giltpath "github.com/retr0h/go-gilt/internal/path"
 )
 
+// getGiltDir create the GiltDir if it doesn't exist.
+func getGiltDir() (string, error) {
+	dir, err := giltpath.ExpandUser(appConfig.GiltDir)
+	if err != nil {
+		return "", err
+	}
+
+	if err := appFs.MkdirAll(dir, 0o755); err != nil {
+		return "", err
+	}
+
+	return dir, nil
+}
+
 // withLock is a convenience function to create a lock, execute a function while
 // holding that lock, and then release the lock on completion.
 func withLock(fn func() error) error {
-	expandedLockDir, err := giltpath.ExpandUser(appConfig.GiltDir)
+	lockDir, err := getGiltDir()
 	if err != nil {
 		return err
 	}
-	lockFile := filepath.Join(expandedLockDir, "gilt.lock")
 
+	lockFile := filepath.Join(lockDir, "gilt.lock")
 	logger.Info(
 		"acquiring lock",
 		slog.String("lockfile", lockFile),
@@ -70,11 +84,20 @@ func logRepositoriesGroup() []any {
 			)
 			sourceGroups = append(sourceGroups, group)
 		}
+		var cmdGroups []any
+		for i, s := range repo.Commands {
+			group := slog.Group(strconv.Itoa(i),
+				slog.String("Cmd", s.Cmd),
+			)
+			cmdGroups = append(cmdGroups, group)
+		}
+
 		group := slog.Group(strconv.Itoa(i),
 			slog.String("Git", repo.Git),
 			slog.String("Version", repo.Version),
 			slog.String("DstDir", repo.DstDir),
 			slog.Group("Sources", sourceGroups...),
+			slog.Group("Commands", cmdGroups...),
 		)
 		logGroups = append(logGroups, group)
 	}

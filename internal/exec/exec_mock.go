@@ -34,20 +34,15 @@ func (m *MockExecManager) EXPECT() *MockExecManagerMockRecorder {
 }
 
 // RunCmd mocks base method.
-func (m *MockExecManager) RunCmd(name string, args ...string) error {
+func (m *MockExecManager) RunCmd(name string, args []string) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{name}
-	for _, a := range args {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RunCmd", varargs...)
+	ret := m.ctrl.Call(m, "RunCmd", name, args)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RunCmd indicates an expected call of RunCmd.
-func (mr *MockExecManagerMockRecorder) RunCmd(name interface{}, args ...interface{}) *gomock.Call {
+func (mr *MockExecManagerMockRecorder) RunCmd(name, args interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{name}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmd", reflect.TypeOf((*MockExecManager)(nil).RunCmd), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmd", reflect.TypeOf((*MockExecManager)(nil).RunCmd), name, args)
 }

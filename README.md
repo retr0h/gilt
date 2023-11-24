@@ -23,9 +23,8 @@ This project is a port of [Gilt][], it is not 100% compatible with the python
 version, and aims to correct poor decisions made in the python version of
 Gilt.
 
-This version of Gilt does not provide built in branches, tags, and post
-commands unlike our python friend.  However, those features will be added
-soon enough.
+This version of Gilt does not handle branches and tags unlike our python
+friend.  However, those features will be added soon.
 
 ## Installation
 
@@ -63,6 +62,8 @@ repositories:
         dstFile: library/neutron_router.py
       - src: tests
         dstDir: tests
+    commands:
+      - cmd: ansible-playbook -i, playbook.yml
 ```
 
 ### Env Vars

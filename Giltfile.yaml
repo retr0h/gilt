@@ -16,3 +16,8 @@ repositories:
         dstFile: /tmp/library/neutron_router.py
       - src: tests
         dstDir: /tmp/tests
+    commands:
+      - cmd: touch
+        args: post-command-1
+      - cmd: touch
+        args: post-command-2

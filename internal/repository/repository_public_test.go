@@ -157,7 +157,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
@@ -187,7 +187,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsD
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
@@ -216,7 +216,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
@@ -263,7 +263,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:    "subDir/*_manage",
 				DstDir: suite.dstDir,
@@ -315,7 +315,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:    "subDir/*.txt",
 				DstDir: suite.dstDir,
@@ -344,7 +344,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFileAndDstF
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:     "1.txt",
 				DstFile: filepath.Join(suite.dstDir, "1.txt"),
@@ -374,7 +374,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	c := config.Repository{
 		Git:     suite.gitURL,
 		Version: suite.gitVersion,
-		Sources: []config.Sources{
+		Sources: []config.Source{
 			{
 				Src:     "1.txt",
 				DstFile: filepath.Join(suite.dstDir, "1.txt"),

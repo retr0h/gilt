@@ -34,6 +34,7 @@ import (
 
 	"github.com/retr0h/go-gilt/internal"
 	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/internal/exec"
 	"github.com/retr0h/go-gilt/internal/repositories"
 	"github.com/retr0h/go-gilt/internal/repository"
 )
@@ -43,15 +44,15 @@ type RepositoriesPublicTestSuite struct {
 
 	ctrl     *gomock.Controller
 	mockRepo *repository.MockRepositoryManager
+	mockExec *exec.MockExecManager
 
-	appFs             afero.Fs
-	dstDir            string
-	giltDir           string
-	gitURL            string
-	gitVersion        string
-	repoConfigDstDir  []config.Repository
-	repoConfigSources []config.Repository
-	logger            *slog.Logger
+	appFs            afero.Fs
+	dstDir           string
+	giltDir          string
+	gitURL           string
+	gitVersion       string
+	repoConfigDstDir []config.Repository
+	logger           *slog.Logger
 }
 
 func (suite *RepositoriesPublicTestSuite) NewTestRepositoriesManager(
@@ -68,6 +69,7 @@ func (suite *RepositoriesPublicTestSuite) NewTestRepositoriesManager(
 		suite.appFs,
 		reposConfig,
 		suite.mockRepo,
+		suite.mockExec,
 		suite.logger,
 	)
 }
@@ -75,6 +77,7 @@ func (suite *RepositoriesPublicTestSuite) NewTestRepositoriesManager(
 func (suite *RepositoriesPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockRepo = repository.NewMockRepositoryManager(suite.ctrl)
+	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
 	suite.appFs = afero.NewMemMapFs()
@@ -87,18 +90,6 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 			Git:     suite.gitURL,
 			Version: suite.gitVersion,
 			DstDir:  suite.dstDir,
-		},
-	}
-	suite.repoConfigSources = []config.Repository{
-		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
-			Sources: []config.Sources{
-				{
-					Src:    "srcDir",
-					DstDir: suite.dstDir,
-				},
-			},
 		},
 	}
 
@@ -156,12 +147,24 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCheckoutInd
 	assert.Error(suite.T(), err)
 }
 
-func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenSources() {
-	repos := suite.NewTestRepositoriesManager(suite.repoConfigSources)
+func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			Sources: []config.Source{
+				{
+					Src:    "srcDir",
+					DstDir: suite.dstDir,
+				},
+			},
+		},
+	}
+	repos := suite.NewTestRepositoriesManager(repoConfig)
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().
-		CopySources(suite.repoConfigSources[0], filepath.Join(suite.giltDir, "cache/https---example.com-user-repo.git-abc1234")).
+		CopySources(repoConfig[0], filepath.Join(suite.giltDir, "cache/https---example.com-user-repo.git-abc1234")).
 		Return(nil)
 
 	err := repos.Overlay()
@@ -169,11 +172,74 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenSources() {
 }
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySourcesErrors() {
-	repos := suite.NewTestRepositoriesManager(suite.repoConfigSources)
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			Sources: []config.Source{
+				{
+					Src:    "srcDir",
+					DstDir: suite.dstDir,
+				},
+			},
+		},
+	}
+	repos := suite.NewTestRepositoriesManager(repoConfig)
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
 	errors := errors.New("tests error")
 	suite.mockRepo.EXPECT().CopySources(gomock.Any(), gomock.Any()).Return(errors)
+
+	err := repos.Overlay()
+	assert.Error(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCommands() {
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			DstDir:  suite.dstDir,
+			Commands: []config.Command{
+				{
+					Cmd:  "touch",
+					Args: []string{"/tmp/foo"},
+				},
+			},
+		},
+	}
+
+	repos := suite.NewTestRepositoriesManager(repoConfig)
+
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockExec.EXPECT().RunCmd("touch", []string{"/tmp/foo"}).Return(nil)
+
+	err := repos.Overlay()
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCommandErrors() {
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			DstDir:  suite.dstDir,
+			Commands: []config.Command{
+				{
+					Cmd:  "touch",
+					Args: []string{"/tmp/foo"},
+				},
+			},
+		},
+	}
+
+	repos := suite.NewTestRepositoriesManager(repoConfig)
+
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)

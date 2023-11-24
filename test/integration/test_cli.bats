@@ -164,3 +164,16 @@ teardown() {
 	echo $output
 	[ "$status" = 0 ]
 }
+
+@test "invoke gilt overlay and post commands" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} overlay"
+
+	run stat ${GILT_TEST_BASE_DIR}/ansible-etcd-repo-post-command-1
+	[ "$status" = 0 ]
+
+	run stat ${GILT_TEST_BASE_DIR}/openstack-ansible-modules-repo-post-command-1
+	[ "$status" = 0 ]
+
+	run stat ${GILT_TEST_BASE_DIR}/openstack-ansible-modules-repo-post-command-2
+	[ "$status" = 0 ]
+}

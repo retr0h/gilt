@@ -73,7 +73,9 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 }
 
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {
-	suite.mockExec.EXPECT().RunCmd("git", "clone", suite.gitURL, suite.cloneDir).Return(nil)
+	suite.mockExec.EXPECT().
+		RunCmd("git", []string{"clone", suite.gitURL, suite.cloneDir}).
+		Return(nil)
 
 	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
 	assert.NoError(suite.T(), err)
@@ -88,7 +90,8 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 }
 
 func (suite *GitManagerPublicTestSuite) TestResetOk() {
-	suite.mockExec.EXPECT().RunCmd("git", "-C", suite.cloneDir, "reset", "--hard", suite.gitVersion)
+	suite.mockExec.EXPECT().
+		RunCmd("git", []string{"-C", suite.cloneDir, "reset", "--hard", suite.gitVersion})
 
 	err := suite.gm.Reset(suite.cloneDir, suite.gitVersion)
 	assert.NoError(suite.T(), err)

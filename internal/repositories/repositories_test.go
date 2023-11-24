@@ -31,6 +31,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/internal/exec"
 	"github.com/retr0h/go-gilt/internal/repository"
 )
 
@@ -39,6 +40,7 @@ type RepositoriesTestSuite struct {
 
 	ctrl     *gomock.Controller
 	mockRepo *repository.MockRepositoryManager
+	mockExec *exec.MockExecManager
 
 	appFs   afero.Fs
 	giltDir string
@@ -59,6 +61,7 @@ func (suite *RepositoriesTestSuite) NewTestRepositories(
 		suite.appFs,
 		reposConfig,
 		suite.mockRepo,
+		suite.mockExec,
 		suite.logger,
 	)
 }
@@ -66,6 +69,7 @@ func (suite *RepositoriesTestSuite) NewTestRepositories(
 func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockRepo = repository.NewMockRepositoryManager(suite.ctrl)
+	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
 	suite.appFs = afero.NewMemMapFs()
@@ -98,11 +102,11 @@ func (suite *RepositoriesTestSuite) TestgetCloneHash() {
 	assert.Equal(suite.T(), got, "https:/example.com/user/repo2.git/-abc123")
 }
 
-func (suite *RepositoriesTestSuite) TestgetGiltDir() {
+func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	repos := suite.NewTestRepositories(suite.giltDir)
 
 	expectedDir := "/giltDir/cache"
-	got, err := repos.getGiltDir()
+	got, err := repos.getCacheDir()
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), got, expectedDir)
 

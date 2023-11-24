@@ -50,7 +50,7 @@ func (suite *ExecManagerPublicTestSuite) NewTestExecManager(
 func (suite *ExecManagerPublicTestSuite) TestRunCmdOk() {
 	em := suite.NewTestExecManager(false)
 
-	err := em.RunCmd("ls")
+	err := em.RunCmd("ls", []string{})
 	assert.NoError(suite.T(), err)
 }
 
@@ -59,14 +59,14 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdWithDebug() {
 
 	em := suite.NewTestExecManager(true)
 
-	err := em.RunCmd("echo", "-n", "foo")
+	err := em.RunCmd("echo", []string{"-n", "foo"})
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 	em := suite.NewTestExecManager(false)
 
-	err := em.RunCmd("invalid", "foo")
+	err := em.RunCmd("invalid", []string{"foo"})
 	assert.Error(suite.T(), err)
 	assert.Contains(suite.T(), err.Error(), "not found")
 }
