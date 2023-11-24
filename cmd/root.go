@@ -33,6 +33,7 @@ import (
 
 	"github.com/retr0h/go-gilt/internal"
 	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/internal/exec"
 	"github.com/retr0h/go-gilt/internal/git"
 	"github.com/retr0h/go-gilt/internal/repositories"
 	"github.com/retr0h/go-gilt/internal/repository"
@@ -135,7 +136,7 @@ func initConfig() {
 		logger,
 	)
 
-	execManager := git.NewExecManagerCmd(
+	execManager := exec.New(
 		appConfig.Debug,
 		logger,
 	)

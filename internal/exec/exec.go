@@ -18,20 +18,45 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package git
+package exec
 
 import (
 	"log/slog"
-
-	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
+	"os/exec"
+	"strings"
 )
 
-// Git implementation responsible for Git operations.
-type Git struct {
-	appFs       afero.Fs
-	debug       bool
-	execManager internal.ExecManager
-	logger      *slog.Logger
+// New factory to create a new Exec instance.
+func New(
+	debug bool,
+	logger *slog.Logger,
+) *Exec {
+	return &Exec{
+		debug:  debug,
+		logger: logger,
+	}
+}
+
+// RunCmd execute the provided command with args.
+// Yeah, yeah, yeah, I know I cheated by using Exec in this package.
+func (e *Exec) RunCmd(
+	name string,
+	args ...string,
+) error {
+	cmd := exec.Command(name, args...)
+
+	if e.debug {
+		commands := strings.Join(cmd.Args, " ")
+		e.logger.Debug(
+			"exec",
+			slog.String("command", commands),
+		)
+	}
+
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
