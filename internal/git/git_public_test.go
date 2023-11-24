@@ -32,6 +32,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/exec"
 	"github.com/retr0h/go-gilt/internal/git"
 )
 
@@ -39,7 +40,7 @@ type GitManagerPublicTestSuite struct {
 	suite.Suite
 
 	ctrl     *gomock.Controller
-	mockExec *git.MockExecManager
+	mockExec *exec.MockExecManager
 
 	gitURL     string
 	gitVersion string
@@ -60,7 +61,7 @@ func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager 
 
 func (suite *GitManagerPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
-	suite.mockExec = git.NewMockExecManager(suite.ctrl)
+	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
 	suite.gitURL = "https://example.com/user/repo.git"

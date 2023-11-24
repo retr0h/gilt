@@ -179,3 +179,15 @@ func (r *Repository) CopySources(
 
 	return nil
 }
+
+// RunCmd run the provided command.
+func (r *Repository) RunCmd(
+	cmd string,
+) error {
+	fmt.Println(cmd)
+	fmt.Println(cmd)
+	fmt.Println(cmd)
+	fmt.Println(cmd)
+	// return r.gitManager.CheckoutIndex(c.DstDir, cloneDir)
+	return nil
+}

@@ -18,20 +18,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package git
+package internal
 
-import (
-	"log/slog"
-
-	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
-)
-
-// Git implementation responsible for Git operations.
-type Git struct {
-	appFs       afero.Fs
-	debug       bool
-	execManager internal.ExecManager
-	logger      *slog.Logger
+// ExecManager manager responsible for exec operations.
+type ExecManager interface {
+	RunCmd(name string, args ...string) error
 }

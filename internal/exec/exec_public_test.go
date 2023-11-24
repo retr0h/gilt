@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package git_test
+package exec_test
 
 import (
 	"log/slog"
@@ -28,7 +28,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/go-gilt/internal/git"
+	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/go-gilt/internal/exec"
 )
 
 type ExecManagerPublicTestSuite struct {
@@ -37,8 +38,8 @@ type ExecManagerPublicTestSuite struct {
 
 func (suite *ExecManagerPublicTestSuite) NewTestExecManager(
 	debug bool,
-) git.ExecManager {
-	return git.NewExecManagerCmd(
+) internal.ExecManager {
+	return exec.New(
 		debug,
 		slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
