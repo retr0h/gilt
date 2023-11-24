@@ -93,7 +93,7 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 		{
 			Git:     suite.gitURL,
 			Version: suite.gitVersion,
-			Sources: []config.Sources{
+			Sources: []config.Source{
 				{
 					Src:    "srcDir",
 					DstDir: suite.dstDir,

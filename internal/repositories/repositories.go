@@ -126,6 +126,12 @@ func (r *Repositories) Overlay() error {
 				return err
 			}
 		}
+
+		if len(c.Commands) > 0 {
+			for _, command := range c.Commands {
+				fmt.Println(command)
+			}
+		}
 	}
 
 	return nil

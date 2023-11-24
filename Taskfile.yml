@@ -117,5 +117,5 @@ tasks:
     cmds:
       - mockgen -source=internal/git.go -destination=internal/git/git_mock.go -package=git
       - mockgen -source=internal/repository.go -destination=internal/repository/repository_mock.go -package=repository
-      - mockgen -source=internal/git/types.go -destination=internal/git/exec_mock.go -package=git
+      - mockgen -source=internal/exec.go -destination=internal/exec/exec_mock.go -package=exec
       - mockgen -source=internal/repository/types.go -destination=internal/repository/copy_mock.go -package=repository

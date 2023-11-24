@@ -29,13 +29,15 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/afero"
+
+	"github.com/retr0h/go-gilt/internal"
 )
 
 // New factory to create a new Git instance.
 func New(
 	appFs afero.Fs,
 	debug bool,
-	execManager ExecManager,
+	execManager internal.ExecManager,
 	logger *slog.Logger,
 ) *Git {
 	return &Git{
