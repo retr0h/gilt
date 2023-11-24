@@ -36,4 +36,5 @@ type Repositories struct {
 	logger *slog.Logger
 
 	repoManager internal.RepositoryManager
+	execManager internal.ExecManager
 }

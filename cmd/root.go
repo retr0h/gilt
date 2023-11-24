@@ -43,6 +43,7 @@ var (
 	repos     internal.RepositoriesManager
 	logger    *slog.Logger
 	appConfig config.Repositories
+	appFs     afero.Fs
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -129,7 +130,7 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	appFs := afero.NewOsFs()
+	appFs = afero.NewOsFs()
 
 	repoManager := repository.NewCopy(
 		appFs,
@@ -157,6 +158,7 @@ func initConfig() {
 			g,
 			logger,
 		),
+		execManager,
 		logger,
 	)
 }

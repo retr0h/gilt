@@ -54,7 +54,7 @@ func (g *Git) Clone(
 	cloneDir string,
 ) error {
 	// return g.execManager.Clone(gitURL, cloneDir)
-	return g.execManager.RunCmd("git", "clone", gitURL, cloneDir)
+	return g.execManager.RunCmd("git", []string{"clone", gitURL, cloneDir})
 }
 
 // Reset to the given git version.
@@ -62,7 +62,7 @@ func (g *Git) Reset(
 	cloneDir string,
 	gitVersion string,
 ) error {
-	return g.execManager.RunCmd("git", "-C", cloneDir, "reset", "--hard", gitVersion)
+	return g.execManager.RunCmd("git", []string{"-C", cloneDir, "reset", "--hard", gitVersion})
 }
 
 // CheckoutIndex checkout Repository.Git to Repository.DstDir.
@@ -91,5 +91,5 @@ func (g *Git) CheckoutIndex(
 		dst + string(os.PathSeparator),
 	}
 
-	return g.execManager.RunCmd("git", cmdArgs...)
+	return g.execManager.RunCmd("git", cmdArgs)
 }

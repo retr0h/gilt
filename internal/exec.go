@@ -22,5 +22,5 @@ package internal
 
 // ExecManager manager responsible for exec operations.
 type ExecManager interface {
-	RunCmd(name string, args ...string) error
+	RunCmd(name string, args []string) error
 }

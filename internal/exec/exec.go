@@ -41,7 +41,7 @@ func New(
 // Yeah, yeah, yeah, I know I cheated by using Exec in this package.
 func (e *Exec) RunCmd(
 	name string,
-	args ...string,
+	args []string,
 ) error {
 	cmd := exec.Command(name, args...)
 

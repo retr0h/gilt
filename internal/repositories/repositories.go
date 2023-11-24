@@ -39,12 +39,14 @@ func New(
 	appFs afero.Fs,
 	c config.Repositories,
 	repoManager internal.RepositoryManager,
+	execManager internal.ExecManager,
 	logger *slog.Logger,
 ) *Repositories {
 	return &Repositories{
 		appFs:       appFs,
 		config:      c,
 		repoManager: repoManager,
+		execManager: execManager,
 		logger:      logger,
 	}
 }
@@ -69,26 +71,26 @@ func (r *Repositories) getCloneHash(
 	return fmt.Sprintf("%s-%s", replacedGitURL, c.Version)
 }
 
-// getGiltDir create the GiltDir if it doesn't exist.
-func (r *Repositories) getGiltDir() (string, error) {
-	expandedGiltDir, err := giltpath.ExpandUser(r.config.GiltDir)
+// getCacheDir create the cacheDir if it doesn't exist.
+func (r *Repositories) getCacheDir() (string, error) {
+	giltDir, err := giltpath.ExpandUser(r.config.GiltDir)
 	if err != nil {
 		return "", err
 	}
 
-	cacheGiltDir := filepath.Join(expandedGiltDir, "cache")
-	if _, err := r.appFs.Stat(cacheGiltDir); os.IsNotExist(err) {
-		if err := r.appFs.Mkdir(cacheGiltDir, 0o755); err != nil {
+	cacheDir := filepath.Join(giltDir, "cache")
+	if _, err := r.appFs.Stat(cacheDir); os.IsNotExist(err) {
+		if err := r.appFs.Mkdir(cacheDir, 0o755); err != nil {
 			return "", err
 		}
 	}
 
-	return cacheGiltDir, nil
+	return cacheDir, nil
 }
 
 // Overlay clone and extract the Repository items.
 func (r *Repositories) Overlay() error {
-	cacheDir, err := r.getGiltDir()
+	cacheDir, err := r.getCacheDir()
 	if err != nil {
 		r.logger.Error(
 			"error expanding dir",
@@ -124,6 +126,19 @@ func (r *Repositories) Overlay() error {
 		if len(c.Sources) > 0 {
 			if err := r.repoManager.CopySources(c, cloneDir); err != nil {
 				return err
+			}
+		}
+
+		// run post commands
+		if len(c.Commands) > 0 {
+			for _, command := range c.Commands {
+				r.logger.Info(
+					"executing commmand",
+					slog.String("cmd", command.Cmd),
+				)
+				if err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
+					return err
+				}
 			}
 		}
 	}

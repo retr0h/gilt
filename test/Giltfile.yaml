@@ -3,6 +3,9 @@ repositories:
   - git: https://github.com/retr0h/ansible-etcd.git
     version: 77a95b7
     dstDir: retr0h.ansible-etcd
+    commands:
+      - cmd: touch
+        args: ansible-etcd-repo-post-command-1
   - git: https://github.com/lorin/openstack-ansible-modules.git
     version: 2677cc3
     sources:
@@ -14,3 +17,8 @@ repositories:
         dstFile: library/neutron_router.py
       - src: tests
         dstDir: tests
+    commands:
+      - cmd: touch
+        args: openstack-ansible-modules-repo-post-command-1
+      - cmd: touch
+        args: openstack-ansible-modules-repo-post-command-2

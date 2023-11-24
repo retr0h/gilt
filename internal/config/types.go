@@ -32,14 +32,20 @@ type Repositories struct {
 	Repositories []Repository `mapstruture:"repositories"`
 }
 
-// Sources mapping of files and/or directories needing copied.
-type Sources struct {
+// Source mapping of files and/or directories needing copied.
+type Source struct {
 	// Src source file or directory to copy.
 	Src string `mapstructure:"src"`
 	// DstFile destination of file copy.
 	DstFile string `mapstructure:"dstFile"`
 	// DstDir destination of directory copy.
 	DstDir string `mapstructure:"dstDir"`
+}
+
+// Command command to execute.
+type Command struct {
+	Cmd  string   `mapstructure:"cmd"`
+	Args []string `mapstructure:"args"`
 }
 
 // Repository contains the repository's details for cloning.
@@ -51,5 +57,7 @@ type Repository struct {
 	// DstDir destination directory to copy clone to.
 	DstDir string `mapstructure:"dstDir"`
 	// Sources containing files and/or directories to copy.
-	Sources []Sources `mapstructure:"sources"`
+	Sources []Source `mapstructure:"sources"`
+	// Commands commands to execute on Repository.
+	Commands []Command `mapstructure:"commands"`
 }
