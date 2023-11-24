@@ -18,8 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// TODO(retr0h): move to public testing pattern
-package path
+package path_test
 
 import (
 	"fmt"
@@ -28,39 +27,41 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/retr0h/go-gilt/internal/path"
 )
 
-type PathTestSuite struct {
+type PathPublicTestSuite struct {
 	suite.Suite
 }
 
-func (suite *PathTestSuite) TestexpandUserOk() {
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
+func (suite *PathPublicTestSuite) TestexpandUserOk() {
+	originalCurrentUser := path.CurrentUser
+	path.CurrentUser = func() (*user.User, error) {
 		return &user.User{
 			HomeDir: "/testUser",
 		}, nil
 	}
-	defer func() { currentUser = originalCurrentUser }()
+	defer func() { path.CurrentUser = originalCurrentUser }()
 
-	got, err := ExpandUser("~/foo/bar")
+	got, err := path.ExpandUser("~/foo/bar")
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), got, "/testUser/foo/bar")
 }
 
-func (suite *PathTestSuite) TestexpandUserReturnsError() {
-	originalCurrentUser := currentUser
-	currentUser = func() (*user.User, error) {
+func (suite *PathPublicTestSuite) TestexpandUserReturnsError() {
+	originalCurrentUser := path.CurrentUser
+	path.CurrentUser = func() (*user.User, error) {
 		return nil, fmt.Errorf("failed to get current user")
 	}
-	defer func() { currentUser = originalCurrentUser }()
+	defer func() { path.CurrentUser = originalCurrentUser }()
 
-	_, err := ExpandUser("~/foo/bar")
+	_, err := path.ExpandUser("~/foo/bar")
 	assert.Error(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
-func TestPathTestSuite(t *testing.T) {
-	suite.Run(t, new(PathTestSuite))
+func TestPathPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(PathPublicTestSuite))
 }
