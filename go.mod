@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.6.0
 	github.com/lmittmann/tint v1.0.3
 	github.com/spf13/afero v1.10.0
 	github.com/spf13/cobra v1.8.0
