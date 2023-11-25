@@ -21,7 +21,7 @@
 package internal
 
 import (
-	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/pkg/config"
 )
 
 // RepositoryManager manager responsible for Repository operations.

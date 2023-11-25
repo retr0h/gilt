@@ -87,17 +87,47 @@ The config file and/or env vars can be overriden/defined through cli flags.
 
 ## Usage
 
-### Overlay Repository
+### CLI
+
+#### Overlay Repository
 
 Overlay a remote repository into the destination provided.
 
     $ gilt overlay
 
-### Debug
+#### Debug
 
 Display the git commands being executed.
 
     $ gilt --debug overlay
+
+### Package
+
+#### Overlay Repository
+
+See example client in `test/integration/client/`.
+
+```golang
+func main() {
+	debug := true
+	logger := getLogger(debug)
+
+	c := config.Repositories{
+		Debug:   debug,
+		GiltDir: "~/.gilt",
+		Repositories: []config.Repository{
+			{
+				Git:     "https://github.com/retr0h/ansible-etcd.git",
+				Version: "77a95b7",
+				DstDir:  "../tmp/retr0h.ansible-etcd",
+			},
+		},
+	}
+
+	var r repositoriesManager = repositories.New(c, logger)
+	r.Overlay()
+}
+```
 
 ## Building
 

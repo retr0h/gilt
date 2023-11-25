@@ -18,23 +18,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package repositories
+package pkg
 
-import (
-	"log/slog"
-
-	"github.com/spf13/afero"
-
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/pkg/config"
-)
-
-// Repositories perform repository operations.
-type Repositories struct {
-	appFs  afero.Fs
-	config config.Repositories
-	logger *slog.Logger
-
-	repoManager internal.RepositoryManager
-	execManager internal.ExecManager
+// RepositoriesManager manager responsible for public Repositories operations.
+type RepositoriesManager interface {
+	Overlay() error
 }

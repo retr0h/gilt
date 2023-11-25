@@ -27,23 +27,18 @@ import (
 	"time"
 
 	"github.com/lmittmann/tint"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/config"
-	"github.com/retr0h/go-gilt/internal/exec"
-	"github.com/retr0h/go-gilt/internal/git"
-	"github.com/retr0h/go-gilt/internal/repositories"
-	"github.com/retr0h/go-gilt/internal/repository"
+	"github.com/retr0h/go-gilt/pkg"
+	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/go-gilt/pkg/repositories"
 )
 
 var (
-	repos     internal.RepositoriesManager
+	repos     pkg.RepositoriesManager
 	logger    *slog.Logger
 	appConfig config.Repositories
-	appFs     afero.Fs
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -130,35 +125,8 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	appFs = afero.NewOsFs()
-
-	repoManager := repository.NewCopy(
-		appFs,
-		logger,
-	)
-
-	execManager := exec.New(
-		appConfig.Debug,
-		logger,
-	)
-
-	g := git.New(
-		appFs,
-		appConfig.Debug,
-		execManager,
-		logger,
-	)
-
 	repos = repositories.New(
-		appFs,
 		appConfig,
-		repository.New(
-			appFs,
-			repoManager,
-			g,
-			logger,
-		),
-		execManager,
 		logger,
 	)
 }

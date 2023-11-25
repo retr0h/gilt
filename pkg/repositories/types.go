@@ -31,10 +31,8 @@ import (
 
 // Repositories perform repository operations.
 type Repositories struct {
-	appFs  afero.Fs
-	config config.Repositories
-	logger *slog.Logger
-
-	repoManager internal.RepositoryManager
-	execManager internal.ExecManager
+	appFs        afero.Fs
+	c            config.Repositories
+	reposManager internal.RepositoriesManager
+	logger       *slog.Logger
 }
