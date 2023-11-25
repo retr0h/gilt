@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/config"
+	"github.com/retr0h/go-gilt/pkg/config"
 )
 
 // New factory to create a new Repository instance.

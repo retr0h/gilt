@@ -33,10 +33,10 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/config"
 	"github.com/retr0h/go-gilt/internal/exec"
 	"github.com/retr0h/go-gilt/internal/repositories"
 	"github.com/retr0h/go-gilt/internal/repository"
+	"github.com/retr0h/go-gilt/pkg/config"
 )
 
 type RepositoriesPublicTestSuite struct {

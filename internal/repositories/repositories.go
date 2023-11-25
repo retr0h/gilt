@@ -30,8 +30,8 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/config"
-	giltpath "github.com/retr0h/go-gilt/internal/path"
+	intPath "github.com/retr0h/go-gilt/internal/path"
+	"github.com/retr0h/go-gilt/pkg/config"
 )
 
 // New factory to create a new Repository instance.
@@ -73,7 +73,7 @@ func (r *Repositories) getCloneHash(
 
 // getCacheDir create the cacheDir if it doesn't exist.
 func (r *Repositories) getCacheDir() (string, error) {
-	giltDir, err := giltpath.ExpandUser(r.config.GiltDir)
+	giltDir, err := intPath.ExpandUser(r.config.GiltDir)
 	if err != nil {
 		return "", err
 	}

@@ -18,6 +18,6 @@ repositories:
         dstDir: /tmp/tests
     commands:
       - cmd: touch
-        args: post-command-1
+        args: /tmp/post-command-1
       - cmd: touch
-        args: post-command-2
+        args: /tmp/post-command-2
