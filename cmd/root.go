@@ -125,6 +125,14 @@ func initConfig() {
 		os.Exit(1)
 	}
 
+	err := config.Validate(&appConfig)
+	if err != nil {
+		logger.Error("validation failed",
+			slog.String("err", err.Error()),
+		)
+		os.Exit(1)
+	}
+
 	repos = repositories.New(
 		appConfig,
 		logger,
