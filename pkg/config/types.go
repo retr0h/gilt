@@ -25,39 +25,41 @@ type Repositories struct {
 	// Debug enable or disable debug option set from CLI.
 	Debug bool `mapstruture:"debug"`
 	// GiltFile path to Gilt's config file option set from CLI.
-	GiltFile string `mapstructure:"giltFile"`
+	GiltFile string `                           mapstructure:"giltFile" validate:"required"`
 	// GiltDir path to Gilt's clone dir option set from CLI.
-	GiltDir string `mapstructure:"giltDir"`
+	GiltDir string `                           mapstructure:"giltDir"  validate:"required"`
 	// Repositories a slice of repository configurations to overlay.
-	Repositories []Repository `mapstruture:"repositories"`
+	Repositories []Repository `mapstruture:"repositories"                         validate:"required,dive"`
 }
 
 // Source mapping of files and/or directories needing copied.
 type Source struct {
 	// Src source file or directory to copy.
-	Src string `mapstructure:"src"`
+	Src string `mapstructure:"src"     validate:"required"`
 	// DstFile destination of file copy.
-	DstFile string `mapstructure:"dstFile"`
+	DstFile string `mapstructure:"dstFile" validate:"required_without=DstDir,excluded_with=DstDir"`
 	// DstDir destination of directory copy.
-	DstDir string `mapstructure:"dstDir"`
+	DstDir string `mapstructure:"dstDir"  validate:"required_without=DstFile,excluded_with=DstFile"`
 }
+
+//  Water string `validate:"required_without=Fire,excluded_with=Fire"`
 
 // Command command to execute.
 type Command struct {
-	Cmd  string   `mapstructure:"cmd"`
+	Cmd  string   `mapstructure:"cmd"  validate:"required"`
 	Args []string `mapstructure:"args"`
 }
 
 // Repository contains the repository's details for cloning.
 type Repository struct {
 	// Git url of Git repository to clone.
-	Git string `mapstructure:"git"`
+	Git string `mapstructure:"git"      validate:"required"`
 	// Version of Git repository to use.
-	Version string `mapstructure:"version"`
+	Version string `mapstructure:"version"  validate:"required,git_commit_id"`
 	// DstDir destination directory to copy clone to.
-	DstDir string `mapstructure:"dstDir"`
+	DstDir string `mapstructure:"dstDir"   validate:"required_without=Sources,excluded_with=Sources"`
 	// Sources containing files and/or directories to copy.
-	Sources []Source `mapstructure:"sources"`
+	Sources []Source `mapstructure:"sources"  validate:"dive,required_without=DstDir,excluded_with=DstDir"`
 	// Commands commands to execute on Repository.
 	Commands []Command `mapstructure:"commands"`
 }
