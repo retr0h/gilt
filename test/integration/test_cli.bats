@@ -181,7 +181,7 @@ teardown() {
 }
 
 @test "invoke gilt client" {
-	run bash -c "cd ${GILT_TEST_CLIENT_DIR}; go run main.go"
+	run bash -c "cd ${GILT_TEST_CLIENT_DIR}; go mod tidy; go run main.go"
  	echo $output
 
 	run stat ${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd/
