@@ -6,6 +6,9 @@ test/integration:
   - tests/*
   - tests/*/**
 
+kind/go:
+  - "**/*.go"
+
 kind/yaml:
   - "**/*.yaml"
   - "**/*.yml"

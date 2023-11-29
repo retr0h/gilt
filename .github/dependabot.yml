@@ -10,3 +10,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "test/integration/client/"
+    schedule:
+      interval: "daily"
