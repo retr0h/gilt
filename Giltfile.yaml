@@ -24,3 +24,7 @@ repositories:
         args: /tmp/post-command-1
       - cmd: touch
         args: /tmp/post-command-2
+      - cmd: ls
+        args:
+          - -altr
+          - /tmp
