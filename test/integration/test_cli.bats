@@ -21,7 +21,7 @@
 
 GILT_TEST_BASE_DIR=test/integration
 GILT_TEST_BASE_TMP_DIR=${GILT_TEST_BASE_DIR}/tmp
-GILT_TEST_CLIENT_DIR=${GILT_TEST_BASE_DIR}/client
+GILT_TEST_CLIENT_DIR=examples/go-client
 GILT_LIBRARY_DIR=${GILT_TEST_BASE_TMP_DIR}/library
 GILT_ROLES_DIR=${GILT_TEST_BASE_TMP_DIR}/roles
 GILT_TEST_DIR=${GILT_TEST_BASE_TMP_DIR}/tests
@@ -182,6 +182,7 @@ teardown() {
 
 @test "invoke gilt client" {
 	run bash -c "cd ${GILT_TEST_CLIENT_DIR}; go mod tidy; go run main.go"
+ 	[ "$status" -eq 0 ]
  	echo $output
 
 	run stat ${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd/
