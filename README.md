@@ -105,7 +105,7 @@ Display the git commands being executed.
 
 #### Overlay Repository
 
-See example client in `test/integration/client/`.
+See example client in `examples/client/`.
 
 ```golang
 func main() {

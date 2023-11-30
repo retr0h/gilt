@@ -12,6 +12,6 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "test/integration/client/"
+    directory: "examples/go-client/"
     schedule:
       interval: "daily"

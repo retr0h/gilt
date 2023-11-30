@@ -42,7 +42,7 @@ func main() {
 			{
 				Git:     "https://github.com/retr0h/ansible-etcd.git",
 				Version: "77a95b7",
-				DstDir:  "../tmp/retr0h.ansible-etcd",
+				DstDir:  "../../test/integration/tmp/retr0h.ansible-etcd",
 			},
 		},
 	}

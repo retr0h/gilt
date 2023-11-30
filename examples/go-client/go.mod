@@ -2,7 +2,7 @@ module example.com/client
 
 go 1.21.0
 
-replace github.com/retr0h/go-gilt v0.0.0 => ../../../../go-gilt/
+replace github.com/retr0h/go-gilt v0.0.0 => ../../../go-gilt/
 
 require (
 	github.com/lmittmann/tint v1.0.3
