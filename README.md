@@ -19,11 +19,9 @@ often shared, but Ansible's [Galaxy][] has no mechanism to handle this.
 
 ## Port
 
-This project is a port of [Gilt][], it is not 100% compatible with the python
-version, and aims to correct poor decisions made in the python version of
-Gilt.
-
-This version of Gilt does not handle branches unlike our python friend.
+This project is a golang port of [Gilt][], and aims to correct poor decisions
+made in the python version, primarially around config syntax, and not supporting
+braches in favor of reproducibility.
 
 ## Installation
 
