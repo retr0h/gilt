@@ -45,12 +45,13 @@ type RepositoryPublicTestSuite struct {
 	mockGit         *git.MockGitManager
 	mockCopyManager *repository.MockCopyManager
 
-	appFs      afero.Fs
-	cloneDir   string
-	dstDir     string
-	gitURL     string
-	gitVersion string
-	logger     *slog.Logger
+	appFs    afero.Fs
+	cloneDir string
+	dstDir   string
+	gitURL   string
+	gitSHA   string
+	gitTag   string
+	logger   *slog.Logger
 }
 
 func (suite *RepositoryPublicTestSuite) NewRepositoryManager() internal.RepositoryManager {
@@ -72,7 +73,8 @@ func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 	suite.gitURL = "https://example.com/user/repo.git"
-	suite.gitVersion = "abc123"
+	suite.gitSHA = "abc123"
+	suite.gitTag = "v1.1"
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
@@ -80,13 +82,13 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 	}
 
 	gomock.InOrder(
 		suite.mockGit.EXPECT().Clone(suite.gitURL, suite.cloneDir).Return(nil),
-		suite.mockGit.EXPECT().Reset(suite.cloneDir, suite.gitVersion).Return(nil),
+		suite.mockGit.EXPECT().Reset(suite.cloneDir, suite.gitSHA).Return(nil),
 	)
 
 	err := repo.Clone(c, suite.cloneDir)
@@ -97,14 +99,14 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenCloneErrors() {
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 	}
 
 	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(suite.gitURL, suite.cloneDir).Return(errors),
-		suite.mockGit.EXPECT().Reset(suite.cloneDir, suite.gitVersion).Return(nil),
+		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(errors),
+		suite.mockGit.EXPECT().Reset(gomock.Any(), gomock.Any()).Return(nil),
 	)
 
 	err := repo.Clone(c, suite.cloneDir)
@@ -115,14 +117,14 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenResetErrors() {
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 	}
 
 	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(suite.gitURL, suite.cloneDir).Return(nil),
-		suite.mockGit.EXPECT().Reset(suite.cloneDir, suite.gitVersion).Return(errors),
+		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil),
+		suite.mockGit.EXPECT().Reset(gomock.Any(), gomock.Any()).Return(errors),
 	)
 
 	err := repo.Clone(c, suite.cloneDir)
@@ -133,14 +135,47 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 	}
 
 	_ = suite.appFs.MkdirAll(suite.cloneDir, 0o755)
 
 	err := repo.Clone(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCloneByTagOk() {
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git: suite.gitURL,
+		Tag: suite.gitTag,
+	}
+
+	gomock.InOrder(
+		suite.mockGit.EXPECT().CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir).Return(nil),
+	)
+
+	err := repo.Clone(c, suite.cloneDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCloneByTagReturnsError() {
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git: suite.gitURL,
+		Tag: suite.gitTag,
+	}
+
+	errors := errors.New("tests error")
+	gomock.InOrder(
+		suite.mockGit.EXPECT().CloneByTag(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors),
+	)
+
+	err := repo.Clone(c, suite.cloneDir)
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDirDoesNotExist() {
@@ -155,8 +190,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -185,8 +220,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsD
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -214,8 +249,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -261,8 +296,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    "subDir/*_manage",
@@ -313,8 +348,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    "subDir/*.txt",
@@ -342,8 +377,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFileAndDstF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",
@@ -372,8 +407,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git:     suite.gitURL,
-		Version: suite.gitVersion,
+		Git: suite.gitURL,
+		SHA: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",

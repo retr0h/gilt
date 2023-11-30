@@ -147,7 +147,7 @@ func (r *Repositories) logRepositoriesGroup() []any {
 
 		group := slog.Group(strconv.Itoa(i),
 			slog.String("Git", repo.Git),
-			slog.String("Version", repo.Version),
+			slog.String("SHA", repo.SHA),
 			slog.String("DstDir", repo.DstDir),
 			slog.Group("Sources", sourceGroups...),
 			slog.Group("Commands", cmdGroups...),

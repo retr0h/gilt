@@ -40,9 +40,9 @@ func main() {
 		GiltDir: "~/.gilt",
 		Repositories: []config.Repository{
 			{
-				Git:     "https://github.com/retr0h/ansible-etcd.git",
-				Version: "77a95b7",
-				DstDir:  "../../test/integration/tmp/retr0h.ansible-etcd",
+				Git:    "https://github.com/retr0h/ansible-etcd.git",
+				SHA:    "77a95b7",
+				DstDir: "../../test/integration/tmp/retr0h.ansible-etcd",
 			},
 		},
 	}

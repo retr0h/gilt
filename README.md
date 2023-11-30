@@ -23,8 +23,7 @@ This project is a port of [Gilt][], it is not 100% compatible with the python
 version, and aims to correct poor decisions made in the python version of
 Gilt.
 
-This version of Gilt does not handle branches and tags unlike our python
-friend.  However, those features will be added soon.
+This version of Gilt does not handle branches unlike our python friend.
 
 ## Installation
 
@@ -48,11 +47,13 @@ giltDir: ~/.gilt/clone
 debug: false
 repositories:
   - git: https://github.com/retr0h/ansible-etcd.git
-    version: 77a95b7
+    sha: 77a95b7
     dstDir: roles/retr0h.ansible-etcd
-
+  - git: https://github.com/retr0h/ansible-etcd.git
+    tag: 1.1
+    dstDir: roles/retr0h.ansible-etcd-tag
   - git: https://github.com/lorin/openstack-ansible-modules.git
-    version: 2677cc3
+    sha: 2677cc3
     sources:
       - src: "*_manage"
         dstDir: library
@@ -118,7 +119,7 @@ func main() {
 		Repositories: []config.Repository{
 			{
 				Git:     "https://github.com/retr0h/ansible-etcd.git",
-				Version: "77a95b7",
+				SHA:     "77a95b7",
 				DstDir:  "../tmp/retr0h.ansible-etcd",
 			},
 		},
