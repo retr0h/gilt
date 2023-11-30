@@ -50,7 +50,7 @@ type RepositoriesPublicTestSuite struct {
 	dstDir           string
 	giltDir          string
 	gitURL           string
-	gitVersion       string
+	gitSHA           string
 	repoConfigDstDir []config.Repository
 	logger           *slog.Logger
 }
@@ -84,12 +84,12 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 	suite.dstDir = "/dstDir"
 	suite.giltDir = "/giltDir"
 	suite.gitURL = "https://example.com/user/repo.git"
-	suite.gitVersion = "abc1234"
+	suite.gitSHA = "abc1234"
 	suite.repoConfigDstDir = []config.Repository{
 		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
-			DstDir:  suite.dstDir,
+			Git:    suite.gitURL,
+			SHA:    suite.gitSHA,
+			DstDir: suite.dstDir,
 		},
 	}
 
@@ -150,8 +150,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCheckoutInd
 func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
 	repoConfig := []config.Repository{
 		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
+			Git: suite.gitURL,
+			SHA: suite.gitSHA,
 			Sources: []config.Source{
 				{
 					Src:    "srcDir",
@@ -174,8 +174,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
 func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySourcesErrors() {
 	repoConfig := []config.Repository{
 		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
+			Git: suite.gitURL,
+			SHA: suite.gitSHA,
 			Sources: []config.Source{
 				{
 					Src:    "srcDir",
@@ -197,9 +197,9 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySources
 func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCommands() {
 	repoConfig := []config.Repository{
 		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
-			DstDir:  suite.dstDir,
+			Git:    suite.gitURL,
+			SHA:    suite.gitSHA,
+			DstDir: suite.dstDir,
 			Commands: []config.Command{
 				{
 					Cmd:  "touch",
@@ -222,9 +222,9 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCommands() {
 func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCommandErrors() {
 	repoConfig := []config.Repository{
 		{
-			Git:     suite.gitURL,
-			Version: suite.gitVersion,
-			DstDir:  suite.dstDir,
+			Git:    suite.gitURL,
+			SHA:    suite.gitSHA,
+			DstDir: suite.dstDir,
 			Commands: []config.Command{
 				{
 					Cmd:  "touch",

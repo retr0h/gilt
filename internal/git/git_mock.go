@@ -61,16 +61,30 @@ func (mr *MockGitManagerMockRecorder) Clone(gitURL, cloneDir interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clone", reflect.TypeOf((*MockGitManager)(nil).Clone), gitURL, cloneDir)
 }
 
-// Reset mocks base method.
-func (m *MockGitManager) Reset(cloneDir, gitVersion string) error {
+// CloneByTag mocks base method.
+func (m *MockGitManager) CloneByTag(gitURL, gitTag, cloneDir string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Reset", cloneDir, gitVersion)
+	ret := m.ctrl.Call(m, "CloneByTag", gitURL, gitTag, cloneDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CloneByTag indicates an expected call of CloneByTag.
+func (mr *MockGitManagerMockRecorder) CloneByTag(gitURL, gitTag, cloneDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloneByTag", reflect.TypeOf((*MockGitManager)(nil).CloneByTag), gitURL, gitTag, cloneDir)
+}
+
+// Reset mocks base method.
+func (m *MockGitManager) Reset(cloneDir, gitSHA string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Reset", cloneDir, gitSHA)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Reset indicates an expected call of Reset.
-func (mr *MockGitManagerMockRecorder) Reset(cloneDir, gitVersion interface{}) *gomock.Call {
+func (mr *MockGitManagerMockRecorder) Reset(cloneDir, gitSHA interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reset", reflect.TypeOf((*MockGitManager)(nil).Reset), cloneDir, gitVersion)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reset", reflect.TypeOf((*MockGitManager)(nil).Reset), cloneDir, gitSHA)
 }

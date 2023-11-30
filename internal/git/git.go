@@ -48,21 +48,32 @@ func New(
 	}
 }
 
-// Clone as exec manager to clone repo.
+// Clone git clone repo.
 func (g *Git) Clone(
 	gitURL string,
 	cloneDir string,
 ) error {
-	// return g.execManager.Clone(gitURL, cloneDir)
 	return g.execManager.RunCmd("git", []string{"clone", gitURL, cloneDir})
+}
+
+// CloneByTag git clone repo by tag.
+func (g *Git) CloneByTag(
+	gitURL string,
+	gitTag string,
+	cloneDir string,
+) error {
+	return g.execManager.RunCmd(
+		"git",
+		[]string{"clone", "--depth", "1", "--branch", gitTag, gitURL, cloneDir},
+	)
 }
 
 // Reset to the given git version.
 func (g *Git) Reset(
 	cloneDir string,
-	gitVersion string,
+	gitSHA string,
 ) error {
-	return g.execManager.RunCmd("git", []string{"-C", cloneDir, "reset", "--hard", gitVersion})
+	return g.execManager.RunCmd("git", []string{"-C", cloneDir, "reset", "--hard", gitSHA})
 }
 
 // CheckoutIndex checkout Repository.Git to Repository.DstDir.

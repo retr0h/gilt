@@ -82,24 +82,38 @@ func (suite *RepositoriesTestSuite) TestgetCloneDirOk() {
 	repos := suite.NewTestRepositories(suite.giltDir)
 
 	got := repos.getCloneDir(
-		"/giltDir",
+		suite.giltDir,
 		config.Repository{
-			Version: "abc123",
+			Git: "https://example.com/user/repo2.git",
+			SHA: "abc123",
 		},
 	)
-	assert.Equal(suite.T(), got, "/giltDir/-abc123")
+	assert.Equal(suite.T(), "/giltDir/https---example.com-user-repo2.git-abc123", got)
 }
 
-func (suite *RepositoriesTestSuite) TestgetCloneHash() {
+func (suite *RepositoriesTestSuite) TestgetCloneDirOkByTag() {
 	repos := suite.NewTestRepositories(suite.giltDir)
 
 	got := repos.getCloneDir(
-		"https://example.com/user/repo2.git",
+		suite.giltDir,
 		config.Repository{
-			Version: "abc123",
+			Git: "https://example.com/user/repo2.git",
+			Tag: "v1.1",
 		},
 	)
-	assert.Equal(suite.T(), got, "https:/example.com/user/repo2.git/-abc123")
+	assert.Equal(suite.T(), "/giltDir/https---example.com-user-repo2.git-v1.1", got)
+}
+
+func (suite *RepositoriesTestSuite) TestgetCloneHashOk() {
+	repos := suite.NewTestRepositories(suite.giltDir)
+
+	got := repos.getCloneHash(
+		config.Repository{
+			Git: "https://example.com/user/repo2.git",
+			SHA: "abc123",
+		},
+	)
+	assert.Equal(suite.T(), "https---example.com-user-repo2.git-abc123", got)
 }
 
 func (suite *RepositoriesTestSuite) TestgetCacheDir() {
@@ -108,7 +122,7 @@ func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	expectedDir := "/giltDir/cache"
 	got, err := repos.getCacheDir()
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), got, expectedDir)
+	assert.Equal(suite.T(), expectedDir, got)
 
 	exists, err := afero.Exists(suite.appFs, expectedDir)
 	assert.NoError(suite.T(), err)

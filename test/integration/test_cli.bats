@@ -30,8 +30,11 @@ GILT_DIR=~/.gilt/clone
 
 setup() {
 	GILT_CLONED_REPO_1=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git-77a95b7
-	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
+	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git-1.1
+	GILT_CLONED_REPO_3=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
+
 	GILT_CLONED_REPO_1_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd
+	GILT_CLONED_REPO_2_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd-tag
 
   mkdir -p ${GILT_DIR}
 
@@ -43,7 +46,9 @@ setup() {
 teardown() {
 	rm -rf ${GILT_CLONED_REPO_1}
 	rm -rf ${GILT_CLONED_REPO_2}
+	rm -rf ${GILT_CLONED_REPO_3}
 	rm -rf ${GILT_CLONED_REPO_1_DST_DIR}
+	rm -rf ${GILT_CLONED_REPO_2_DST_DIR}
 
 	rm -rf ${GILT_LIBRARY_DIR}
 	rm -rf ${GILT_ROLES_DIR}
@@ -126,12 +131,28 @@ teardown() {
 
 	run stat ${GILT_CLONED_REPO_2}
 	[ "$status" = 0 ]
+
+	run stat ${GILT_CLONED_REPO_3}
+	[ "$status" = 0 ]
 }
 
 @test "invoke gilt overlay and checkout index" {
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
 
 	run stat ${GILT_CLONED_REPO_1_DST_DIR}
+	[ "$status" = 0 ]
+
+	run stat ${GILT_CLONED_REPO_2_DST_DIR}
+	[ "$status" = 0 ]
+}
+
+@test "invoke gilt overlay and checkout by tag" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
+
+	run stat ${GILT_CLONED_REPO_1_DST_DIR}
+	[ "$status" = 0 ]
+
+	run stat ${GILT_CLONED_REPO_2_DST_DIR}
 	[ "$status" = 0 ]
 }
 

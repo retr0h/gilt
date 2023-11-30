@@ -80,7 +80,7 @@ func glob(
 }
 
 // Clone clone Repository.Git to Repository.getCloneDir, and hard checkout
-// to Repository.Version.
+// to Repository.SHA.
 func (r *Repository) Clone(
 	c config.Repository,
 	cloneDir string,
@@ -88,17 +88,26 @@ func (r *Repository) Clone(
 	r.logger.Info(
 		"cloning",
 		slog.String("repository", c.Git),
-		slog.String("version", c.Version),
+		slog.String("sha", c.SHA),
+		slog.String("tag", c.Tag),
 		slog.String("dstDir", cloneDir),
 	)
 
 	if _, err := r.appFs.Stat(cloneDir); os.IsNotExist(err) {
-		if err := r.gitManager.Clone(c.Git, cloneDir); err != nil {
-			return err
+		if c.SHA != "" {
+			if err := r.gitManager.Clone(c.Git, cloneDir); err != nil {
+				return err
+			}
+
+			if err := r.gitManager.Reset(cloneDir, c.SHA); err != nil {
+				return err
+			}
 		}
 
-		if err := r.gitManager.Reset(cloneDir, c.Version); err != nil {
-			return err
+		if c.Tag != "" {
+			if err := r.gitManager.CloneByTag(c.Git, c.Tag, cloneDir); err != nil {
+				return err
+			}
 		}
 	} else {
 		r.logger.Warn(

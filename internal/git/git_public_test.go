@@ -42,10 +42,11 @@ type GitManagerPublicTestSuite struct {
 	ctrl     *gomock.Controller
 	mockExec *exec.MockExecManager
 
-	gitURL     string
-	gitVersion string
-	cloneDir   string
-	dstDir     string
+	gitURL   string
+	gitSHA   string
+	gitTag   string
+	cloneDir string
+	dstDir   string
 
 	gm internal.GitManager
 }
@@ -65,7 +66,8 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 	defer suite.ctrl.Finish()
 
 	suite.gitURL = "https://example.com/user/repo.git"
-	suite.gitVersion = "abc123"
+	suite.gitSHA = "abc123"
+	suite.gitTag = "v1.1"
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 
@@ -89,11 +91,28 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	assert.Error(suite.T(), err)
 }
 
+func (suite *GitManagerPublicTestSuite) TestCloneByTagOk() {
+	suite.mockExec.EXPECT().
+		RunCmd("git", []string{"clone", "--depth", "1", "--branch", suite.gitTag, suite.gitURL, suite.cloneDir}).
+		Return(nil)
+
+	err := suite.gm.CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *GitManagerPublicTestSuite) TestCloneByTagReturnsError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
+
+	err := suite.gm.CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *GitManagerPublicTestSuite) TestResetOk() {
 	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"-C", suite.cloneDir, "reset", "--hard", suite.gitVersion})
+		RunCmd("git", []string{"-C", suite.cloneDir, "reset", "--hard", suite.gitSHA})
 
-	err := suite.gm.Reset(suite.cloneDir, suite.gitVersion)
+	err := suite.gm.Reset(suite.cloneDir, suite.gitSHA)
 	assert.NoError(suite.T(), err)
 }
 
@@ -101,7 +120,7 @@ func (suite *GitManagerPublicTestSuite) TestResetReturnsError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 
-	err := suite.gm.Reset(suite.cloneDir, suite.gitVersion)
+	err := suite.gm.Reset(suite.cloneDir, suite.gitSHA)
 	assert.Error(suite.T(), err)
 }
 

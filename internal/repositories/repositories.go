@@ -67,8 +67,12 @@ func (r *Repositories) getCloneHash(
 		":", "-",
 	)
 	replacedGitURL := replacer.Replace(c.Git)
+	version := c.SHA
+	if c.Tag != "" {
+		version = c.Tag
+	}
 
-	return fmt.Sprintf("%s-%s", replacedGitURL, c.Version)
+	return fmt.Sprintf("%s-%s", replacedGitURL, version)
 }
 
 // getCacheDir create the cacheDir if it doesn't exist.
