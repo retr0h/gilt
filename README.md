@@ -62,7 +62,10 @@ repositories:
       - src: tests
         dstDir: tests
     commands:
-      - cmd: ansible-playbook -i, playbook.yml
+      - cmd: ansible-playbook
+        args:
+          - -i,
+          - playbook.yml
 ```
 
 ### Env Vars
