@@ -24,6 +24,27 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - "^chore"
+      - "merge conflict"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: "New Features"
+      regexp: '^feat:.*'
+      order: 100
+    - title: "Bug fixes"
+      regexp: '^fix:.*'
+      order: 200
+    - title: "Documentation updates"
+      regexp: '^docs:.*'
+      order: 400
+    - title: "Build process updates"
+      regexp: 'build:.*'
+      order: 400
+    - title: Other work
+      order: 9999
 brews:
   - repository:
       owner: retr0h
