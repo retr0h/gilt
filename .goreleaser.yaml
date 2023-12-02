@@ -24,3 +24,18 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+  - repository:
+      owner: retr0h
+      name: homebrew-tap
+    folder: Formula
+    goarm: "7"
+    homepage: https://github.com/retr0h/go-gilt
+    description: A GIT layering tool
+    license: MIT
+    test: |
+      system "#{bin}/goreleaser -v"
+    dependencies:
+      - name: go
+        type: optional
+      - name: git
