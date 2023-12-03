@@ -36,8 +36,8 @@ import (
 )
 
 var (
-	repos     pkg.RepositoriesManager
 	logger    *slog.Logger
+	repos     pkg.RepositoriesManager
 	appConfig config.Repositories
 )
 
@@ -70,9 +70,6 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLogger) // initial logger
-	cobra.OnInitialize(initConfig, initLogger)
-
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable or disable debug mode")
 	rootCmd.PersistentFlags().
 		StringP("gilt-dir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
@@ -99,7 +96,8 @@ func initLogger() {
 	)
 }
 
-func initConfig() {
+func initConfig(cmd *cobra.Command, args []string) {
+	initLogger()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.SetConfigType("yaml")

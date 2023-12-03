@@ -64,7 +64,7 @@ teardown() {
 }
 
 @test "invoke gilt version subcommand" {
-	run go run main.go version
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; rm -f Giltfile.yaml; go run ${GILT_PROGRAM} version"
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | jq '.date'
