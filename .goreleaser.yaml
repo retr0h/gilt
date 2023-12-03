@@ -19,10 +19,10 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
+  divider: "---"
   sort: asc
   filters:
     exclude:
-      - '^docs:'
       - '^test:'
       - "^chore"
       - "merge conflict"
@@ -31,20 +31,27 @@ changelog:
       - Merge branch
       - go mod tidy
   groups:
-    - title: "New Features"
-      regexp: '^feat:.*'
-      order: 100
+    - title: "Features"
+      regexp: "^.*?feat:.*$"
+      order: 0
     - title: "Bug fixes"
-      regexp: '^fix:.*'
-      order: 200
-    - title: "Documentation updates"
-      regexp: '^docs:.*'
-      order: 400
-    - title: "Build process updates"
-      regexp: 'build:.*'
-      order: 400
-    - title: Other work
-      order: 9999
+      regexp: "^.*?fix:.*$"
+      order: 1
+    - title: Others
+      order: 999
+      subgroups:
+      - title: "Chores"
+        regexp: "^.*?chore:.*$"
+        order: 1
+      - title: "Docs"
+        regexp: "^.*?docs:.*$"
+        order: 2
+      - title: "CI"
+        regexp: "^.*?ci:.*$"
+        order: 3
+      - title: "Build"
+        regexp: "^.*?build:.*$"
+        order: 4
 brews:
   - repository:
       owner: retr0h
