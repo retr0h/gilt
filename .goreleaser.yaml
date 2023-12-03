@@ -19,7 +19,6 @@ checksum:
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
-  divider: "---"
   sort: asc
   filters:
     exclude:
@@ -37,21 +36,20 @@ changelog:
     - title: "Bug fixes"
       regexp: "^.*?fix:.*$"
       order: 1
+    - title: "Chores"
+      regexp: "^.*?chore:.*$"
+      order: 2
+    - title: "Docs"
+      regexp: "^.*?docs:.*$"
+      order: 3
+    - title: "CI"
+      regexp: "^.*?ci:.*$"
+      order: 4
+    - title: "Build"
+      regexp: "^.*?build:.*$"
+      order: 5
     - title: Others
       order: 999
-      subgroups:
-      - title: "Chores"
-        regexp: "^.*?chore:.*$"
-        order: 1
-      - title: "Docs"
-        regexp: "^.*?docs:.*$"
-        order: 2
-      - title: "CI"
-        regexp: "^.*?ci:.*$"
-        order: 3
-      - title: "Build"
-        regexp: "^.*?build:.*$"
-        order: 4
 brews:
   - repository:
       owner: retr0h
