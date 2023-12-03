@@ -72,6 +72,10 @@ repositories:
         args:
           - -i,
           - playbook.yml
+      - cmd: bash
+        args:
+          - -c
+          - who | grep tty
 ```
 
 ### Env Vars
