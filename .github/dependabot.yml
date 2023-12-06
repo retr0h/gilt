@@ -5,19 +5,19 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    commit_message:
-      prefix: chore:
+    commit-message:
+      prefix: chore
 
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "daily"
-    commit_message:
-      prefix: chore:
+    commit-message:
+      prefix: chore
 
   - package-ecosystem: "gomod"
     directory: "examples/go-client/"
     schedule:
       interval: "daily"
-    commit_message:
-      prefix: chore:
+    commit-message:
+      prefix: chore
