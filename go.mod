@@ -9,7 +9,7 @@ require (
 	github.com/lmittmann/tint v1.0.3
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.hein.dev/go-version v0.1.0
 )
