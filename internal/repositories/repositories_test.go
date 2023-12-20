@@ -78,44 +78,6 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
-func (suite *RepositoriesTestSuite) TestgetCloneDirOk() {
-	repos := suite.NewTestRepositories(suite.giltDir)
-
-	got := repos.getCloneDir(
-		suite.giltDir,
-		config.Repository{
-			Git: "https://example.com/user/repo2.git",
-			SHA: "abc123",
-		},
-	)
-	assert.Equal(suite.T(), "/giltDir/https---example.com-user-repo2.git-abc123", got)
-}
-
-func (suite *RepositoriesTestSuite) TestgetCloneDirOkByTag() {
-	repos := suite.NewTestRepositories(suite.giltDir)
-
-	got := repos.getCloneDir(
-		suite.giltDir,
-		config.Repository{
-			Git: "https://example.com/user/repo2.git",
-			Tag: "v1.1",
-		},
-	)
-	assert.Equal(suite.T(), "/giltDir/https---example.com-user-repo2.git-v1.1", got)
-}
-
-func (suite *RepositoriesTestSuite) TestgetCloneHashOk() {
-	repos := suite.NewTestRepositories(suite.giltDir)
-
-	got := repos.getCloneHash(
-		config.Repository{
-			Git: "https://example.com/user/repo2.git",
-			SHA: "abc123",
-		},
-	)
-	assert.Equal(suite.T(), "https---example.com-user-repo2.git-abc123", got)
-}
-
 func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	repos := suite.NewTestRepositories(suite.giltDir)
 

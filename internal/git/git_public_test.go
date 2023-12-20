@@ -76,7 +76,7 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"clone", suite.gitURL, suite.cloneDir}).
+		RunCmd("git", []string{"clone", "--bare", "--filter=blob:none", suite.gitURL, suite.cloneDir}).
 		Return(nil)
 
 	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
@@ -88,63 +88,6 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 
 	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
-	assert.Error(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestCloneByTagOk() {
-	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"clone", "--depth", "1", "--branch", suite.gitTag, suite.gitURL, suite.cloneDir}).
-		Return(nil)
-
-	err := suite.gm.CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir)
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestCloneByTagReturnsError() {
-	errors := errors.New("tests error")
-	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
-
-	err := suite.gm.CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir)
-	assert.Error(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestResetOk() {
-	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"-C", suite.cloneDir, "reset", "--hard", suite.gitSHA})
-
-	err := suite.gm.Reset(suite.cloneDir, suite.gitSHA)
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestResetReturnsError() {
-	errors := errors.New("tests error")
-	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
-
-	err := suite.gm.Reset(suite.cloneDir, suite.gitSHA)
-	assert.Error(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestCheckoutIndexOk() {
-	cmdArgs := []string{
-		"-C",
-		suite.cloneDir,
-		"checkout-index",
-		"--force",
-		"--all",
-		"--prefix",
-		suite.dstDir + string(os.PathSeparator),
-	}
-	suite.mockExec.EXPECT().RunCmd("git", cmdArgs).Return(nil)
-
-	err := suite.gm.CheckoutIndex(suite.dstDir, suite.cloneDir)
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *GitManagerPublicTestSuite) TestCheckoutIndexReturnsError() {
-	errors := errors.New("tests error")
-	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
-
-	err := suite.gm.CheckoutIndex(suite.dstDir, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
 

@@ -46,3 +46,35 @@ func (mr *MockExecManagerMockRecorder) RunCmd(name, args interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmd", reflect.TypeOf((*MockExecManager)(nil).RunCmd), name, args)
 }
+
+// RunCmdInDir mocks base method.
+func (m *MockExecManager) RunCmdInDir(name string, args []string, cwd string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RunCmdInDir", name, args, cwd)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RunCmdInDir indicates an expected call of RunCmdInDir.
+func (mr *MockExecManagerMockRecorder) RunCmdInDir(name, args, cwd interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmdInDir", reflect.TypeOf((*MockExecManager)(nil).RunCmdInDir), name, args, cwd)
+}
+
+// RunInTempDir mocks base method.
+func (m *MockExecManager) RunInTempDir(dir, pattern string, fn func(string) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RunInTempDir", dir, pattern, fn)
+	if fn != nil {
+		ret0 := fn("stub")
+		return ret0
+	}
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RunInTempDir indicates an expected call of RunInTempDir.
+func (mr *MockExecManagerMockRecorder) RunInTempDir(dir, pattern, fn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunInTempDir", reflect.TypeOf((*MockExecManager)(nil).RunInTempDir), dir, pattern, fn)
+}

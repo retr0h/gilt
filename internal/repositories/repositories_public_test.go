@@ -98,12 +98,13 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
+	expected := filepath.Join(suite.giltDir, "cache")
 
 	suite.mockRepo.EXPECT().
-		Clone(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache/https---example.com-user-repo.git-abc1234")).
-		Return(nil)
+		Clone(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache")).
+		Return(expected, nil)
 	suite.mockRepo.EXPECT().
-		CheckoutIndex(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache/https---example.com-user-repo.git-abc1234")).
+		Worktree(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache"), suite.dstDir).
 		Return(nil)
 
 	err := repos.Overlay()
@@ -113,8 +114,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
 func (suite *RepositoriesPublicTestSuite) TestOverlayDstDirExists() {
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
 
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
-	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
 	err := repos.Overlay()
@@ -129,19 +130,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCloneErrors
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
 
 	errors := errors.New("tests error")
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(errors)
-	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
-
-	err := repos.Overlay()
-	assert.Error(suite.T(), err)
-}
-
-func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCheckoutIndexErrors() {
-	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
-
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
-	errors := errors.New("tests error")
-	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(errors)
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", errors)
+	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)
@@ -162,10 +152,10 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
 	}
 	repos := suite.NewTestRepositoriesManager(repoConfig)
 
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
-	suite.mockRepo.EXPECT().
-		CopySources(repoConfig[0], filepath.Join(suite.giltDir, "cache/https---example.com-user-repo.git-abc1234")).
-		Return(nil)
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().CopySources(repoConfig[0], gomock.Any()).Return(nil)
 
 	err := repos.Overlay()
 	assert.NoError(suite.T(), err)
@@ -185,9 +175,11 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySources
 		},
 	}
 	repos := suite.NewTestRepositoriesManager(repoConfig)
-
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
 	errors := errors.New("tests error")
+
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().CopySources(gomock.Any(), gomock.Any()).Return(errors)
 
 	err := repos.Overlay()
@@ -211,8 +203,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCommands() {
 
 	repos := suite.NewTestRepositoriesManager(repoConfig)
 
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
-	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockExec.EXPECT().RunCmd("touch", []string{"/tmp/foo"}).Return(nil)
 
 	err := repos.Overlay()
@@ -236,8 +228,8 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCommandErro
 
 	repos := suite.NewTestRepositoriesManager(repoConfig)
 
-	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil)
-	suite.mockRepo.EXPECT().CheckoutIndex(gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
 

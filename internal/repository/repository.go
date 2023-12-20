@@ -79,52 +79,42 @@ func glob(
 	return m, nil
 }
 
-// Clone clone Repository.Git to Repository.getCloneDir, and hard checkout
-// to Repository.SHA.
+// Clone Repository.Git under Repository.getCloneDir
 func (r *Repository) Clone(
 	c config.Repository,
 	cloneDir string,
-) error {
+) (string, error) {
 	r.logger.Info(
 		"cloning",
 		slog.String("repository", c.Git),
-		slog.String("sha", c.SHA),
-		slog.String("tag", c.Tag),
 		slog.String("dstDir", cloneDir),
 	)
+	targetDir := filepath.Join(cloneDir, filepath.Base(c.Git))
 
-	if _, err := r.appFs.Stat(cloneDir); os.IsNotExist(err) {
-		if c.SHA != "" {
-			if err := r.gitManager.Clone(c.Git, cloneDir); err != nil {
-				return err
-			}
-
-			if err := r.gitManager.Reset(cloneDir, c.SHA); err != nil {
-				return err
-			}
-		}
-
-		if c.Tag != "" {
-			if err := r.gitManager.CloneByTag(c.Git, c.Tag, cloneDir); err != nil {
-				return err
-			}
+	if _, err := r.appFs.Stat(targetDir); os.IsNotExist(err) {
+		if err := r.gitManager.Clone(c.Git, targetDir); err != nil {
+			return targetDir, err
 		}
 	} else {
-		r.logger.Warn(
-			"clone already exists",
-			slog.String("dstDir", cloneDir),
-		)
+		r.logger.Warn("clone already exists", slog.String("dstDir", targetDir))
 	}
 
-	return nil
+	return targetDir, nil
 }
 
-// CheckoutIndex checkout Repository.Git to Repository.DstDir.
-func (r *Repository) CheckoutIndex(
+// Create a Workingtree at the given version in Repository.DstDir.
+func (r *Repository) Worktree(
 	c config.Repository,
 	cloneDir string,
+	targetDir string,
 ) error {
-	return r.gitManager.CheckoutIndex(c.DstDir, cloneDir)
+	var version string
+	if c.SHA != "" {
+		version = c.SHA
+	} else {
+		version = c.Tag
+	}
+	return r.gitManager.Worktree(cloneDir, version, targetDir)
 }
 
 // CopySources copy Repository.Src to Repository.DstFile or Repository.DstDir.
@@ -132,6 +122,7 @@ func (r *Repository) CopySources(
 	c config.Repository,
 	cloneDir string,
 ) error {
+	r.logger.Debug("copy", slog.String("origin", cloneDir))
 	for _, source := range c.Sources {
 		parts := strings.Split(
 			source.Src,
@@ -186,17 +177,5 @@ func (r *Repository) CopySources(
 		}
 	}
 
-	return nil
-}
-
-// RunCmd run the provided command.
-func (r *Repository) RunCmd(
-	cmd string,
-) error {
-	fmt.Println(cmd)
-	fmt.Println(cmd)
-	fmt.Println(cmd)
-	fmt.Println(cmd)
-	// return r.gitManager.CheckoutIndex(c.DstDir, cloneDir)
 	return nil
 }

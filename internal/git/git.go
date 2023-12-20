@@ -48,38 +48,24 @@ func New(
 	}
 }
 
-// Clone git clone repo.
+// Git clone repo.  This is a bare repo, with only metadata to start with.
 func (g *Git) Clone(
 	gitURL string,
 	cloneDir string,
 ) error {
-	return g.execManager.RunCmd("git", []string{"clone", gitURL, cloneDir})
-}
-
-// CloneByTag git clone repo by tag.
-func (g *Git) CloneByTag(
-	gitURL string,
-	gitTag string,
-	cloneDir string,
-) error {
 	return g.execManager.RunCmd(
 		"git",
-		[]string{"clone", "--depth", "1", "--branch", gitTag, gitURL, cloneDir},
+		[]string{"clone", "--bare", "--filter=blob:none", gitURL, cloneDir},
 	)
 }
 
-// Reset to the given git version.
-func (g *Git) Reset(
+// Create a working tree from the repo in `cloneDir` at `version` in `dstDir`.
+// Under the covers, this will download any/all required objects from origin
+// into the cache
+func (g *Git) Worktree(
 	cloneDir string,
-	gitSHA string,
-) error {
-	return g.execManager.RunCmd("git", []string{"-C", cloneDir, "reset", "--hard", gitSHA})
-}
-
-// CheckoutIndex checkout Repository.Git to Repository.DstDir.
-func (g *Git) CheckoutIndex(
+	version string,
 	dstDir string,
-	cloneDir string,
 ) error {
 	dst, err := filepath.Abs(dstDir)
 	if err != nil {
@@ -88,19 +74,20 @@ func (g *Git) CheckoutIndex(
 
 	g.logger.Info(
 		"extracting",
+		slog.String("from", cloneDir),
+		slog.String("version", version),
 		slog.String("to", dst),
 	)
 
-	cmdArgs := []string{
-		"-C",
+	err = g.execManager.RunCmdInDir(
+		"git",
+		[]string{"worktree", "add", "--force", dst, version},
 		cloneDir,
-		"checkout-index",
-		"--force",
-		"--all",
-		"--prefix",
-		// Trailing separator needed by git checkout-index.
-		dst + string(os.PathSeparator),
+	)
+	// `git worktree add` creates a breadcrumb file back to the original repo;
+	// this is just junk data in our use case, so get rid of it
+	if err == nil {
+		_ = os.Remove(filepath.Join(dst, ".git"))
 	}
-
-	return g.execManager.RunCmd("git", cmdArgs)
+	return err
 }

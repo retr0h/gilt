@@ -85,13 +85,13 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 		Git: suite.gitURL,
 		SHA: suite.gitSHA,
 	}
+	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
 
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(suite.gitURL, suite.cloneDir).Return(nil),
-		suite.mockGit.EXPECT().Reset(suite.cloneDir, suite.gitSHA).Return(nil),
+		suite.mockGit.EXPECT().Clone(suite.gitURL, targetDir).Return(nil),
 	)
 
-	err := repo.Clone(c, suite.cloneDir)
+	_, err := repo.Clone(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
 }
 
@@ -106,28 +106,9 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenCloneErrors() {
 	errors := errors.New("tests error")
 	gomock.InOrder(
 		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(errors),
-		suite.mockGit.EXPECT().Reset(gomock.Any(), gomock.Any()).Return(nil),
 	)
 
-	err := repo.Clone(c, suite.cloneDir)
-	assert.Error(suite.T(), err)
-}
-
-func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenResetErrors() {
-	repo := suite.NewRepositoryManager()
-
-	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
-	}
-
-	errors := errors.New("tests error")
-	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(nil),
-		suite.mockGit.EXPECT().Reset(gomock.Any(), gomock.Any()).Return(errors),
-	)
-
-	err := repo.Clone(c, suite.cloneDir)
+	_, err := repo.Clone(c, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
 
@@ -138,44 +119,12 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 		Git: suite.gitURL,
 		SHA: suite.gitSHA,
 	}
+	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
 
-	_ = suite.appFs.MkdirAll(suite.cloneDir, 0o755)
+	_ = suite.appFs.MkdirAll(targetDir, 0o755)
 
-	err := repo.Clone(c, suite.cloneDir)
+	_, err := repo.Clone(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
-}
-
-func (suite *RepositoryPublicTestSuite) TestCloneByTagOk() {
-	repo := suite.NewRepositoryManager()
-
-	c := config.Repository{
-		Git: suite.gitURL,
-		Tag: suite.gitTag,
-	}
-
-	gomock.InOrder(
-		suite.mockGit.EXPECT().CloneByTag(suite.gitURL, suite.gitTag, suite.cloneDir).Return(nil),
-	)
-
-	err := repo.Clone(c, suite.cloneDir)
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *RepositoryPublicTestSuite) TestCloneByTagReturnsError() {
-	repo := suite.NewRepositoryManager()
-
-	c := config.Repository{
-		Git: suite.gitURL,
-		Tag: suite.gitTag,
-	}
-
-	errors := errors.New("tests error")
-	gomock.InOrder(
-		suite.mockGit.EXPECT().CloneByTag(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors),
-	)
-
-	err := repo.Clone(c, suite.cloneDir)
-	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDirDoesNotExist() {

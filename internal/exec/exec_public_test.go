@@ -71,6 +71,41 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 	assert.Contains(suite.T(), err.Error(), "not found")
 }
 
+func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirOk() {
+	em := suite.NewTestExecManager(false)
+
+	err := em.RunCmdInDir("ls", []string{}, "/tmp")
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirWithDebug() {
+	suite.T().Skip("cannot seem to capture Stdout when logging in em")
+
+	em := suite.NewTestExecManager(true)
+
+	err := em.RunCmdInDir("echo", []string{"-n", "foo"}, "/tmp")
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirReturnsError() {
+	em := suite.NewTestExecManager(false)
+
+	err := em.RunCmdInDir("invalid", []string{"foo"}, "/tmp")
+	assert.Error(suite.T(), err)
+	assert.Contains(suite.T(), err.Error(), "not found")
+}
+
+func (suite *ExecManagerPublicTestSuite) TestRunInTempDirOk() {
+	em := suite.NewTestExecManager(false)
+
+	dir := ""
+	pattern := "test"
+	fn := func(string) error { return nil }
+
+	err := em.RunInTempDir(dir, pattern, fn)
+	assert.NoError(suite.T(), err)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestExecPublicTestSuite(t *testing.T) {

@@ -23,7 +23,5 @@ package internal
 // GitManager manager responsible for Git operations.
 type GitManager interface {
 	Clone(gitURL string, cloneDir string) error
-	CloneByTag(gitURL string, gitTag string, cloneDir string) error
-	Reset(cloneDir string, gitSHA string) error
-	CheckoutIndex(dstDir string, cloneDir string) error
+	Worktree(cloneDir string, version string, dstDir string) error
 }

@@ -16,6 +16,11 @@ type MockGitManager struct {
 	recorder *MockGitManagerMockRecorder
 }
 
+// Worktree implements internal.GitManager.
+func (*MockGitManager) Worktree(cloneDir string, version string, dstDir string) error {
+	panic("unimplemented")
+}
+
 // MockGitManagerMockRecorder is the mock recorder for MockGitManager.
 type MockGitManagerMockRecorder struct {
 	mock *MockGitManager
@@ -31,20 +36,6 @@ func NewMockGitManager(ctrl *gomock.Controller) *MockGitManager {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockGitManager) EXPECT() *MockGitManagerMockRecorder {
 	return m.recorder
-}
-
-// CheckoutIndex mocks base method.
-func (m *MockGitManager) CheckoutIndex(dstDir, cloneDir string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckoutIndex", dstDir, cloneDir)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CheckoutIndex indicates an expected call of CheckoutIndex.
-func (mr *MockGitManagerMockRecorder) CheckoutIndex(dstDir, cloneDir interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckoutIndex", reflect.TypeOf((*MockGitManager)(nil).CheckoutIndex), dstDir, cloneDir)
 }
 
 // Clone mocks base method.

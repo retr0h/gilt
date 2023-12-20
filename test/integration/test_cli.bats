@@ -29,24 +29,19 @@ GILT_PROGRAM="../../../main.go"
 GILT_DIR=~/.gilt/clone
 
 setup() {
-	GILT_CLONED_REPO_1=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git-77a95b7
-	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git-1.1
-	GILT_CLONED_REPO_3=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
+	GILT_CLONED_REPO=${GILT_DIR}/cache/ansible-etcd.git
 
 	GILT_CLONED_REPO_1_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd
 	GILT_CLONED_REPO_2_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd-tag
 
-  mkdir -p ${GILT_DIR}
-
+    mkdir -p ${GILT_DIR}
 	mkdir -p ${GILT_LIBRARY_DIR}
 	mkdir -p ${GILT_ROLES_DIR}
 	cp test/Giltfile.yaml ${GILT_TEST_BASE_TMP_DIR}/Giltfile.yaml
 }
 
 teardown() {
-	rm -rf ${GILT_CLONED_REPO_1}
-	rm -rf ${GILT_CLONED_REPO_2}
-	rm -rf ${GILT_CLONED_REPO_3}
+	rm -rf ${GILT_CLONED_REPO}
 	rm -rf ${GILT_CLONED_REPO_1_DST_DIR}
 	rm -rf ${GILT_CLONED_REPO_2_DST_DIR}
 
@@ -113,7 +108,7 @@ teardown() {
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
-	echo "${output}" | grep -E ".*cloning.*https---github.com-retr0h-ansible-etcd.git-77a95b7"
+	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
 }
 
 @test "invoke gilt overlay when already cloned" {
@@ -126,13 +121,7 @@ teardown() {
 @test "invoke gilt overlay and clone" {
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
 
-	run stat ${GILT_CLONED_REPO_1}
-	[ "$status" = 0 ]
-
-	run stat ${GILT_CLONED_REPO_2}
-	[ "$status" = 0 ]
-
-	run stat ${GILT_CLONED_REPO_3}
+	run stat ${GILT_CLONED_REPO}
 	[ "$status" = 0 ]
 }
 

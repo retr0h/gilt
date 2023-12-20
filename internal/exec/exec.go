@@ -22,6 +22,7 @@ package exec
 
 import (
 	"log/slog"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -37,26 +38,61 @@ func New(
 	}
 }
 
+func (e *Exec) RunCmdImpl(
+	name string,
+	args []string,
+	cwd string,
+) error {
+	cmd := exec.Command(name, args...)
+	if cwd != "" {
+		cmd.Dir = cwd
+	}
+
+	commands := strings.Join(cmd.Args, " ")
+	e.logger.Debug("exec", slog.String("command", commands), slog.String("cwd", cwd))
+
+	out, err := cmd.CombinedOutput()
+	e.logger.Debug("result", slog.String("output", string(out)))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RunCmd execute the provided command with args.
 // Yeah, yeah, yeah, I know I cheated by using Exec in this package.
 func (e *Exec) RunCmd(
 	name string,
 	args []string,
 ) error {
-	cmd := exec.Command(name, args...)
+	return e.RunCmdImpl(name, args, "")
+}
 
-	if e.debug {
-		commands := strings.Join(cmd.Args, " ")
-		e.logger.Debug(
-			"exec",
-			slog.String("command", commands),
-		)
-	}
+func (e *Exec) RunCmdInDir(
+	name string,
+	args []string,
+	cwd string,
+) error {
+	return e.RunCmdImpl(name, args, cwd)
+}
 
-	_, err := cmd.CombinedOutput()
+// RunInTempDir creates a temporary directory, and runs the provided function
+// with the name of the directory as input.  Then it cleans up the temporary
+// directory.
+func (e *Exec) RunInTempDir(dir, pattern string, fn func(string) error) error {
+	tmpDir, err := os.MkdirTemp(dir, pattern)
 	if err != nil {
 		return err
 	}
+	e.logger.Debug("created tempdir", slog.String("dir", tmpDir))
 
-	return nil
+	// Ignoring errors as there's not much we can do and this is a cleanup function.
+	defer func() {
+		e.logger.Debug("removing tempdir", slog.String("dir", tmpDir))
+		_ = os.RemoveAll(tmpDir)
+	}()
+
+	// Run the provided function.
+	return fn(tmpDir)
 }
