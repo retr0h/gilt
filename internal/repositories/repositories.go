@@ -21,11 +21,9 @@
 package repositories
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/afero"
 
@@ -51,33 +49,14 @@ func New(
 	}
 }
 
-// getCloneDir returns the path to the Repository's clone directory.
-func (r *Repositories) getCloneDir(
-	giltDir string,
-	c config.Repository,
-) string {
-	return filepath.Join(giltDir, r.getCloneHash(c))
-}
-
-func (r *Repositories) getCloneHash(
-	c config.Repository,
-) string {
-	replacer := strings.NewReplacer(
-		"/", "-",
-		":", "-",
-	)
-	replacedGitURL := replacer.Replace(c.Git)
-	version := c.SHA
-	if c.Tag != "" {
-		version = c.Tag
-	}
-
-	return fmt.Sprintf("%s-%s", replacedGitURL, version)
+func (r *Repositories) getGiltDir() (string, error) {
+	giltDir, err := intPath.ExpandUser(r.config.GiltDir)
+	return giltDir, err
 }
 
 // getCacheDir create the cacheDir if it doesn't exist.
 func (r *Repositories) getCacheDir() (string, error) {
-	giltDir, err := intPath.ExpandUser(r.config.GiltDir)
+	giltDir, err := r.getGiltDir()
 	if err != nil {
 		return "", err
 	}
@@ -106,29 +85,42 @@ func (r *Repositories) Overlay() error {
 	}
 
 	for _, c := range r.config.Repositories {
-		cloneDir := r.getCloneDir(cacheDir, c)
-		err = r.repoManager.Clone(c, cloneDir)
+		targetDir, err := r.repoManager.Clone(c, cacheDir)
 		if err != nil {
 			return err
 		}
 
-		// checkout into c.DstDir
+		// Easy mode: create a full worktree, directly in DstDir
 		if c.DstDir != "" {
-			// delete dstDir since Checkout-Index does not clean old files that may
-			// no longer exist in config
+			// delete dstDir since `git worktree add` will not replace existing directories
 			if info, err := r.appFs.Stat(c.DstDir); err == nil && info.Mode().IsDir() {
 				if err := os.RemoveAll(c.DstDir); err != nil {
 					return err
 				}
 			}
-			if err := r.repoManager.CheckoutIndex(c, cloneDir); err != nil {
+			if err := r.repoManager.Worktree(c, targetDir, c.DstDir); err != nil {
 				return err
 			}
 		}
 
-		// copy sources from Repository.Src to Repository.DstDir or Repository.DstFile
+		// Hard mode: copy subtrees of the worktree from Repository.Src to
+		// Repository.DstDir (or Repository.DstFile)
 		if len(c.Sources) > 0 {
-			if err := r.repoManager.CopySources(c, cloneDir); err != nil {
+			giltDir, err := r.getGiltDir()
+			if err != nil {
+				return err
+			}
+			err = r.execManager.RunInTempDir(giltDir, "tmp", func(tmpDir string) error {
+				tmpClone := filepath.Join(tmpDir, filepath.Base(targetDir))
+				if err := r.repoManager.Worktree(c, targetDir, tmpClone); err != nil {
+					return err
+				}
+				if err := r.repoManager.CopySources(c, tmpClone); err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
 				return err
 			}
 		}

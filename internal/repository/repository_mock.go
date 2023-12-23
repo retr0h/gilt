@@ -34,26 +34,13 @@ func (m *MockRepositoryManager) EXPECT() *MockRepositoryManagerMockRecorder {
 	return m.recorder
 }
 
-// CheckoutIndex mocks base method.
-func (m *MockRepositoryManager) CheckoutIndex(config config.Repository, cloneDir string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckoutIndex", config, cloneDir)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CheckoutIndex indicates an expected call of CheckoutIndex.
-func (mr *MockRepositoryManagerMockRecorder) CheckoutIndex(config, cloneDir interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckoutIndex", reflect.TypeOf((*MockRepositoryManager)(nil).CheckoutIndex), config, cloneDir)
-}
-
 // Clone mocks base method.
-func (m *MockRepositoryManager) Clone(config config.Repository, cloneDir string) error {
+func (m *MockRepositoryManager) Clone(config config.Repository, cloneDir string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Clone", config, cloneDir)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Clone indicates an expected call of Clone.
@@ -74,4 +61,18 @@ func (m *MockRepositoryManager) CopySources(config config.Repository, cloneDir s
 func (mr *MockRepositoryManagerMockRecorder) CopySources(config, cloneDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CopySources", reflect.TypeOf((*MockRepositoryManager)(nil).CopySources), config, cloneDir)
+}
+
+// Worktree mocks base method.
+func (m *MockRepositoryManager) Worktree(config config.Repository, cloneDir, targetDir string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Worktree", config, cloneDir, targetDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Worktree indicates an expected call of Worktree.
+func (mr *MockRepositoryManagerMockRecorder) Worktree(config, cloneDir, targetDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Worktree", reflect.TypeOf((*MockRepositoryManager)(nil).CopySources), config, cloneDir, targetDir)
 }

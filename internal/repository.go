@@ -26,7 +26,7 @@ import (
 
 // RepositoryManager manager responsible for Repository operations.
 type RepositoryManager interface {
-	Clone(config config.Repository, cloneDir string) error
-	CheckoutIndex(config config.Repository, cloneDir string) error
+	Clone(config config.Repository, cloneDir string) (string, error)
+	Worktree(config config.Repository, cloneDir string, targetDir string) error
 	CopySources(config config.Repository, cloneDir string) error
 }
