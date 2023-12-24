@@ -62,13 +62,17 @@ func (mr *MockExecManagerMockRecorder) RunCmdInDir(name, args, cwd interface{}) 
 }
 
 // RunInTempDir mocks base method.
+// NOTE(nic): mockgen creates this mock wrong, and I'm not sure what to do
+// about it.  If you've run `task mockgen`, and it removed this code, and now
+// your tests are failing, put this code back.
 func (m *MockExecManager) RunInTempDir(dir, pattern string, fn func(string) error) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunInTempDir", dir, pattern, fn)
+	// BEGIN extra code that mockgen can't be bothered to generate
 	if fn != nil {
-		ret0 := fn("stub")
-		return ret0
+		return fn("stub")
 	}
+	// END extra code that mockgen can't be bothered to generate
 	ret0, _ := ret[0].(error)
 	return ret0
 }

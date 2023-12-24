@@ -74,5 +74,5 @@ func (m *MockRepositoryManager) Worktree(config config.Repository, cloneDir, tar
 // Worktree indicates an expected call of Worktree.
 func (mr *MockRepositoryManagerMockRecorder) Worktree(config, cloneDir, targetDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Worktree", reflect.TypeOf((*MockRepositoryManager)(nil).CopySources), config, cloneDir, targetDir)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Worktree", reflect.TypeOf((*MockRepositoryManager)(nil).Worktree), config, cloneDir, targetDir)
 }

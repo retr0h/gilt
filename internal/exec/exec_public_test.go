@@ -106,6 +106,17 @@ func (suite *ExecManagerPublicTestSuite) TestRunInTempDirOk() {
 	assert.NoError(suite.T(), err)
 }
 
+func (suite *ExecManagerPublicTestSuite) TestRunInTempDirError() {
+	em := suite.NewTestExecManager(false)
+
+	dir := "\x00" // Null character is invalid in a filepath
+	pattern := "test"
+	fn := func(string) error { return nil }
+
+	err := em.RunInTempDir(dir, pattern, fn)
+	assert.Error(suite.T(), err)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestExecPublicTestSuite(t *testing.T) {

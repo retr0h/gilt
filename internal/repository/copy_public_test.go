@@ -105,6 +105,30 @@ func (suite *CopyPublicTestSuite) TestCopyDirOk() {
 	assert.True(suite.T(), got)
 }
 
+func (suite *CopyPublicTestSuite) TestCopyDirNestedOk() {
+	cm := suite.NewTestCopyManager()
+
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  filepath.Join(suite.cloneDir, "srcDir", "subDir"),
+			srcFile: filepath.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+
+	assertFile := filepath.Join(suite.dstDir, "subDir", "1.txt")
+	err := cm.CopyDir(filepath.Join(suite.cloneDir, "srcDir"), suite.dstDir)
+	assert.NoError(suite.T(), err)
+
+	got, _ := afero.Exists(suite.appFs, assertFile)
+	assert.True(suite.T(), got)
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirSymlinksOk() {
+	suite.T().Skip("afero.MemMapFS does not support symlinks")
+}
+
 func (suite *CopyPublicTestSuite) TestCopyDirReturnsError() {
 	cm := suite.NewTestCopyManager()
 
@@ -114,6 +138,31 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsError() {
 
 	got, _ := afero.Exists(suite.appFs, assertDir)
 	assert.False(suite.T(), got)
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorEEXIST() {
+	cm := suite.NewTestCopyManager()
+
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
+			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:   suite.appFs,
+			srcFile: filepath.Join(suite.dstDir, "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+
+	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Contains(suite.T(), err.Error(), "destination already exists")
+
+	got, _ := afero.Exists(suite.appFs, assertFile)
+	assert.True(suite.T(), got)
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorWhenSrcIsNotDir() {

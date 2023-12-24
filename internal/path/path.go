@@ -22,7 +22,7 @@ package path
 
 import (
 	"os/user"
-	"path/filepath"
+	"strings"
 )
 
 // CurrentUser function to switch when testing
@@ -33,7 +33,7 @@ var CurrentUser = user.Current
 func ExpandUser(
 	path string,
 ) (string, error) {
-	if len(path) == 0 || path[0] != '~' {
+	if !strings.HasPrefix(path, "~") {
 		return path, nil
 	}
 
@@ -42,5 +42,5 @@ func ExpandUser(
 		return "", err
 	}
 
-	return filepath.Join(usr.HomeDir, path[1:]), nil
+	return strings.Replace(path, "~", usr.HomeDir, 1), nil
 }
