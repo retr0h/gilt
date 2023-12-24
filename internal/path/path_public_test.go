@@ -49,6 +49,14 @@ func (suite *PathPublicTestSuite) TestexpandUserOk() {
 	assert.Equal(suite.T(), got, "/testUser/foo/bar")
 }
 
+// Test expandUser when there is no work to do
+func (suite *PathPublicTestSuite) TestexpandUserNoop() {
+	testpath := "/foo/bar"
+	got, err := path.ExpandUser(testpath)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), got, testpath)
+}
+
 func (suite *PathPublicTestSuite) TestexpandUserReturnsError() {
 	originalCurrentUser := path.CurrentUser
 	path.CurrentUser = func() (*user.User, error) {

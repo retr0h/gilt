@@ -16,11 +16,6 @@ type MockGitManager struct {
 	recorder *MockGitManagerMockRecorder
 }
 
-// Worktree implements internal.GitManager.
-func (*MockGitManager) Worktree(cloneDir string, version string, dstDir string) error {
-	panic("unimplemented")
-}
-
 // MockGitManagerMockRecorder is the mock recorder for MockGitManager.
 type MockGitManagerMockRecorder struct {
 	mock *MockGitManager
@@ -52,30 +47,16 @@ func (mr *MockGitManagerMockRecorder) Clone(gitURL, cloneDir interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clone", reflect.TypeOf((*MockGitManager)(nil).Clone), gitURL, cloneDir)
 }
 
-// CloneByTag mocks base method.
-func (m *MockGitManager) CloneByTag(gitURL, gitTag, cloneDir string) error {
+// Worktree mocks base method.
+func (m *MockGitManager) Worktree(cloneDir, version, dstDir string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CloneByTag", gitURL, gitTag, cloneDir)
+	ret := m.ctrl.Call(m, "Worktree", cloneDir, version, dstDir)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CloneByTag indicates an expected call of CloneByTag.
-func (mr *MockGitManagerMockRecorder) CloneByTag(gitURL, gitTag, cloneDir interface{}) *gomock.Call {
+// Worktree indicates an expected call of Worktree.
+func (mr *MockGitManagerMockRecorder) Worktree(cloneDir, version, dstDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloneByTag", reflect.TypeOf((*MockGitManager)(nil).CloneByTag), gitURL, gitTag, cloneDir)
-}
-
-// Reset mocks base method.
-func (m *MockGitManager) Reset(cloneDir, gitSHA string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Reset", cloneDir, gitSHA)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Reset indicates an expected call of Reset.
-func (mr *MockGitManagerMockRecorder) Reset(cloneDir, gitSHA interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reset", reflect.TypeOf((*MockGitManager)(nil).Reset), cloneDir, gitSHA)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Worktree", reflect.TypeOf((*MockGitManager)(nil).Worktree), cloneDir, version, dstDir)
 }

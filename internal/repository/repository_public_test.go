@@ -373,6 +373,30 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	assert.Error(suite.T(), err)
 }
 
+func (suite *RepositoryPublicTestSuite) TestWorktreeTagOk() {
+	repo := suite.NewRepositoryManager()
+	c := config.Repository{
+		Tag: suite.gitTag,
+	}
+	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.Tag, suite.dstDir).Return(nil)
+
+	err := repo.Worktree(c, suite.cloneDir, suite.dstDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestWorktreeSHAOk() {
+	repo := suite.NewRepositoryManager()
+	// Implicitly test that SHA overrides Tag
+	c := config.Repository{
+		Tag: suite.gitTag,
+		SHA: suite.gitSHA,
+	}
+	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.SHA, suite.dstDir).Return(nil)
+
+	err := repo.Worktree(c, suite.cloneDir, suite.dstDir)
+	assert.NoError(suite.T(), err)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestRepositoryPublicTestSuite(t *testing.T) {

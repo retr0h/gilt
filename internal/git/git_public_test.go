@@ -91,6 +91,23 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	assert.Error(suite.T(), err)
 }
 
+func (suite *GitManagerPublicTestSuite) TestWorktreeOk() {
+	suite.mockExec.EXPECT().
+		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitSHA}, suite.cloneDir).
+		Return(nil)
+	err := suite.gm.Worktree(suite.cloneDir, suite.gitSHA, suite.dstDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().
+		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitSHA}, suite.cloneDir).
+		Return(errors)
+	err := suite.gm.Worktree(suite.cloneDir, suite.gitSHA, suite.dstDir)
+	assert.Error(suite.T(), err)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestGitManagerPublicTestSuite(t *testing.T) {
