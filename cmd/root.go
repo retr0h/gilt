@@ -29,6 +29,7 @@ import (
 	"github.com/lmittmann/tint"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/term"
 
 	"github.com/retr0h/go-gilt/pkg"
 	"github.com/retr0h/go-gilt/pkg/config"
@@ -92,6 +93,7 @@ func initLogger() {
 		tint.NewHandler(os.Stderr, &tint.Options{
 			Level:      logLevel,
 			TimeFormat: time.Kitchen,
+			NoColor:    !term.IsTerminal(int(os.Stdout.Fd())),
 		}),
 	)
 }

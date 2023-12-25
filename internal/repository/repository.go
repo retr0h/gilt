@@ -96,7 +96,7 @@ func (r *Repository) Clone(
 			return targetDir, err
 		}
 	} else {
-		r.logger.Warn("clone already exists", slog.String("dstDir", targetDir))
+		r.logger.Info("clone already exists", slog.String("dstDir", targetDir))
 	}
 
 	return targetDir, nil
