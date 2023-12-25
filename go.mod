@@ -12,6 +12,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.hein.dev/go-version v0.1.0
+	golang.org/x/term v0.15.0
 )
 
 require (
