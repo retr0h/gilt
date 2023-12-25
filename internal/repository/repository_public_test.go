@@ -32,8 +32,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/git"
+	"github.com/retr0h/go-gilt/internal/mocks"
+	"github.com/retr0h/go-gilt/internal/mocks/git"
+	mock_repo "github.com/retr0h/go-gilt/internal/mocks/repository"
 	"github.com/retr0h/go-gilt/internal/repository"
 	"github.com/retr0h/go-gilt/pkg/config"
 )
@@ -43,7 +44,7 @@ type RepositoryPublicTestSuite struct {
 
 	ctrl            *gomock.Controller
 	mockGit         *git.MockGitManager
-	mockCopyManager *repository.MockCopyManager
+	mockCopyManager *mock_repo.MockCopyManager
 
 	appFs    afero.Fs
 	cloneDir string
@@ -54,7 +55,7 @@ type RepositoryPublicTestSuite struct {
 	logger   *slog.Logger
 }
 
-func (suite *RepositoryPublicTestSuite) NewRepositoryManager() internal.RepositoryManager {
+func (suite *RepositoryPublicTestSuite) NewRepositoryManager() mocks.RepositoryManager {
 	return repository.New(
 		suite.appFs,
 		suite.mockCopyManager,
@@ -66,7 +67,7 @@ func (suite *RepositoryPublicTestSuite) NewRepositoryManager() internal.Reposito
 func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockGit = git.NewMockGitManager(suite.ctrl)
-	suite.mockCopyManager = repository.NewMockCopyManager(suite.ctrl)
+	suite.mockCopyManager = mock_repo.NewMockCopyManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
 	suite.appFs = afero.NewMemMapFs()
