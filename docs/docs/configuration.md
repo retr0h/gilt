@@ -20,13 +20,13 @@ giltDir: ~/.gilt/clone
 debug: false
 repositories:
   - git: https://github.com/retr0h/ansible-etcd.git
-    sha: 77a95b7
+    version: 77a95b7
     dstDir: roles/retr0h.ansible-etcd
   - git: https://github.com/retr0h/ansible-etcd.git
-    tag: 1.1
+    version: 1.1
     dstDir: roles/retr0h.ansible-etcd-tag
   - git: https://github.com/lorin/openstack-ansible-modules.git
-    sha: 2677cc3
+    version: 2677cc3
     sources:
       - src: "*_manage"
         dstDir: library

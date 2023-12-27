@@ -42,11 +42,10 @@ type GitManagerPublicTestSuite struct {
 	ctrl     *gomock.Controller
 	mockExec *exec.MockExecManager
 
-	gitURL   string
-	gitSHA   string
-	gitTag   string
-	cloneDir string
-	dstDir   string
+	gitURL     string
+	gitVersion string
+	cloneDir   string
+	dstDir     string
 
 	gm internal.GitManager
 }
@@ -66,8 +65,7 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 	defer suite.ctrl.Finish()
 
 	suite.gitURL = "https://example.com/user/repo.git"
-	suite.gitSHA = "abc123"
-	suite.gitTag = "v1.1"
+	suite.gitVersion = "abc123"
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 
@@ -93,18 +91,18 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 
 func (suite *GitManagerPublicTestSuite) TestWorktreeOk() {
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitSHA}, suite.cloneDir).
+		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
 		Return(nil)
-	err := suite.gm.Worktree(suite.cloneDir, suite.gitSHA, suite.dstDir)
+	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitSHA}, suite.cloneDir).
+		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
 		Return(errors)
-	err := suite.gm.Worktree(suite.cloneDir, suite.gitSHA, suite.dstDir)
+	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.Error(suite.T(), err)
 }
 

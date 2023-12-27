@@ -39,7 +39,7 @@ func main() {
 		Repositories: []config.Repository{
 			{
 				Git:     "https://github.com/retr0h/ansible-etcd.git",
-				SHA:     "77a95b7",
+				Version: "77a95b7",
 				DstDir:  "../tmp/retr0h.ansible-etcd",
 			},
 		},

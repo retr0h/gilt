@@ -54,10 +54,8 @@ type Command struct {
 type Repository struct {
 	// Git url of Git repository to clone.
 	Git string `mapstructure:"git"      validate:"required"`
-	// SHA the commit SHA to use.
-	SHA string `mapstructure:"sha"      validate:"git_sha,required_without=Tag,excluded_with=Tag"`
-	// Tag the tag to use.
-	Tag string `mapstructure:"tag"      validate:"required_without=SHA,excluded_with=SHA"`
+	// Version the commit SHA or tag to use.
+	Version string `mapstructure:"version"  validate:"required"`
 	// DstDir destination directory to copy clone to.
 	DstDir string `mapstructure:"dstDir"   validate:"required_without=Sources,excluded_with=Sources"`
 	// Sources containing files and/or directories to copy.
