@@ -83,8 +83,8 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 	}
 	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
 
@@ -100,8 +100,8 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenCloneErrors() {
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 	}
 
 	errors := errors.New("tests error")
@@ -117,8 +117,8 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 	}
 	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
 
@@ -140,8 +140,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -170,8 +170,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsD
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -199,8 +199,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    filepath.Base(specs[0].srcDir),
@@ -246,8 +246,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    "subDir/*_manage",
@@ -298,8 +298,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:    "subDir/*.txt",
@@ -327,8 +327,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFileAndDstF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",
@@ -357,8 +357,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	createFileSpecs(specs)
 
 	c := config.Repository{
-		Git: suite.gitURL,
-		SHA: suite.gitSHA,
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",
@@ -377,9 +377,9 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 func (suite *RepositoryPublicTestSuite) TestWorktreeTagOk() {
 	repo := suite.NewRepositoryManager()
 	c := config.Repository{
-		Tag: suite.gitTag,
+		Version: suite.gitTag,
 	}
-	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.Tag, suite.dstDir).Return(nil)
+	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.Version, suite.dstDir).Return(nil)
 
 	err := repo.Worktree(c, suite.cloneDir, suite.dstDir)
 	assert.NoError(suite.T(), err)
@@ -389,10 +389,9 @@ func (suite *RepositoryPublicTestSuite) TestWorktreeSHAOk() {
 	repo := suite.NewRepositoryManager()
 	// Implicitly test that SHA overrides Tag
 	c := config.Repository{
-		Tag: suite.gitTag,
-		SHA: suite.gitSHA,
+		Version: suite.gitSHA,
 	}
-	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.SHA, suite.dstDir).Return(nil)
+	suite.mockGit.EXPECT().Worktree(suite.cloneDir, c.Version, suite.dstDir).Return(nil)
 
 	err := repo.Worktree(c, suite.cloneDir, suite.dstDir)
 	assert.NoError(suite.T(), err)

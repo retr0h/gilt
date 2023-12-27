@@ -108,13 +108,7 @@ func (r *Repository) Worktree(
 	cloneDir string,
 	targetDir string,
 ) error {
-	var version string
-	if c.SHA != "" {
-		version = c.SHA
-	} else {
-		version = c.Tag
-	}
-	return r.gitManager.Worktree(cloneDir, version, targetDir)
+	return r.gitManager.Worktree(cloneDir, c.Version, targetDir)
 }
 
 // CopySources copy Repository.Src to Repository.DstFile or Repository.DstDir.

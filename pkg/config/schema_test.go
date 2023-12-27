@@ -51,9 +51,9 @@ func (suite *SchemaTestSuite) TestRepositories() {
 			GiltDir:  "giltDir",
 			Repositories: []Repository{
 				{
-					Git:    "gitURL",
-					SHA:    "abc1234",
-					DstDir: "dstDir",
+					Git:     "gitURL",
+					Version: "abc1234",
+					DstDir:  "dstDir",
 				},
 			},
 		}, ""},
@@ -62,9 +62,9 @@ func (suite *SchemaTestSuite) TestRepositories() {
 			GiltDir:  "",
 			Repositories: []Repository{
 				{
-					Git:    "gitURL",
-					SHA:    "abc1234",
-					DstDir: "dstDir",
+					Git:     "gitURL",
+					Version: "abc1234",
+					DstDir:  "dstDir",
 				},
 			},
 		}, "Key: 'Repositories.GiltDir' Error:Field validation for 'GiltDir' failed on the 'required' tag"},
@@ -73,9 +73,9 @@ func (suite *SchemaTestSuite) TestRepositories() {
 			GiltDir:  "giltDir",
 			Repositories: []Repository{
 				{
-					Git:    "gitURL",
-					SHA:    "abc1234",
-					DstDir: "dstDir",
+					Git:     "gitURL",
+					Version: "abc1234",
+					DstDir:  "dstDir",
 				},
 			},
 		}, "Key: 'Repositories.GiltFile' Error:Field validation for 'GiltFile' failed on the 'required' tag"},
@@ -165,18 +165,18 @@ func (suite *SchemaTestSuite) TestRepositorySchema() {
 		expected string
 	}{
 		{&Repository{
-			Git:    "gitURL",
-			SHA:    "abc1234",
-			DstDir: "dstDir",
+			Git:     "gitURL",
+			Version: "abc1234",
+			DstDir:  "dstDir",
 		}, ""},
 		{&Repository{
-			Git:    "gitURL",
-			Tag:    "v1.1",
-			DstDir: "dstDir",
+			Git:     "gitURL",
+			Version: "v1.1",
+			DstDir:  "dstDir",
 		}, ""},
 		{&Repository{
-			Git: "gitURL",
-			SHA: "abc1234",
+			Git:     "gitURL",
+			Version: "abc1234",
 			Sources: []Source{
 				{
 					Src:     "src",
@@ -185,20 +185,14 @@ func (suite *SchemaTestSuite) TestRepositorySchema() {
 			},
 		}, ""},
 		{&Repository{
-			Git:    "gitURL",
-			SHA:    "abc1234",
-			Tag:    "v1.1",
-			DstDir: "dstDir",
-		}, "Key: 'Repository.SHA' Error:Field validation for 'SHA' failed on the 'excluded_with' tag\nKey: 'Repository.Tag' Error:Field validation for 'Tag' failed on the 'excluded_with' tag"},
+			Git:     "gitURL",
+			Version: "",
+			DstDir:  "dstDir",
+		}, "Key: 'Repository.Version' Error:Field validation for 'Version' failed on the 'required' tag"},
 		{&Repository{
-			Git:    "",
-			SHA:    "foo",
-			DstDir: "",
-		}, "Key: 'Repository.Git' Error:Field validation for 'Git' failed on the 'required' tag\nKey: 'Repository.SHA' Error:Field validation for 'SHA' failed on the 'git_sha' tag\nKey: 'Repository.DstDir' Error:Field validation for 'DstDir' failed on the 'required_without' tag"},
-		{&Repository{
-			Git:    "gitURL",
-			SHA:    "abc1234",
-			DstDir: "dstDir",
+			Git:     "gitURL",
+			Version: "abc1234",
+			DstDir:  "dstDir",
 			Sources: []Source{
 				{
 					Src:     "src",

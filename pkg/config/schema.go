@@ -21,20 +21,13 @@
 package config
 
 import (
-	"regexp"
-
 	"github.com/go-playground/validator/v10"
 )
 
 // registerValidators register customer validators.
 func registerValidators(v *validator.Validate) error {
-	return v.RegisterValidation("git_sha", func(fl validator.FieldLevel) bool {
-		if fl.Field().String() == "" {
-			return true
-		}
-		re := regexp.MustCompile("^[0-9a-f]{5,40}$")
-		return re.MatchString(fl.Field().String())
-	})
+	// noop - hook for future validators
+	return nil
 }
 
 // Validate validates a structs exposed fields.
