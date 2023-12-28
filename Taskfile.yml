@@ -6,6 +6,11 @@ vars:
     sh: git rev-parse --show-toplevel
   MAIN_PACKAGE: main.go
 
+includes:
+  docs:
+    taskfile: ./docs
+    dir: ./docs
+
 tasks:
   deps:
     desc: Install dependencies

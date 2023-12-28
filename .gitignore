@@ -3,3 +3,4 @@ cover.out
 dist/
 result.xml
 test/integration/tmp/
+.task/
