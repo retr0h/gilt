@@ -1,0 +1,58 @@
+version: "3"
+
+tasks:
+  yarn:install:
+    desc: Setup Docusaurus locally
+    cmds:
+      - yarn install
+    sources:
+      - package.json
+      - yarn.lock
+
+  build:
+    desc: Build website
+    deps:
+      - yarn:install
+    cmds:
+      - npx docusaurus build
+
+  start:
+    desc: Start website
+    deps:
+      - yarn:install
+    vars:
+      HOST: '{{default "localhost" .HOST}}'
+      PORT: '{{default "3001" .PORT}}'
+    cmds:
+      - npx docusaurus start --no-open --host={{.HOST}} --port={{.PORT}}
+
+  serve:
+    desc: Preview website
+    deps:
+      - yarn:install
+    vars:
+      HOST: '{{default "localhost" .HOST}}'
+      PORT: '{{default "3001" .PORT}}'
+    cmds:
+      - npx docusaurus serve --no-open --host={{.HOST}} --port={{.PORT}}
+
+  clean:
+    desc: Clean temp directories
+    cmds:
+      - rm -rf ./build
+
+  bump:
+    desc: Create a new documentation version
+    vars:
+      VERSION: '{{.VERSION}}'
+    cmds:
+      - npx docusaurus docs:version {{.VERSION}}
+    requires:
+      vars:
+        - VERSION
+
+  deploy:
+    desc: Build and deploy Docusaurus
+    summary: Requires GIT_USER and GIT_PASS envs to be previous set
+    cmds:
+      - npx docusaurus deploy
