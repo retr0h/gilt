@@ -20,6 +20,7 @@ kind/yaml:
 kind/docs:
   - changed-files:
     - any-glob-to-any-file: "docs/*"
+    - any-glob-to-any-file: "docs/*/**"
 
 github/action:
   - changed-files:
