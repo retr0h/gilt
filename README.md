@@ -4,7 +4,7 @@
 
 # Gilt
 
-<img src="img/gilt.png" align="left" width="250px" height="250px" />
+<img src="asset/gilt.png" align="left" width="250px" height="250px" />
 
 Gilt is a tool which aims to make repo management, manageable.  Gilt
 clones repositories at a particular version, then overlays the repository to
