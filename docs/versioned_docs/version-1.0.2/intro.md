@@ -24,3 +24,6 @@ often shared, but Ansible's [Galaxy][] has no mechanism to handle this.
 This project is a golang port of [Gilt][], and aims to correct poor decisions
 made in the python version, primarially around config syntax, portability,
 and reproducibility.
+
+[Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
+[Gilt]: http://gilt.readthedocs.io/en/latest/
