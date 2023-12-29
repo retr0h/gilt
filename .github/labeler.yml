@@ -17,6 +17,10 @@ kind/yaml:
     - any-glob-to-any-file: "**/*.yaml"
     - any-glob-to-any-file: "**/*.yml"
 
+kind/docs:
+  - changed-files:
+    - any-glob-to-any-file: "docs/*"
+
 github/action:
   - changed-files:
     - any-glob-to-any-file: ".github/**/*.yml"
