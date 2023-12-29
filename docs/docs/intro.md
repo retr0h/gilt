@@ -25,7 +25,6 @@ this.  Currently, this is proving useful for overlaying [Helm charts].
 * [Repo][]
 * [Git submodules][]
 * [Git subtree][]
-* [Gilt][]
 
 ## History
 
