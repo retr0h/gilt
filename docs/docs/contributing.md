@@ -9,7 +9,7 @@ before submitting a PR.
 
 :::note
 
-This document applies to the core [Gilt][] repository.
+This document applies to the [Gilt][] repository.
 
 :::
 
@@ -26,17 +26,18 @@ This document applies to the core [Gilt][] repository.
 
 ## 1. Setup
 
-- **Go** - Gilt is written in [Go][]. We always support the latest two major
-  Go versions, so make sure your version is recent enough.
-- **Node.js** - [Node.js][] is used to host Gilt's documentation server
-  and is required if you want to run this server locally.
+- **Go** - Gilt is written in [Go][]. We always support the latest two major Go
+  versions, so make sure your version is recent enough.
+- **Node.js** - [Node.js][] is used to host Gilt's documentation server and is
+  required if you want to run this server locally.
 
 ## 2. Making changes
 
 - **Code style** - Try to maintain the existing code style where possible. Go
   code should be formatted by [`gofumpt`][gofumpt] and linted using
-  [`golangci-lint`][golangci-lint]. This style is enforced by our CI to ensure
-  that we have a consistent style across the project. You can use the
+  [`golangci-lint`][golangci-lint]. Any Markdown or TypeScript files should be
+  formatted and linted by [Prettier][]. This style is enforced by our CI to
+  ensure that we have a consistent style across the project. You can use the
   `task fmt:check` command to lint the code locally and the `task fmt` command
   to automatically fix any issues that are found.
 - **Documentation** - Ensure that you add/update any relevant documentation. See
@@ -51,10 +52,11 @@ To run Gilt with working changes, you can use `go run main.go overlay`.
 
 ### Updating documentation
 
-Gilt uses [Docusaurus][] to host a documentation server. The code for
-this is located in the Gilt repository. This can be setup and run locally
-by using `task docs:start` (requires `nodejs` & `yarn`). All content is written
-in Markdown and is located in the `docs/docs` directory.
+Gilt uses [Docusaurus][] to host a documentation server. The code for this is
+located in the Gilt repository. This can be setup and run locally by using
+`task docs:start` (requires `nodejs` & `yarn`). All content is written in
+Markdown and is located in the `docs/docs` directory. All Markdown documents
+should have an 80 character line wrap limit (enforced by Prettier).
 
 ### Writing tests
 
@@ -104,12 +106,15 @@ answer questions.
 
 If you have questions, feel free open a [Discussion][] on GitHub.
 
+<!-- prettier-ignore-start -->
 [Gilt]: https://github.com/retr0h/go-gilt
 [Go]: https://go.dev
 [Node.js]: https://nodejs.org/en/
 [gofumpt]: https://github.com/mvdan/gofumpt
 [golangci-lint]: https://golangci-lint.run
+[Prettier]: https://prettier.io/
 [Docusaurus]: https://docusaurus.io
 [Discussion]: https://github.com/retr0h/go-gilt/discussions
 [Conventional Commits]: https://www.conventionalcommits.org
 [Bats]: https://github.com/bats-core/bats-core
+<!-- prettier-ignore-end -->

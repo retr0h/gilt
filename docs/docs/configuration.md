@@ -11,7 +11,7 @@ Gilt uses [Viper][] to load configuation through multpile methods.
 Create the giltfile (`Giltfile.yaml`).
 
 Clone the specified `url`@`version` to the configurable path `--gilt-dir`.
-Extract the repo the `dstDir` when `dstDir` is provided.  Otherwise, copy files
+Extract the repo the `dstDir` when `dstDir` is provided. Otherwise, copy files
 and/or directories to the desired destinations.
 
 ```yaml
@@ -28,7 +28,7 @@ repositories:
   - git: https://github.com/lorin/openstack-ansible-modules.git
     version: 2677cc3
     sources:
-      - src: "*_manage"
+      - src: '*_manage'
         dstDir: library
       - src: nova_quota
         dstDir: library
@@ -70,4 +70,6 @@ go-gilt \
   overlay
 ```
 
+<!-- prettier-ignore-start -->
 [Viper]: https://github.com/spf13/viper
+<!-- prettier-ignore-end -->

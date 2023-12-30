@@ -14,7 +14,7 @@ tasks:
     deps:
       - yarn:install
     cmds:
-      - npx docusaurus build
+      - yarn docusaurus build
 
   start:
     desc: Start website
@@ -24,7 +24,7 @@ tasks:
       HOST: '{{default "localhost" .HOST}}'
       PORT: '{{default "3001" .PORT}}'
     cmds:
-      - npx docusaurus start --no-open --host={{.HOST}} --port={{.PORT}}
+      - yarn docusaurus start --no-open --host={{.HOST}} --port={{.PORT}}
 
   serve:
     desc: Preview website
@@ -34,7 +34,7 @@ tasks:
       HOST: '{{default "localhost" .HOST}}'
       PORT: '{{default "3001" .PORT}}'
     cmds:
-      - npx docusaurus serve --no-open --host={{.HOST}} --port={{.PORT}}
+      - yarn docusaurus serve --no-open --host={{.HOST}} --port={{.PORT}}
 
   clean:
     desc: Clean temp directories
@@ -46,7 +46,7 @@ tasks:
     vars:
       VERSION: '{{.VERSION}}'
     cmds:
-      - npx docusaurus docs:version {{.VERSION}}
+      - yarn docusaurus docs:version {{.VERSION}}
     requires:
       vars:
         - VERSION
@@ -55,4 +55,18 @@ tasks:
     desc: Build and deploy Docusaurus
     summary: Requires GIT_USER and GIT_PASS envs to be previous set
     cmds:
-      - npx docusaurus deploy
+      - yarn docusaurus deploy
+
+  fmt:
+    desc: Reformat files whose formatting differs from `prettier`
+    deps:
+      - yarn:install
+    cmds:
+      - yarn prettier docs --write --config prettier.config.js
+
+  fmt:check:
+    desc: Check files whose formatting differs from `prettier`
+    deps:
+      - yarn:install
+    cmds:
+      - yarn prettier docs --check --config prettier.config.js
