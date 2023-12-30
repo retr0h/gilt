@@ -16,7 +16,7 @@ What makes Gilt interesting, is the ability to overlay particular files and/or
 directories from the specified repository to given destinations. Originally,
 this was quite helpful for those using Ansible, since libraries, plugins, and
 playbooks are often shared, but Ansible's [Galaxy][] has no mechanism to handle
-this.  Currently, this is proving useful for overlaying [Helm charts].
+this.  Currently, this is proving useful for overlaying [Helm charts][].
 
 <br clear="left"/>
 
