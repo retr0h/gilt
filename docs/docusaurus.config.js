@@ -115,7 +115,7 @@ const config = {
       },
       announcementBar: {
         id: 'announcementBar-3', // Increment on change
-        content: `🎉️ <b><a target="_blank" href="https://github.com/retr0h/go-gilt/releases/tag/v1.0.2">Gilt v1.0.2</a> is now out and rearchitected!</b> 🥳️`,
+        content: `🎉️ Gilt is 💯 rearchitected. <b><a target="_blank" href="https://github.com/retr0h/go-gilt/releases/tag/v1.0.2">Gilt v1.0.2</a> is now out!</b> 🥳️`,
       },
     }),
 };
