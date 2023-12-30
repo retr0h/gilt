@@ -83,8 +83,9 @@ const config = {
           },
           {
             href: 'https://github.com/retr0h/go-gilt',
-            label: 'GitHub',
             position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
           },
         ],
       },
@@ -111,6 +112,10 @@ const config = {
         defaultMode: 'dark',
         disableSwitch: false,
         respectPrefersColorScheme: false,
+      },
+      announcementBar: {
+        id: 'announcementBar-3', // Increment on change
+        content: `🎉️ <b><a target="_blank" href="https://github.com/retr0h/go-gilt/releases/tag/v1.0.2">Gilt v1.0.2</a> is now out and rearchitected!</b> 🥳️`,
       },
     }),
 };
