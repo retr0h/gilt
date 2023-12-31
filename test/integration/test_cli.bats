@@ -29,7 +29,7 @@ GILT_PROGRAM="../../../main.go"
 GILT_DIR=~/.gilt/clone
 
 setup() {
-	GILT_CLONED_REPO=${GILT_DIR}/cache/ansible-etcd.git
+	GILT_CLONED_REPO=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git
 
 	GILT_CLONED_REPO_1_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd
 	GILT_CLONED_REPO_2_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd-tag
