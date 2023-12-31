@@ -6,6 +6,14 @@ sidebar_position: 4
 
 ## CLI
 
+### Init Configuration
+
+Initializes config file in the shell's current working directory:
+
+```bash
+gilt init
+```
+
 ### Overlay Repository
 
 Overlay a remote repository into the destination provided.

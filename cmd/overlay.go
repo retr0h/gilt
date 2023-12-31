@@ -26,8 +26,10 @@ import (
 
 // overlayCmd represents the overlay command
 var overlayCmd = &cobra.Command{
-	Use:              "overlay",
-	Short:            "Install gilt dependencies",
+	Use:   "overlay",
+	Short: "Install Gilt dependencies",
+	Long: `Overlay the repositories from the Giltfile into their respective
+destinations.`,
 	PersistentPreRun: initConfig,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// By the time we reach this point, we know that the arguments were
