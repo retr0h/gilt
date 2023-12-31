@@ -51,7 +51,7 @@ repositories:
 
 The config file can be overriden/defined through env vars.
 
-```
+```bash
 GILT_GILTFILE=Giltfile.yaml \
 GILT_GILTDIR=~/.gilt/clone \
 GILT_DEBUG=false \
@@ -62,7 +62,7 @@ go-gilt overlay
 
 The config file and/or env vars can be overriden/defined through cli flags.
 
-```
+```bash
 go-gilt \
   --gilt-file=Giltfile.yaml \
   --gilt-dir=~/.gilt/clone \

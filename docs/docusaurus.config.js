@@ -47,7 +47,10 @@ const config = {
         blog: {},
         pages: {},
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            './src/css/custom.css',
+            './src/css/prism-rose-pine-moon.css',
+          ],
         },
       }),
     ],
@@ -107,6 +110,7 @@ const config = {
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
+        additionalLanguages: ['bash', 'json', 'yaml'],
       },
       colorMode: {
         defaultMode: 'dark',
