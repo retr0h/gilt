@@ -10,7 +10,7 @@ sidebar_position: 4
 
 Overlay a remote repository into the destination provided.
 
-```
+```bash
 gilt overlay
 ```
 
@@ -18,7 +18,7 @@ gilt overlay
 
 Display the git commands being executed.
 
-```
+```bash
 gilt --debug overlay
 ```
 
