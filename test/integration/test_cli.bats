@@ -49,6 +49,7 @@ teardown() {
 	rm -rf ${GILT_ROLES_DIR}
 	rm -rf ${GILT_TEST_DIR}
 	rm -f ${GILT_TEST_BASE_TMP_DIR}/Giltfile.yaml
+	rm -f /tmp/initGiltfile.yaml
 }
 
 @test "invoke gilt without arguments prints usage" {
@@ -196,5 +197,12 @@ teardown() {
  	echo $output
 
 	run stat ${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd/
+	[ "$status" = 0 ]
+}
+
+@test "invoke gilt init" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} init -f /tmp/initGiltfile.yaml"
+
+	run stat /tmp/initGiltfile.yaml
 	[ "$status" = 0 ]
 }

@@ -81,6 +81,8 @@ func init() {
 	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
 	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
 	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))
+
+	initLogger()
 }
 
 func initLogger() {
