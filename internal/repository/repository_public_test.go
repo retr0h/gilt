@@ -50,6 +50,7 @@ type RepositoryPublicTestSuite struct {
 	cloneDir string
 	dstDir   string
 	gitURL   string
+	cacheDir string
 	gitSHA   string
 	gitTag   string
 	logger   *slog.Logger
@@ -74,6 +75,7 @@ func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 	suite.gitURL = "https://example.com/user/repo.git"
+	suite.cacheDir = "https---example.com-user-repo.git"
 	suite.gitSHA = "abc123"
 	suite.gitTag = "v1.1"
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -86,7 +88,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 		Git:     suite.gitURL,
 		Version: suite.gitSHA,
 	}
-	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
+	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
 
 	gomock.InOrder(
 		suite.mockGit.EXPECT().Clone(suite.gitURL, targetDir).Return(nil),
@@ -120,7 +122,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 		Git:     suite.gitURL,
 		Version: suite.gitSHA,
 	}
-	targetDir := filepath.Join(suite.cloneDir, filepath.Base(c.Git))
+	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
 
 	_ = suite.appFs.MkdirAll(targetDir, 0o755)
 

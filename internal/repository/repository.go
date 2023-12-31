@@ -33,6 +33,9 @@ import (
 	"github.com/retr0h/go-gilt/pkg/config"
 )
 
+// We'll use this to normalize Git URLs as "safe" filenames
+var replacer = strings.NewReplacer("/", "-", ":", "-")
+
 // New factory to create a new Repository instance.
 func New(
 	appFs afero.Fs,
@@ -84,12 +87,12 @@ func (r *Repository) Clone(
 	c config.Repository,
 	cloneDir string,
 ) (string, error) {
+	targetDir := filepath.Join(cloneDir, replacer.Replace(c.Git))
 	r.logger.Info(
 		"cloning",
 		slog.String("repository", c.Git),
-		slog.String("dstDir", cloneDir),
+		slog.String("dstDir", targetDir),
 	)
-	targetDir := filepath.Join(cloneDir, filepath.Base(c.Git))
 
 	if _, err := r.appFs.Stat(targetDir); os.IsNotExist(err) {
 		if err := r.gitManager.Clone(c.Git, targetDir); err != nil {
