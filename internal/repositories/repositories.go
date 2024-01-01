@@ -24,6 +24,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/afero"
 
@@ -129,8 +130,9 @@ func (r *Repositories) Overlay() error {
 		if len(c.Commands) > 0 {
 			for _, command := range c.Commands {
 				r.logger.Info(
-					"executing commmand",
+					"executing command",
 					slog.String("cmd", command.Cmd),
+					slog.String("args", strings.Join(command.Args, " ")),
 				)
 				if err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
 					return err
