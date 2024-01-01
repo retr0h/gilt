@@ -53,7 +53,6 @@ type GitManagerPublicTestSuite struct {
 func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager {
 	return git.New(
 		afero.NewMemMapFs(),
-		false,
 		suite.mockExec,
 		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	)

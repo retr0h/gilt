@@ -36,13 +36,11 @@ import (
 // New factory to create a new Git instance.
 func New(
 	appFs afero.Fs,
-	debug bool,
 	execManager internal.ExecManager,
 	logger *slog.Logger,
 ) *Git {
 	return &Git{
 		appFs:       appFs,
-		debug:       debug,
 		execManager: execManager,
 		logger:      logger,
 	}

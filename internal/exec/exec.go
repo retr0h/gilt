@@ -29,11 +29,9 @@ import (
 
 // New factory to create a new Exec instance.
 func New(
-	debug bool,
 	logger *slog.Logger,
 ) *Exec {
 	return &Exec{
-		debug:  debug,
 		logger: logger,
 	}
 }
