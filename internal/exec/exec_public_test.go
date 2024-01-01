@@ -36,11 +36,8 @@ type ExecManagerPublicTestSuite struct {
 	suite.Suite
 }
 
-func (suite *ExecManagerPublicTestSuite) NewTestExecManager(
-	debug bool,
-) internal.ExecManager {
+func (suite *ExecManagerPublicTestSuite) NewTestExecManager() internal.ExecManager {
 	return exec.New(
-		debug,
 		slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})),
@@ -48,7 +45,7 @@ func (suite *ExecManagerPublicTestSuite) NewTestExecManager(
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdOk() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmd("ls", []string{})
 	assert.NoError(suite.T(), err)
@@ -57,14 +54,14 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdOk() {
 func (suite *ExecManagerPublicTestSuite) TestRunCmdWithDebug() {
 	suite.T().Skip("cannot seem to capture Stdout when logging in em")
 
-	em := suite.NewTestExecManager(true)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmd("echo", []string{"-n", "foo"})
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmd("invalid", []string{"foo"})
 	assert.Error(suite.T(), err)
@@ -72,7 +69,7 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirOk() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmdInDir("ls", []string{}, "/tmp")
 	assert.NoError(suite.T(), err)
@@ -81,14 +78,14 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirOk() {
 func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirWithDebug() {
 	suite.T().Skip("cannot seem to capture Stdout when logging in em")
 
-	em := suite.NewTestExecManager(true)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmdInDir("echo", []string{"-n", "foo"}, "/tmp")
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirReturnsError() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	err := em.RunCmdInDir("invalid", []string{"foo"}, "/tmp")
 	assert.Error(suite.T(), err)
@@ -96,7 +93,7 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirReturnsError() {
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunInTempDirOk() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	dir := ""
 	pattern := "test"
@@ -107,7 +104,7 @@ func (suite *ExecManagerPublicTestSuite) TestRunInTempDirOk() {
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunInTempDirError() {
-	em := suite.NewTestExecManager(false)
+	em := suite.NewTestExecManager()
 
 	dir := "\x00" // Null character is invalid in a filepath
 	pattern := "test"

@@ -51,13 +51,11 @@ func New(
 	)
 
 	execManager := exec.New(
-		c.Debug,
 		logger,
 	)
 
 	gitManager := git.New(
 		appFs,
-		c.Debug,
 		execManager,
 		logger,
 	)

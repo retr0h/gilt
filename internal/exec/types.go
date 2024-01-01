@@ -26,6 +26,5 @@ import (
 
 // Exec disk implementation.
 type Exec struct {
-	debug  bool
 	logger *slog.Logger
 }

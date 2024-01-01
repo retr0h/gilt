@@ -31,7 +31,6 @@ import (
 // Git implementation responsible for Git operations.
 type Git struct {
 	appFs       afero.Fs
-	debug       bool
 	execManager internal.ExecManager
 	logger      *slog.Logger
 }
