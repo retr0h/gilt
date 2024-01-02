@@ -85,8 +85,10 @@ func (suite *SchemaTestSuite) TestRepositories() {
 		}, "Key: 'Repositories.Repositories' Error:Field validation for 'Repositories' failed on the 'required' tag"},
 	}
 
+	// NOTE(nic): we have an entrypoint for validating this schema, so use it to
+	// ensure test coverage.  All the other tests will use the validator in the suite.
 	for _, test := range tests {
-		err := suite.v.Struct(test.param)
+		err := Validate(test.param)
 		if test.expected != "" {
 			assert.EqualError(suite.T(), err, test.expected)
 		} else {
