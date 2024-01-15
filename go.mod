@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
-	github.com/go-playground/validator/v10 v10.16.0
+	github.com/go-playground/validator/v10 v10.17.0
 	github.com/golang/mock v1.6.0
 	github.com/lmittmann/tint v1.0.3
 	github.com/spf13/afero v1.11.0
