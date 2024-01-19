@@ -135,6 +135,9 @@ func initConfig(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	// The value for `debug` might have changed; re-initialize the logger
+	initLogger()
+
 	repos = repositories.New(
 		appConfig,
 		logger,
