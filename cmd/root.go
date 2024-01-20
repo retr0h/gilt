@@ -31,7 +31,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 var (
@@ -41,7 +41,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "go-gilt",
+	Use:   "gilt",
 	Short: "A GIT layering command line tool",
 	Long: `
            o  o
@@ -54,7 +54,7 @@ var rootCmd = &cobra.Command{
 
 A GIT layering command line tool.
 
-https://github.com/retr0h/go-gilt
+https://github.com/retr0h/gilt
 `,
 }
 

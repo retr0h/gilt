@@ -1,5 +1,5 @@
-[![codecov](https://img.shields.io/codecov/c/github/retr0h/go-gilt?token=clAMnFQCEQ&style=flat-square)](https://codecov.io/gh/retr0h/go-gilt)
-[![go report card](https://goreportcard.com/badge/github.com/retr0h/go-gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/go-gilt)
+[![codecov](https://img.shields.io/codecov/c/github/retr0h/gilt?token=clAMnFQCEQ&style=flat-square)](https://codecov.io/gh/retr0h/gilt)
+[![go report card](https://goreportcard.com/badge/github.com/retr0h/gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/gilt)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 
 # Gilt
@@ -22,9 +22,9 @@ this.  Currently, this is proving useful for overlaying [Helm charts][].
 
 [Installation][] | [Usage][] | [Documentation][]
 
-[Installation]: https://retr0h.github.io/go-gilt/installation
-[Usage]: https://retr0h.github.io/go-gilt/usage
-[Documentation]: https://retr0h.github.io/go-gilt/
+[Installation]: https://retr0h.github.io/gilt/installation
+[Usage]: https://retr0h.github.io/gilt/usage
+[Documentation]: https://retr0h.github.io/gilt/
 
 ## License
 

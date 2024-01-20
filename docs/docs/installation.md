@@ -7,11 +7,11 @@ sidebar_position: 2
 ## Homebrew Tap
 
 ```bash
-brew install retr0h/tap/go-gilt
+brew install retr0h/tap/gilt
 ```
 
 ## Go Install
 
 ```bash
-go install github.com/retr0h/go-gilt@latest
+go install github.com/retr0h/gilt@latest
 ```

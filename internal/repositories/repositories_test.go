@@ -30,9 +30,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/go-gilt/internal/mocks/exec"
-	"github.com/retr0h/go-gilt/internal/mocks/repository"
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/internal/mocks/exec"
+	"github.com/retr0h/gilt/internal/mocks/repository"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 type RepositoriesTestSuite struct {

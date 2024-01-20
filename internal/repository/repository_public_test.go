@@ -32,11 +32,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/go-gilt/internal/mocks"
-	"github.com/retr0h/go-gilt/internal/mocks/git"
-	mock_repo "github.com/retr0h/go-gilt/internal/mocks/repository"
-	"github.com/retr0h/go-gilt/internal/repository"
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/internal/mocks"
+	"github.com/retr0h/gilt/internal/mocks/git"
+	mock_repo "github.com/retr0h/gilt/internal/mocks/repository"
+	"github.com/retr0h/gilt/internal/repository"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 type RepositoryPublicTestSuite struct {

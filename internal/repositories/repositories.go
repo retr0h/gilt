@@ -28,9 +28,9 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/go-gilt/internal"
-	intPath "github.com/retr0h/go-gilt/internal/path"
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/internal"
+	intPath "github.com/retr0h/gilt/internal/path"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 // New factory to create a new Repository instance.
@@ -116,10 +116,7 @@ func (r *Repositories) Overlay() error {
 				if err := r.repoManager.Worktree(c, targetDir, tmpClone); err != nil {
 					return err
 				}
-				if err := r.repoManager.CopySources(c, tmpClone); err != nil {
-					return err
-				}
-				return nil
+				return r.repoManager.CopySources(c, tmpClone)
 			})
 			if err != nil {
 				return err

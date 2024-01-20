@@ -7,8 +7,8 @@ import (
 
 	"github.com/lmittmann/tint"
 
-	"github.com/retr0h/go-gilt/pkg/config"
-	"github.com/retr0h/go-gilt/pkg/repositories"
+	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/pkg/repositories"
 )
 
 type repositoriesManager interface {

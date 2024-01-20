@@ -25,7 +25,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/gilt/internal"
 )
 
 // Repository contains the repository's details for cloning.
