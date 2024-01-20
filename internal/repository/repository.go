@@ -29,8 +29,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/internal"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 // We'll use this to normalize Git URLs as "safe" filenames
@@ -105,7 +105,7 @@ func (r *Repository) Clone(
 	return targetDir, nil
 }
 
-// Create a Workingtree at the given version in Repository.DstDir.
+// Worktree create a git workingtree at the given version in Repository.DstDir.
 func (r *Repository) Worktree(
 	c config.Repository,
 	cloneDir string,

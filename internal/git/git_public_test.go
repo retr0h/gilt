@@ -31,9 +31,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/internal/git"
-	"github.com/retr0h/go-gilt/internal/mocks/exec"
+	"github.com/retr0h/gilt/internal"
+	"github.com/retr0h/gilt/internal/git"
+	"github.com/retr0h/gilt/internal/mocks/exec"
 )
 
 type GitManagerPublicTestSuite struct {

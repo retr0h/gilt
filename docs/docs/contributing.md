@@ -107,14 +107,14 @@ answer questions.
 If you have questions, feel free open a [Discussion][] on GitHub.
 
 <!-- prettier-ignore-start -->
-[Gilt]: https://github.com/retr0h/go-gilt
+[Gilt]: https://github.com/retr0h/gilt
 [Go]: https://go.dev
 [Node.js]: https://nodejs.org/en/
 [gofumpt]: https://github.com/mvdan/gofumpt
 [golangci-lint]: https://golangci-lint.run
 [Prettier]: https://prettier.io/
 [Docusaurus]: https://docusaurus.io
-[Discussion]: https://github.com/retr0h/go-gilt/discussions
+[Discussion]: https://github.com/retr0h/gilt/discussions
 [Conventional Commits]: https://www.conventionalcommits.org
 [Bats]: https://github.com/bats-core/bats-core
 <!-- prettier-ignore-end -->

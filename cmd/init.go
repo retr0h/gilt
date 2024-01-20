@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 // initCmd represents the init command

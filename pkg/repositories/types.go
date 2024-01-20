@@ -25,8 +25,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/go-gilt/internal"
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/internal"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 // Repositories perform repository operations.

@@ -21,7 +21,7 @@
 package mocks
 
 import (
-	"github.com/retr0h/go-gilt/pkg/config"
+	"github.com/retr0h/gilt/pkg/config"
 )
 
 // RepositoryManager manager responsible for Repository operations.

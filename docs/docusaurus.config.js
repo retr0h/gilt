@@ -16,13 +16,13 @@ const config = {
   url: 'https://retr0h.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/go-gilt/',
+  baseUrl: '/gilt/',
   trailingSlash: false,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'retr0h', // Usually your GitHub org/user name.
-  projectName: 'go-gilt', // Usually your repo name.
+  projectName: 'gilt', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -85,7 +85,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/retr0h/go-gilt',
+            href: 'https://github.com/retr0h/gilt',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
@@ -100,7 +100,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/retr0h/go-gilt',
+                href: 'https://github.com/retr0h/gilt',
               },
             ],
           },
@@ -119,7 +119,7 @@ const config = {
       },
       announcementBar: {
         id: 'announcementBar-3', // Increment on change
-        content: `🎉️ Gilt has been 💯 rewritten in Go, <b><a target="_blank" href="https://github.com/retr0h/go-gilt/releases/tag/v2.0.2">v2.0.2</a> is now available!</b> 🥳️`,
+        content: `🎉️ Gilt has been 💯 rewritten in Go, <b><a target="_blank" href="https://github.com/retr0h/gilt/releases/tag/v2.0.2">v2.0.2</a> is now available!</b> 🥳️`,
       },
     }),
 };

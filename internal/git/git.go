@@ -19,7 +19,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 // Package git package needs reworked into proper Git libraries.  However, this
-// package will remain using exec as it was easiest to port from go-gilt's
+// package will remain using exec as it was easiest to port from gilt's
 // python counterpart.
 package git
 
@@ -30,7 +30,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/go-gilt/internal"
+	"github.com/retr0h/gilt/internal"
 )
 
 // New factory to create a new Git instance.
@@ -46,7 +46,7 @@ func New(
 	}
 }
 
-// Git clone repo.  This is a bare repo, with only metadata to start with.
+// Clone the repo.  This is a bare repo, with only metadata to start with.
 func (g *Git) Clone(
 	gitURL string,
 	cloneDir string,
@@ -57,7 +57,7 @@ func (g *Git) Clone(
 	)
 }
 
-// Create a working tree from the repo in `cloneDir` at `version` in `dstDir`.
+// Worktree create a working tree from the repo in `cloneDir` at `version` in `dstDir`.
 // Under the covers, this will download any/all required objects from origin
 // into the cache
 func (g *Git) Worktree(
