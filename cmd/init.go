@@ -56,30 +56,33 @@ current working directory.`,
 		ye := yaml.NewEncoder(&b)
 		ye.SetIndent(2)
 		if err := ye.Encode(c); err != nil {
-			logger.Error(
+			logFatal(
 				"failed to encode file",
-				slog.String("err", err.Error()),
+				slog.Group("",
+					slog.String("err", err.Error()),
+				),
 			)
-			os.Exit(1)
 		}
 
 		configFile := viper.GetString("giltFile")
 		_, err := os.Stat(configFile)
 		if err == nil {
-			logger.Error(
+			logFatal(
 				"file already exists",
-				slog.String("Giltfile", configFile),
+				slog.Group("",
+					slog.String("Giltfile", configFile),
+				),
 			)
-			os.Exit(1)
 		}
 
-		if err := os.WriteFile(configFile, b.Bytes(), 0o666); err != nil {
-			logger.Error(
+		if err := os.WriteFile(configFile, b.Bytes(), 0o644); err != nil {
+			logFatal(
 				"failed to write file",
-				slog.String("Giltfile", viper.ConfigFileUsed()),
-				slog.String("err", err.Error()),
+				slog.Group("",
+					slog.String("Giltfile", viper.ConfigFileUsed()),
+					slog.String("err", err.Error()),
+				),
 			)
-			os.Exit(1)
 		}
 
 		fmt.Printf("wrote %s\n", configFile)
