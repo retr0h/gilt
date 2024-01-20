@@ -1,4 +1,5 @@
 ---
+debug: false
 repositories:
   - git: https://github.com/retr0h/ansible-etcd.git
     version: 77a95b7

@@ -112,6 +112,16 @@ teardown() {
 	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
 }
 
+@test "invoke gilt overlay subcommand with debug config" {
+  os=$(case $(uname) in Darwin*)  echo x;; esac)
+  sed -Ei ${os:+""} -e 's/(^debug:)(.*)/\1 true/' ${GILT_TEST_BASE_TMP_DIR}/Giltfile.yaml
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
+
+	[ "$status" -eq 0 ]
+	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
+	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
+}
+
 @test "invoke gilt overlay when already cloned" {
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
