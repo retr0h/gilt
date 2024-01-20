@@ -78,21 +78,12 @@ func init() {
 	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
 	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
 	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))
-}
 
-func getLogger(logLevel slog.Leveler) *slog.Logger {
-	return slog.New(
-		tint.NewHandler(os.Stderr, &tint.Options{
-			Level:      logLevel,
-			TimeFormat: time.Kitchen,
-			NoColor:    !term.IsTerminal(int(os.Stdout.Fd())),
-		}),
-	)
+	cobra.OnInitialize(initLogger)
 }
 
 func logFatal(message string, logGroup any) {
-	log := getLogger(slog.LevelError)
-	log.Error(
+	logger.Error(
 		message,
 		logGroup,
 	)
@@ -106,7 +97,13 @@ func initLogger() {
 		logLevel = slog.LevelDebug
 	}
 
-	logger = getLogger(logLevel)
+	logger = slog.New(
+		tint.NewHandler(os.Stderr, &tint.Options{
+			Level:      logLevel,
+			TimeFormat: time.Kitchen,
+			NoColor:    !term.IsTerminal(int(os.Stdout.Fd())),
+		}),
+	)
 }
 
 func initConfig() {
