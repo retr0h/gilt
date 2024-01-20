@@ -28,9 +28,9 @@ this. Currently, this is proving useful for overlaying [Helm charts][].
 
 ## History
 
-This project is a golang port of [Gilt][py-gilt], and aims to correct poor
-decisions made in the python version, primarially around config syntax,
-portability, and reproducibility.
+This project is a golang port of [Gilt][py-gilt], and aims to correct poor decisions
+made in the python version, primarially around config syntax, portability, and
+reproducibility.
 
 <!-- prettier-ignore-start -->
 [Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
