@@ -31,14 +31,11 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 
-	"github.com/retr0h/go-gilt/pkg"
 	"github.com/retr0h/go-gilt/pkg/config"
-	"github.com/retr0h/go-gilt/pkg/repositories"
 )
 
 var (
 	logger    *slog.Logger
-	repos     pkg.RepositoriesManager
 	appConfig config.Repositories
 )
 
@@ -81,17 +78,10 @@ func init() {
 	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
 	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
 	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))
-
-	initLogger()
 }
 
-func initLogger() {
-	logLevel := slog.LevelInfo
-	if viper.GetBool("debug") {
-		logLevel = slog.LevelDebug
-	}
-
-	logger = slog.New(
+func getLogger(logLevel slog.Leveler) *slog.Logger {
+	return slog.New(
 		tint.NewHandler(os.Stderr, &tint.Options{
 			Level:      logLevel,
 			TimeFormat: time.Kitchen,
@@ -100,8 +90,26 @@ func initLogger() {
 	)
 }
 
-func initConfig(cmd *cobra.Command, args []string) {
-	initLogger()
+func logFatal(message string, logGroup any) {
+	log := getLogger(slog.LevelError)
+	log.Error(
+		message,
+		logGroup,
+	)
+
+	os.Exit(1)
+}
+
+func initLogger() {
+	logLevel := slog.LevelInfo
+	if viper.GetBool("debug") {
+		logLevel = slog.LevelDebug
+	}
+
+	logger = getLogger(logLevel)
+}
+
+func initConfig() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.SetConfigType("yaml")
@@ -110,36 +118,33 @@ func initConfig(cmd *cobra.Command, args []string) {
 	viper.SetConfigFile(viper.GetString("giltFile"))
 
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Error(
+		logFatal(
 			"failed to read config",
-			slog.String("Giltfile", viper.ConfigFileUsed()),
-			slog.String("err", err.Error()),
+			slog.Group("",
+				slog.String("Giltfile", viper.ConfigFileUsed()),
+				slog.String("err", err.Error()),
+			),
 		)
-		os.Exit(1)
 	}
 
 	if err := viper.Unmarshal(&appConfig); err != nil {
-		logger.Error(
+		logFatal(
 			"failed to unmarshal config",
-			slog.String("Giltfile", viper.ConfigFileUsed()),
-			slog.String("err", err.Error()),
+			slog.Group("",
+				slog.String("Giltfile", viper.ConfigFileUsed()),
+				slog.String("err", err.Error()),
+			),
 		)
-		os.Exit(1)
 	}
 
 	err := config.Validate(&appConfig)
 	if err != nil {
-		logger.Error("validation failed",
-			slog.String("err", err.Error()),
+		logFatal(
+			"validation failed",
+			slog.Group("",
+				slog.String("Giltfile", viper.ConfigFileUsed()),
+				slog.String("err", err.Error()),
+			),
 		)
-		os.Exit(1)
 	}
-
-	// The value for `debug` might have changed; re-initialize the logger
-	initLogger()
-
-	repos = repositories.New(
-		appConfig,
-		logger,
-	)
 }

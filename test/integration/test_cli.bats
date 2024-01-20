@@ -64,7 +64,7 @@ teardown() {
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | jq '.date'
-	echo "${output}" | jq '.build'
+	echo "${output}" | jq '.commit'
 	echo "${output}" | jq '.version'
 }
 

@@ -22,6 +22,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
+	"github.com/retr0h/go-gilt/pkg/repositories"
 )
 
 // overlayCmd represents the overlay command
@@ -30,7 +32,6 @@ var overlayCmd = &cobra.Command{
 	Short: "Install Gilt dependencies",
 	Long: `Overlay the repositories from the Giltfile into their respective
 destinations.`,
-	PersistentPreRun: initConfig,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// By the time we reach this point, we know that the arguments were
 		// properly parsed, and we don't want to show the usage if an error
@@ -39,6 +40,13 @@ destinations.`,
 		// We are logging errors, no need for cobra to re-log the error
 		cmd.SilenceErrors = true
 
+		initConfig()
+		initLogger()
+
+		repos := repositories.New(
+			appConfig,
+			logger,
+		)
 		return repos.Overlay()
 	},
 }
