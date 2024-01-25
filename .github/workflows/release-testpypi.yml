@@ -34,6 +34,13 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --clean --snapshot
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Wheels
+        run: task build:wheel
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
