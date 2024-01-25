@@ -1,5 +1,5 @@
 ---
-name: goreleaser
+name: publish packages
 on:
   push:
     tags:
@@ -7,11 +7,9 @@ on:
 
 permissions:
   contents: write
-  # packages: write
-  # issues: write
 
 jobs:
-  goreleaser:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
