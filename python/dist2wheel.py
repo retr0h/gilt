@@ -21,7 +21,7 @@ import zipfile
 WHEEL_TEMPLATE = """Wheel-Version: 1.0
 Generator: dist2wheel.py
 Root-Is-Purelib: false
-Tag: {py_tag}-{abi_tag}-{platform_tag} 
+Tag: {py_tag}-{abi_tag}-{platform_tag}
 """
 METADATA_TEMPLATE = """Metadata-Version: 2.1
 Name: {distribution}
@@ -43,18 +43,20 @@ Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
 
 class Wheels:
     def __init__(self):
+        self.dist_dir = "dist"
+        self.wheel_dir = os.path.join(self.dist_dir, "whl")
         # Pull in all the project metadata from known locations.
         # No, this isn't customizable.  Cope.
-        with open("dist/metadata.json") as f:
+        with open(os.path.join(self.dist_dir, "metadata.json")) as f:
             self.metadata = json.load(f)
 
-        with open("dist/artifacts.json") as f:
+        with open(os.path.join(self.dist_dir, "artifacts.json")) as f:
             self.artifacts = json.load(f)
 
         with open("README.md") as f:
             self.readme = f.read()
 
-        self.distribution = self.metadata["project_name"]
+        self.distribution = f"python-{self.metadata['project_name']}"
         self.version = self.metadata["version"]
         self.py_tag = "py3"
         self.abi_tag = "none"
@@ -73,7 +75,7 @@ class Wheels:
         for artifact in self.artifacts:
             try:
                 self.path = artifact["path"]
-                self.platform_tag = self._fixup_platform_tag(artifact)
+                self._set_platform_props(artifact)
                 self.checksum = self._fix_checksum(artifact["extra"]["Checksum"])
                 self.size = os.path.getsize(self.path)
             except KeyError:
@@ -81,25 +83,43 @@ class Wheels:
 
             self.wheel_file = WHEEL_TEMPLATE.format(**self.__dict__).encode()
             self.metadata_file = METADATA_TEMPLATE.format(**self.__dict__).encode()
+            os.makedirs(self.wheel_dir, exist_ok=True)
             self._emit()
 
-    @staticmethod
-    def _fixup_platform_tag(artifact):
+    def _matrix(self):
+        return {
+            "darwin": {
+                "amd64": {
+                    "arch": "x86_64",
+                    "platform": "macosx_10_7_x86_64",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-macosx_10_7_x86_64",
+                    ],
+                },
+            },
+            "linux": {
+                "amd64": {
+                    "arch": "x86_64",
+                    "platform": "manylinux2014_x86_64.manylinux_2_17_x86_64.musllinux_1_1_x86_64",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_x86_64",
+                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_x86_64",
+                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_x86_64",
+                    ],
+                },
+            },
+        }
+
+    def _set_platform_props(self, artifact):
         """Convert Go binary nomenclature to Python wheel nomenclature."""
 
-        # Go 1.21 will require macOS 10.15 or later
-        _map = dict(darwin="macosx_10_15", linux="linux")
-        platform = _map[artifact["goos"]]
+        _map = self._matrix()
+        _platform = artifact["goos"]
+        _goarch = artifact["goarch"]
 
-        arch = artifact["goarch"]
-        if arch == "arm64" and platform == "linux":
-            arch = "aarch64"
-        elif arch == "amd64":
-            arch = "x86_64"
-        elif arch == "386":
-            arch = "i686"
-
-        return f"{platform}_{arch}"
+        platform = _map[_platform][_goarch]["platform"]
+        self.platform = f"{platform}"
+        self.platform_tag = "\n".join(_map[_platform][_goarch]["tags"])
 
     @staticmethod
     def _fix_checksum(checksum):
@@ -110,8 +130,10 @@ class Wheels:
         return base64.urlsafe_b64encode(bytes.fromhex(checksum)).decode().rstrip("=")
 
     def _emit(self):
-        name_ver = f"{self.distribution}-{self.version}"
-        filename = f"dist/{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform_tag}.whl"
+        pypi_name = self.distribution.replace("-", "_")
+        name_ver = f"{pypi_name}-{self.version}"
+        filename = os.path.join( self.wheel_dir, f"{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform}.whl")
+
         with zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             record = []
             print(f"writing {zf.filename}")

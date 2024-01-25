@@ -1,5 +1,5 @@
 ---
-name: goreleaser
+name: release packages
 on:
   push:
     tags:
@@ -9,9 +9,11 @@ permissions:
   contents: write
   # packages: write
   # issues: write
+  # permission is mandatory for trusted publishing
+  id-token: write
 
 jobs:
-  goreleaser:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,3 +30,14 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Wheels
+        run: task build:wheel
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/whl/
