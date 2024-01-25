@@ -113,7 +113,8 @@ class Wheels:
         return base64.urlsafe_b64encode(bytes.fromhex(checksum)).decode().rstrip("=")
 
     def _emit(self):
-        name_ver = f"{self.distribution}-{self.version}"
+        pypi_name = self.distribution.replace('-', '_')
+        name_ver = f"{pypi_name}-{self.version}"
         filename = os.path.join(self.wheel_dir, f"{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform_tag}.whl")
 
         with zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as zf:
