@@ -56,7 +56,7 @@ class Wheels:
         with open("README.md") as f:
             self.readme = f.read()
 
-        self.distribution = self.metadata["project_name"]
+        self.distribution = f"python-{self.metadata['project_name']}"
         self.version = self.metadata["version"]
         self.py_tag = "py3"
         self.abi_tag = "none"
