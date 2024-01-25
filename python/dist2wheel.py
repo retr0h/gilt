@@ -21,7 +21,7 @@ import zipfile
 WHEEL_TEMPLATE = """Wheel-Version: 1.0
 Generator: dist2wheel.py
 Root-Is-Purelib: false
-Tag: {py_tag}-{abi_tag}-{platform_tag} 
+Tag: {py_tag}-{abi_tag}-{platform_tag}
 """
 METADATA_TEMPLATE = """Metadata-Version: 2.1
 Name: {distribution}
@@ -43,12 +43,14 @@ Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
 
 class Wheels:
     def __init__(self):
+        self.dist_dir = "dist"
+        self.wheel_dir = os.path.join(self.dist_dir, "whl")
         # Pull in all the project metadata from known locations.
         # No, this isn't customizable.  Cope.
-        with open("dist/metadata.json") as f:
+        with open(os.path.join(self.dist_dir, "metadata.json")) as f:
             self.metadata = json.load(f)
 
-        with open("dist/artifacts.json") as f:
+        with open(os.path.join(self.dist_dir, "artifacts.json")) as f:
             self.artifacts = json.load(f)
 
         with open("README.md") as f:
@@ -81,6 +83,7 @@ class Wheels:
 
             self.wheel_file = WHEEL_TEMPLATE.format(**self.__dict__).encode()
             self.metadata_file = METADATA_TEMPLATE.format(**self.__dict__).encode()
+            os.makedirs(self.wheel_dir, exist_ok=True)
             self._emit()
 
     @staticmethod
@@ -111,7 +114,8 @@ class Wheels:
 
     def _emit(self):
         name_ver = f"{self.distribution}-{self.version}"
-        filename = f"dist/{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform_tag}.whl"
+        filename = os.path.join(self.wheel_dir, f"{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform_tag}.whl")
+
         with zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             record = []
             print(f"writing {zf.filename}")
