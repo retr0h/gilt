@@ -76,6 +76,9 @@ class Wheels:
             try:
                 self.path = artifact["path"]
                 self.platform_tag = self._fixup_platform_tag(artifact)
+                # skipping for now: unsupported platform tag 'linux_aarch64
+                if self.platform_tag == "linux_aarch64":
+                    continue
                 self.checksum = self._fix_checksum(artifact["extra"]["Checksum"])
                 self.size = os.path.getsize(self.path)
             except KeyError:
