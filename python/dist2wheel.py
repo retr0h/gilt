@@ -72,13 +72,11 @@ class Wheels:
 
         # We're looking for "internal_type: 2" artifacts, but being an internal
         # type, we'll avoid leaning on implementation details if we don't have to
+        # for artifact in self.artifacts:
         for artifact in self.artifacts:
             try:
                 self.path = artifact["path"]
-                self.platform_tag = self._fixup_platform_tag(artifact)
-                # skipping for now: unsupported platform tag 'linux_aarch64
-                if self.platform_tag == "linux_aarch64":
-                    continue
+                self._set_platform_props(artifact)
                 self.checksum = self._fix_checksum(artifact["extra"]["Checksum"])
                 self.size = os.path.getsize(self.path)
             except KeyError:
@@ -89,23 +87,40 @@ class Wheels:
             os.makedirs(self.wheel_dir, exist_ok=True)
             self._emit()
 
-    @staticmethod
-    def _fixup_platform_tag(artifact):
+    def _matrix(self):
+        return {
+            "darwin": {
+                "amd64": {
+                    "arch": "x86_64",
+                    "platform": "macosx_10_7_x86_64",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-macosx_10_7_x86_64",
+                    ],
+                },
+            },
+            "linux": {
+                "amd64": {
+                    "arch": "x86_64",
+                    "platform": "manylinux2014_x86_64.manylinux_2_17_x86_64.musllinux_1_1_x86_64",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_x86_64",
+                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_x86_64",
+                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_x86_64",
+                    ],
+                },
+            },
+        }
+
+    def _set_platform_props(self, artifact):
         """Convert Go binary nomenclature to Python wheel nomenclature."""
 
-        # Go 1.21 will require macOS 10.15 or later
-        _map = dict(darwin="macosx_10_15", linux="linux")
-        platform = _map[artifact["goos"]]
+        _map = self._matrix()
+        _platform = artifact["goos"]
+        _goarch = artifact["goarch"]
 
-        arch = artifact["goarch"]
-        if arch == "arm64" and platform == "linux":
-            arch = "aarch64"
-        elif arch == "amd64":
-            arch = "x86_64"
-        elif arch == "386":
-            arch = "i686"
-
-        return f"{platform}_{arch}"
+        platform = _map[_platform][_goarch]["platform"]
+        self.platform = f"{platform}"
+        self.platform_tag = "\n".join(_map[_platform][_goarch]["tags"])
 
     @staticmethod
     def _fix_checksum(checksum):
@@ -116,9 +131,12 @@ class Wheels:
         return base64.urlsafe_b64encode(bytes.fromhex(checksum)).decode().rstrip("=")
 
     def _emit(self):
-        pypi_name = self.distribution.replace('-', '_')
+        pypi_name = self.distribution.replace("-", "_")
         name_ver = f"{pypi_name}-{self.version}"
-        filename = os.path.join(self.wheel_dir, f"{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform_tag}.whl")
+        filename = os.path.join(
+            self.wheel_dir,
+            f"{name_ver}-{self.py_tag}-{self.abi_tag}-{self.platform}.whl",
+        )
 
         with zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             record = []
@@ -133,13 +151,17 @@ class Wheels:
             arcname = f"{name_ver}.dist-info/METADATA"
             zf.writestr(arcname, self.metadata_file)
             digest = hashlib.sha256(self.metadata_file).hexdigest()
-            record.append(f"{arcname},sha256={self._fix_checksum(digest)},{len(self.metadata_file)}")
+            record.append(
+                f"{arcname},sha256={self._fix_checksum(digest)},{len(self.metadata_file)}"
+            )
 
             # The platform tags
             arcname = f"{name_ver}.dist-info/WHEEL"
             zf.writestr(arcname, self.wheel_file)
             digest = hashlib.sha256(self.wheel_file).hexdigest()
-            record.append(f"{arcname},sha256={self._fix_checksum(digest)},{len(self.wheel_file)}")
+            record.append(
+                f"{arcname},sha256={self._fix_checksum(digest)},{len(self.wheel_file)}"
+            )
 
             # Write out the manifest last.  The record of itself contains no checksum or size info
             arcname = f"{name_ver}.dist-info/RECORD"
