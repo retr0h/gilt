@@ -65,3 +65,5 @@ brews:
       - name: go
         type: optional
       - name: git
+universal_binaries:
+  - replace: true

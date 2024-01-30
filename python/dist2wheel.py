@@ -89,18 +89,11 @@ class Wheels:
     def _matrix(self):
         return {
             "darwin": {
-                "amd64": {
-                    "arch": "x86_64",
-                    "platform": "macosx_10_15_x86_64",
+                "all": {
+                    "arch": "all",
+                    "platform": "macosx_10_15_universal2",
                     "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-macosx_10_15_x86_64",
-                    ],
-                },
-                "arm64": {
-                    "arch": "arm64",
-                    "platform": "macosx_11_0_arm64",
-                    "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-macosx_11_arm64",
+                        f"{self.py_tag}-{self.abi_tag}-macosx_10_15_universal2",
                     ],
                 },
             },
