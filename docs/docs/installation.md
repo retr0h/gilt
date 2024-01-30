@@ -15,3 +15,9 @@ brew install retr0h/tap/gilt
 ```bash
 go install github.com/retr0h/gilt@latest
 ```
+
+## Python
+
+```bash
+pip3 install python-gilt
+```
