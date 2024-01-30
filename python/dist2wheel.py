@@ -91,9 +91,9 @@ class Wheels:
             "darwin": {
                 "amd64": {
                     "arch": "x86_64",
-                    "platform": "macosx_10_7_x86_64",
+                    "platform": "macosx_10_15_x86_64",
                     "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-macosx_10_7_x86_64",
+                        f"{self.py_tag}-{self.abi_tag}-macosx_10_15_x86_64",
                     ],
                 },
             },
@@ -119,7 +119,7 @@ class Wheels:
 
         platform = _map[_platform][_goarch]["platform"]
         self.platform = f"{platform}"
-        self.platform_tag = "\n".join(_map[_platform][_goarch]["tags"])
+        self.platform_tag = "\nTag: ".join(_map[_platform][_goarch]["tags"])
 
     @staticmethod
     def _fix_checksum(checksum):
