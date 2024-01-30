@@ -107,6 +107,15 @@ class Wheels:
                         f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_x86_64",
                     ],
                 },
+                "386": {
+                    "arch": "i686",
+                    "platform": "manylinux2014_i686.manylinux_2_17_i686.musllinux_1_1_i686",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_i686",
+                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_i686",
+                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_i686",
+                    ],
+                },
             },
         }
 
