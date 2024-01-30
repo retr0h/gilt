@@ -96,6 +96,13 @@ class Wheels:
                         f"{self.py_tag}-{self.abi_tag}-macosx_10_15_x86_64",
                     ],
                 },
+                "arm64": {
+                    "arch": "arm64",
+                    "platform": "macosx_11_0_arm64",
+                    "tags": [
+                        f"{self.py_tag}-{self.abi_tag}-macosx_11_arm64",
+                    ],
+                },
             },
             "linux": {
                 "amd64": {
