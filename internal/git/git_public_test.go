@@ -92,6 +92,9 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeOk() {
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
 		Return(nil)
+	suite.mockExec.EXPECT().
+		RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, suite.cloneDir).
+		Return(nil)
 	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.NoError(suite.T(), err)
 }

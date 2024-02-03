@@ -86,6 +86,7 @@ func (g *Git) Worktree(
 	// this is just junk data in our use case, so get rid of it
 	if err == nil {
 		_ = os.Remove(filepath.Join(dst, ".git"))
+		_ = g.execManager.RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, cloneDir)
 	}
 	return err
 }
