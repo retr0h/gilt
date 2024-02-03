@@ -100,6 +100,9 @@ func (r *Repository) Clone(
 		}
 	} else {
 		r.logger.Info("clone already exists", slog.String("dstDir", targetDir))
+		if err := r.gitManager.Update(targetDir); err != nil {
+			return targetDir, err
+		}
 	}
 
 	return targetDir, nil

@@ -125,9 +125,27 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
 
 	_ = suite.appFs.MkdirAll(targetDir, 0o755)
+	suite.mockGit.EXPECT().Update(targetDir).Return(nil)
 
 	_, err := repo.Clone(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCloneUpdateCloneDirThrowsError() {
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
+	}
+	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
+
+	_ = suite.appFs.MkdirAll(targetDir, 0o755)
+	errors := errors.New("tests error")
+	suite.mockGit.EXPECT().Update(targetDir).Return(errors)
+
+	_, err := repo.Clone(c, suite.cloneDir)
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDirDoesNotExist() {

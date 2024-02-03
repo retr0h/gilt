@@ -24,4 +24,5 @@ package internal
 type GitManager interface {
 	Clone(gitURL string, cloneDir string) error
 	Worktree(cloneDir string, version string, dstDir string) error
+	Update(cloneDir string) error
 }
