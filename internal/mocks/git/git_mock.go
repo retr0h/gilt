@@ -47,6 +47,20 @@ func (mr *MockGitManagerMockRecorder) Clone(gitURL, cloneDir interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clone", reflect.TypeOf((*MockGitManager)(nil).Clone), gitURL, cloneDir)
 }
 
+// Update mocks base method.
+func (m *MockGitManager) Update(cloneDir string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", cloneDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockGitManagerMockRecorder) Update(cloneDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockGitManager)(nil).Update), cloneDir)
+}
+
 // Worktree mocks base method.
 func (m *MockGitManager) Worktree(cloneDir, version, dstDir string) error {
 	m.ctrl.T.Helper()
