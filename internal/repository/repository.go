@@ -51,37 +51,6 @@ func New(
 	}
 }
 
-// glob searches for files matching pattern in the directory dir
-// and appends them to matches, returning the updated slice.
-// If the directory cannot be opened, glob returns the existing matches.
-// New matches are added in lexicographical order.
-// Inspired by io/fs/glob since afero doesn't support filepath.Glob.
-func glob(
-	fs afero.Fs,
-	dir string,
-	pattern string,
-) ([]string, error) {
-	m := []string{}
-	infos, err := afero.ReadDir(fs, dir)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, info := range infos {
-		n := info.Name()
-		matched, err := filepath.Match(pattern, n)
-		if err != nil {
-			return m, err
-		}
-
-		if matched {
-			m = append(m, filepath.Join(dir, n))
-		}
-	}
-
-	return m, nil
-}
-
 // Clone Repository.Git under Repository.getCloneDir
 func (r *Repository) Clone(
 	c config.Repository,
@@ -124,21 +93,8 @@ func (r *Repository) CopySources(
 ) error {
 	r.logger.Debug("copy", slog.String("origin", cloneDir))
 	for _, source := range c.Sources {
-		parts := strings.Split(
-			source.Src,
-			string(os.PathSeparator),
-		) // break up source.Src path
-		head := parts[0 : len(parts)-1] // take all path parts but last
-		tail := parts[len(parts)-1]     // take the last path part
-		cloneDirWithSrcPath := filepath.Join(
-			cloneDir,
-			strings.Join(head, string(os.PathSeparator)),
-		) // join clone dir with head
-		globbedSrc, err := glob(
-			r.appFs,
-			cloneDirWithSrcPath,
-			tail,
-		) // tail is used by glob for path matching
+		cloneDirWithSrcPath := filepath.Join(cloneDir, source.Src) // join clone dir with head
+		globbedSrc, err := afero.Glob(r.appFs, cloneDirWithSrcPath)
 		if err != nil {
 			return err
 		}
@@ -152,7 +108,7 @@ func (r *Repository) CopySources(
 						return err
 					}
 				} else if source.DstDir != "" {
-					// ... and create te dst directory
+					// ... and create the dst directory
 					if err := r.appFs.MkdirAll(source.DstDir, 0o755); err != nil {
 						return fmt.Errorf("unable to create dest dir: %s", err)
 					}
