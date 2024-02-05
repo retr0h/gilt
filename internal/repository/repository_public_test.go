@@ -239,6 +239,41 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	assert.NoError(suite.T(), err)
 }
 
+func (suite *RepositoryPublicTestSuite) TestCopySourcesErrorWhenSourceIsDirAndDstDirExists() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  filepath.Join(suite.cloneDir, "subDir"),
+			srcFile: filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	// create dstDir
+	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
+		Sources: []config.Source{
+			{
+				Src:    filepath.Base(specs[0].srcDir),
+				DstDir: suite.dstDir,
+			},
+		},
+	}
+
+	// We should throw an EPERM and never even make it to the CopyFile step
+	suite.mockCopyManager.EXPECT().CopyDir(gomock.Any(), gomock.Any()).Do(
+		func(_ interface{}, _ interface{}) {
+			suite.T().Fatal("CopyDir was not expected to be called")
+		}).AnyTimes()
+	err := repo.CopySources(c, suite.cloneDir)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDstDir() {
 	repo := suite.NewRepositoryManager()
 	specs := []FileSpec{
@@ -302,6 +337,41 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 
 	err := repo.CopySources(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsFilesAndDstDir() {
+	specs := []FileSpec{
+		{
+			appFs:  suite.appFs,
+			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcFiles: []string{
+				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			},
+		},
+	}
+	createFileSpecs(specs)
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
+		Sources: []config.Source{
+			{
+				Src:    "subDir/*.txt",
+				DstDir: suite.dstDir,
+			},
+		},
+	}
+
+	// We should throw an EPERM and never even make it to the CopyFile step
+	suite.mockCopyManager.EXPECT().CopyFile(gomock.Any(), gomock.Any()).Do(
+		func(_ interface{}, _ interface{}) {
+			suite.T().Fatal("CopyFile was not expected to be called")
+		}).AnyTimes()
+	err := repo.CopySources(c, suite.cloneDir)
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsFilesAndDstDirAndCopyFileErrors() {
@@ -390,6 +460,39 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	errors := errors.New("tests error")
 	suite.mockCopyManager.EXPECT().CopyFile(gomock.Any(), gomock.Any()).Return(errors)
 
+	err := repo.CopySources(c, suite.cloneDir)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorOnGarbagePatterns() {
+	repo := suite.NewRepositoryManager()
+	specs := []FileSpec{
+		{
+			appFs:  suite.appFs,
+			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcFiles: []string{
+				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			},
+		},
+	}
+	createFileSpecs(specs)
+
+	c := config.Repository{
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
+		Sources: []config.Source{
+			{
+				Src:    "subDir/*[.txt", // this glob should be invalid
+				DstDir: suite.dstDir,
+			},
+		},
+	}
+
+	// We should never even make it to the CopyFile step
+	suite.mockCopyManager.EXPECT().CopyFile(gomock.Any(), gomock.Any()).Do(
+		func(_ interface{}, _ interface{}) {
+			suite.T().Fatal("CopyFile was not expected to be called")
+		}).AnyTimes()
 	err := repo.CopySources(c, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
