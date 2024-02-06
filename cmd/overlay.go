@@ -23,7 +23,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/retr0h/gilt/pkg/repositories"
+	"github.com/retr0h/gilt/v2/pkg/repositories"
 )
 
 // overlayCmd represents the overlay command

@@ -31,7 +31,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 
-	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
 var (

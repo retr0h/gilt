@@ -30,7 +30,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/retr0h/gilt/internal/repository"
+	"github.com/retr0h/gilt/v2/internal/repository"
 )
 
 type CopyPublicTestSuite struct {

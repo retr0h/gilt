@@ -30,7 +30,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/gilt/internal"
+	"github.com/retr0h/gilt/v2/internal"
 )
 
 // New factory to create a new Git instance.

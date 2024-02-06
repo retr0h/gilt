@@ -30,12 +30,12 @@ import (
 	"github.com/danjacques/gofslock/fslock"
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/gilt/internal/exec"
-	"github.com/retr0h/gilt/internal/git"
-	intPath "github.com/retr0h/gilt/internal/path"
-	intRepos "github.com/retr0h/gilt/internal/repositories"
-	"github.com/retr0h/gilt/internal/repository"
-	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/v2/internal/exec"
+	"github.com/retr0h/gilt/v2/internal/git"
+	intPath "github.com/retr0h/gilt/v2/internal/path"
+	intRepos "github.com/retr0h/gilt/v2/internal/repositories"
+	"github.com/retr0h/gilt/v2/internal/repository"
+	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
 // New factory to create a new Repository instance.

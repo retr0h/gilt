@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	config "github.com/retr0h/gilt/pkg/config"
+	config "github.com/retr0h/gilt/v2/pkg/config"
 )
 
 // MockRepositoryManager is a mock of RepositoryManager interface.
