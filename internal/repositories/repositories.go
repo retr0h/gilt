@@ -28,9 +28,9 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/gilt/internal"
-	intPath "github.com/retr0h/gilt/internal/path"
-	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/v2/internal"
+	intPath "github.com/retr0h/gilt/v2/internal/path"
+	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
 // New factory to create a new Repository instance.

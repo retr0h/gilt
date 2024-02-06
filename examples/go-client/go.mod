@@ -2,11 +2,11 @@ module example.com/client
 
 go 1.21.0
 
-replace github.com/retr0h/gilt => ../../../gilt/
+replace github.com/retr0h/gilt/v2 => ../../../gilt/
 
 require (
 	github.com/lmittmann/tint v1.0.4
-	github.com/retr0h/gilt v1.0.2
+	github.com/retr0h/gilt/v2 v2.1.1
 )
 
 require (

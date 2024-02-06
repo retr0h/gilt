@@ -1,4 +1,4 @@
-module github.com/retr0h/gilt
+module github.com/retr0h/gilt/v2
 
 go 1.21.0
 

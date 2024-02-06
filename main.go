@@ -21,7 +21,7 @@
 package main
 
 import (
-	"github.com/retr0h/gilt/cmd"
+	"github.com/retr0h/gilt/v2/cmd"
 )
 
 func main() {

@@ -25,7 +25,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/gilt/internal"
+	"github.com/retr0h/gilt/v2/internal"
 )
 
 // Git implementation responsible for Git operations.

@@ -29,8 +29,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/retr0h/gilt/internal"
-	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/v2/internal"
+	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
 // We'll use this to normalize Git URLs as "safe" filenames

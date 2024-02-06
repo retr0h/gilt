@@ -21,7 +21,7 @@
 package internal
 
 import (
-	"github.com/retr0h/gilt/pkg/config"
+	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
 // RepositoryManager manager responsible for Repository operations.
