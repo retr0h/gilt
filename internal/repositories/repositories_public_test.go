@@ -148,7 +148,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayDstDirExists() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayErrorRemovingDstDir() {
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
-	_ = suite.appFs.MkdirAll(filepath.Join(suite.giltDir, "cache"), 0o755)
+	_ = suite.appFs.MkdirAll(filepath.Join(suite.giltDir, "cache"), 0o700)
 	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
 	// Replace the test FS with a read-only copy
 	suite.appFs = afero.NewReadOnlyFs(suite.appFs)

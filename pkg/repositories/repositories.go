@@ -90,7 +90,7 @@ func (r *Repositories) getGiltDir() (string, error) {
 		return "", err
 	}
 
-	if err := r.appFs.MkdirAll(dir, 0o755); err != nil {
+	if err := r.appFs.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
 

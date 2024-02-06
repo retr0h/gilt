@@ -64,7 +64,7 @@ func (r *Repositories) getCacheDir() (string, error) {
 
 	cacheDir := filepath.Join(giltDir, "cache")
 	if _, err := r.appFs.Stat(cacheDir); os.IsNotExist(err) {
-		if err := r.appFs.Mkdir(cacheDir, 0o755); err != nil {
+		if err := r.appFs.Mkdir(cacheDir, 0o700); err != nil {
 			return "", err
 		}
 	}
