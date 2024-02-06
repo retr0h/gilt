@@ -34,7 +34,7 @@ setup() {
 	GILT_CLONED_REPO_1_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd
 	GILT_CLONED_REPO_2_DST_DIR=${GILT_TEST_BASE_TMP_DIR}/retr0h.ansible-etcd-tag
 
-    mkdir -p ${GILT_DIR}
+	mkdir -p -m 700 ${GILT_DIR}
 	mkdir -p ${GILT_LIBRARY_DIR}
 	mkdir -p ${GILT_ROLES_DIR}
 	cp test/Giltfile.yaml ${GILT_TEST_BASE_TMP_DIR}/Giltfile.yaml

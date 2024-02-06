@@ -58,17 +58,30 @@ func (r *Copy) CopyFile(
 		slog.String("dstFile", dst),
 	)
 
+	// Open the source file for reading, and record its metadata
 	in, err := r.appFs.Open(src)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = in.Close() }()
 
+	si, err := r.appFs.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	// Open dest file for writing; make it owner-only perms before putting
+	// anything in it
 	out, err := r.appFs.Create(dst)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = out.Close() }()
+
+	err = r.appFs.Chmod(dst, 0o600)
+	if err != nil {
+		return err
+	}
 
 	_, err = io.Copy(out, in)
 	if err != nil {
@@ -80,11 +93,7 @@ func (r *Copy) CopyFile(
 		return err
 	}
 
-	si, err := r.appFs.Stat(src)
-	if err != nil {
-		return err
-	}
-
+	// All done; make the permissions match
 	err = r.appFs.Chmod(dst, si.Mode())
 	if err != nil {
 		return err
