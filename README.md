@@ -1,5 +1,5 @@
 [![codecov](https://img.shields.io/codecov/c/github/retr0h/gilt?token=clAMnFQCEQ&style=flat-square)](https://codecov.io/gh/retr0h/gilt)
-[![go report card](https://goreportcard.com/badge/github.com/retr0h/gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/gilt)
+[![go report card](https://goreportcard.com/badge/github.com/retr0h/gilt?style=flat-square)](https://goreportcard.com/report/github.com/retr0h/gilt/v2)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 
 # Gilt
