@@ -101,14 +101,38 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
 	expected := filepath.Join(suite.giltDir, "cache")
 
 	suite.mockRepo.EXPECT().
-		Clone(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache")).
+		Clone(suite.repoConfigDstDir[0], expected).
 		Return(expected, nil)
 	suite.mockRepo.EXPECT().
-		Worktree(suite.repoConfigDstDir[0], filepath.Join(suite.giltDir, "cache"), suite.dstDir).
+		Worktree(suite.repoConfigDstDir[0], expected, suite.dstDir).
 		Return(nil)
 
 	err := repos.Overlay()
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayErrorWhenDstDir() {
+	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
+	expected := filepath.Join(suite.giltDir, "cache")
+	errors := errors.New("tests error")
+
+	suite.mockRepo.EXPECT().
+		Clone(suite.repoConfigDstDir[0], expected).
+		Return(expected, nil)
+	suite.mockRepo.EXPECT().
+		Worktree(suite.repoConfigDstDir[0], expected, suite.dstDir).
+		Return(errors)
+
+	err := repos.Overlay()
+	assert.Error(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayCacheDirCreateError() {
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
+	err := repos.Overlay()
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayDstDirExists() {
@@ -120,6 +144,17 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayDstDirExists() {
 	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
 	err := repos.Overlay()
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayErrorRemovingDstDir() {
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	_ = suite.appFs.MkdirAll(filepath.Join(suite.giltDir, "cache"), 0o755)
+	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
+	err := repos.Overlay()
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenDstDirDeleteFails() {
@@ -181,6 +216,30 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySources
 	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().CopySources(gomock.Any(), gomock.Any()).Return(errors)
+
+	err := repos.Overlay()
+	assert.Error(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlayErrorCreatingCopySourcesWorktree() {
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			Sources: []config.Source{
+				{
+					Src:    "srcDir",
+					DstDir: suite.dstDir,
+				},
+			},
+		},
+	}
+	repos := suite.NewTestRepositoriesManager(repoConfig)
+	errors := errors.New("tests error")
+
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(errors)
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)

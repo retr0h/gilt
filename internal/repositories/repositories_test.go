@@ -91,6 +91,16 @@ func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	assert.True(suite.T(), exists)
 }
 
+func (suite *RepositoriesTestSuite) TestgetCacheDirCannotCreateError() {
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	repos := suite.NewTestRepositories(suite.giltDir)
+
+	got, err := repos.getCacheDir()
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "", got)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestRepositoriesTestSuite(t *testing.T) {
