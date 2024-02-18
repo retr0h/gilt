@@ -85,6 +85,24 @@ func (suite *CopyPublicTestSuite) TestCopyFileReturnsError() {
 	assert.False(suite.T(), got)
 }
 
+func (suite *CopyPublicTestSuite) TestCopyFileReturnsErrorEPERM() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
+			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+
+	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	// Replace the test FS with a read-only copy
+	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *CopyPublicTestSuite) TestCopyDirOk() {
 	cm := suite.NewTestCopyManager()
 

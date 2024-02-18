@@ -95,7 +95,7 @@ func (r *Repositories) Overlay() error {
 		if c.DstDir != "" {
 			// delete dstDir since `git worktree add` will not replace existing directories
 			if info, err := r.appFs.Stat(c.DstDir); err == nil && info.Mode().IsDir() {
-				if err := os.RemoveAll(c.DstDir); err != nil {
+				if err := r.appFs.RemoveAll(c.DstDir); err != nil {
 					return err
 				}
 			}

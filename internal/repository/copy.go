@@ -68,11 +68,7 @@ func (r *Copy) CopyFile(
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if e := out.Close(); e != nil {
-			err = e
-		}
-	}()
+	defer func() { _ = out.Close() }()
 
 	_, err = io.Copy(out, in)
 	if err != nil {
