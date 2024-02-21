@@ -23,10 +23,11 @@ package repository_test
 import (
 	"log/slog"
 	"os"
-	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/memfs"
+	"github.com/avfs/avfs/vfs/rofs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -36,7 +37,7 @@ import (
 type CopyPublicTestSuite struct {
 	suite.Suite
 
-	appFs    afero.Fs
+	appFs    avfs.VFS
 	cloneDir string
 	dstDir   string
 }
@@ -49,7 +50,7 @@ func (suite *CopyPublicTestSuite) NewTestCopyManager() repository.CopyManager {
 }
 
 func (suite *CopyPublicTestSuite) SetupTest() {
-	suite.appFs = afero.NewMemMapFs()
+	suite.appFs = memfs.New()
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 }
@@ -60,17 +61,21 @@ func (suite *CopyPublicTestSuite) TestCopyFileOk() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
 		},
 	}
 	createFileSpecs(specs)
 
-	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.NoError(suite.T(), err)
 
-	got, _ := afero.Exists(suite.appFs, assertFile)
+	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.True(suite.T(), got)
 }
 
@@ -81,7 +86,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileReturnsError() {
 	err := cm.CopyFile("/invalidSrc", assertFile)
 	assert.Error(suite.T(), err)
 
-	got, _ := afero.Exists(suite.appFs, assertFile)
+	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.False(suite.T(), got)
 }
 
@@ -89,15 +94,15 @@ func (suite *CopyPublicTestSuite) TestCopyFileReturnsErrorEPERM() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
 
-	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
@@ -109,17 +114,17 @@ func (suite *CopyPublicTestSuite) TestCopyDirOk() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
 
-	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.NoError(suite.T(), err)
 
-	got, _ := afero.Exists(suite.appFs, assertFile)
+	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.True(suite.T(), got)
 }
 
@@ -129,22 +134,42 @@ func (suite *CopyPublicTestSuite) TestCopyDirNestedOk() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir", "subDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir", "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
 
-	assertFile := filepath.Join(suite.dstDir, "subDir", "1.txt")
-	err := cm.CopyDir(filepath.Join(suite.cloneDir, "srcDir"), suite.dstDir)
+	assertFile := suite.appFs.Join(suite.dstDir, "subDir", "1.txt")
+	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
 	assert.NoError(suite.T(), err)
 
-	got, _ := afero.Exists(suite.appFs, assertFile)
+	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.True(suite.T(), got)
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirSymlinksOk() {
-	suite.T().Skip("afero.MemMapFS does not support symlinks")
+	cm := suite.NewTestCopyManager()
+
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir", "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	_ = suite.appFs.Symlink(
+		suite.appFs.Join(suite.cloneDir, "srcDir"),
+		suite.appFs.Join(suite.cloneDir, "srcLink"),
+	)
+
+	assertFile := suite.appFs.Join(suite.dstDir, "subDir", "1.txt")
+	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcLink"), suite.dstDir)
+	assert.NoError(suite.T(), err)
+
+	got, _ := avfs.Exists(suite.appFs, assertFile)
+	assert.True(suite.T(), got)
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirReturnsError() {
@@ -154,7 +179,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsError() {
 	err := cm.CopyDir("/invalidSrc", assertDir)
 	assert.Error(suite.T(), err)
 
-	got, _ := afero.Exists(suite.appFs, assertDir)
+	got, _ := avfs.Exists(suite.appFs, assertDir)
 	assert.False(suite.T(), got)
 }
 
@@ -164,22 +189,23 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorEEXIST() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
 		{
 			appFs:   suite.appFs,
-			srcFile: filepath.Join(suite.dstDir, "1.txt"),
+			srcDir:  suite.dstDir,
+			srcFile: suite.appFs.Join(suite.dstDir, "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
 
-	assertFile := filepath.Join(suite.dstDir, "1.txt")
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
 	assert.Contains(suite.T(), err.Error(), "destination already exists")
 
-	got, _ := afero.Exists(suite.appFs, assertFile)
+	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.True(suite.T(), got)
 }
 
@@ -189,8 +215,8 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorWhenSrcIsNotDir() {
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "srcDir"),
-			srcFile: filepath.Join(suite.cloneDir, "srcDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)

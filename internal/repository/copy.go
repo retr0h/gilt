@@ -24,15 +24,13 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
-	"path/filepath"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 )
 
 // NewCopy factory to create a new copy instance.
 func NewCopy(
-	appFs afero.Fs,
+	appFs avfs.VFS,
 	logger *slog.Logger,
 ) *Copy {
 	return &Copy{
@@ -50,7 +48,7 @@ func (r *Copy) CopyFile(
 	src string,
 	dst string,
 ) (err error) {
-	baseSrc := filepath.Base(src)
+	baseSrc := r.appFs.Base(src)
 
 	r.logger.Info(
 		"copying file",
@@ -109,9 +107,9 @@ func (r *Copy) CopyDir(
 	src string,
 	dst string,
 ) (err error) {
-	src = filepath.Clean(src)
-	dst = filepath.Clean(dst)
-	baseSrc := filepath.Base(src)
+	src = r.appFs.Clean(src)
+	dst = r.appFs.Clean(dst)
+	baseSrc := r.appFs.Base(src)
 
 	r.logger.Info(
 		"copying dir",
@@ -127,10 +125,8 @@ func (r *Copy) CopyDir(
 		return fmt.Errorf("source is not a directory")
 	}
 
-	_, err = r.appFs.Stat(dst)
-	if err != nil && !os.IsNotExist(err) {
-		return err
-	}
+	d, err := r.appFs.Open(dst)
+	_ = d.Close()
 	if err == nil {
 		return fmt.Errorf("destination already exists")
 	}
@@ -140,22 +136,22 @@ func (r *Copy) CopyDir(
 		return err
 	}
 
-	entries, err := afero.ReadDir(r.appFs, src)
+	entries, err := r.appFs.ReadDir(src)
 	if err != nil {
 		return err
 	}
 
 	for _, entry := range entries {
-		srcPath := filepath.Join(src, entry.Name())
-		dstPath := filepath.Join(dst, entry.Name())
+		srcPath := r.appFs.Join(src, entry.Name())
+		dstPath := r.appFs.Join(dst, entry.Name())
 
 		// Dereference any symlinks and copy their contents instead
-		entry, err = r.appFs.Stat(srcPath)
+		target, err := r.appFs.Stat(srcPath)
 		if err != nil {
 			return err
 		}
 
-		if entry.IsDir() {
+		if target.IsDir() {
 			err = r.CopyDir(srcPath, dstPath)
 			if err != nil {
 				return err

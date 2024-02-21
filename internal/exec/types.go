@@ -22,9 +22,12 @@ package exec
 
 import (
 	"log/slog"
+
+	"github.com/avfs/avfs"
 )
 
 // Exec disk implementation.
 type Exec struct {
+	appFs  avfs.VFS
 	logger *slog.Logger
 }

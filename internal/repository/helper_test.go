@@ -21,11 +21,11 @@
 package repository_test
 
 import (
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 )
 
 type FileSpec struct {
-	appFs    afero.Fs
+	appFs    avfs.VFS
 	srcDir   string
 	srcFile  string
 	srcFiles []string

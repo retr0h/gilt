@@ -25,17 +25,15 @@ package git
 
 import (
 	"log/slog"
-	"os"
-	"path/filepath"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 )
 
 // New factory to create a new Git instance.
 func New(
-	appFs afero.Fs,
+	appFs avfs.VFS,
 	execManager internal.ExecManager,
 	logger *slog.Logger,
 ) *Git {
@@ -71,7 +69,7 @@ func (g *Git) Worktree(
 	version string,
 	dstDir string,
 ) error {
-	dst, err := filepath.Abs(dstDir)
+	dst, err := g.appFs.Abs(dstDir)
 	if err != nil {
 		return err
 	}
@@ -91,7 +89,7 @@ func (g *Git) Worktree(
 	// `git worktree add` creates a breadcrumb file back to the original repo;
 	// this is just junk data in our use case, so get rid of it
 	if err == nil {
-		_ = os.Remove(filepath.Join(dst, ".git"))
+		_ = g.appFs.Remove(g.appFs.Join(dst, ".git"))
 		_ = g.execManager.RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, cloneDir)
 	}
 	return err

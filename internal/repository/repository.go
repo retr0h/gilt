@@ -23,11 +23,9 @@ package repository
 import (
 	"fmt"
 	"log/slog"
-	"os"
-	"path/filepath"
 	"strings"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 	"github.com/retr0h/gilt/v2/pkg/config"
@@ -38,7 +36,7 @@ var replacer = strings.NewReplacer("/", "-", ":", "-")
 
 // New factory to create a new Repository instance.
 func New(
-	appFs afero.Fs,
+	appFs avfs.VFS,
 	copyManager CopyManager,
 	gitManager internal.GitManager,
 	logger *slog.Logger,
@@ -56,18 +54,20 @@ func (r *Repository) Clone(
 	c config.Repository,
 	cloneDir string,
 ) (string, error) {
-	targetDir := filepath.Join(cloneDir, replacer.Replace(c.Git))
+	targetDir := r.appFs.Join(cloneDir, replacer.Replace(c.Git))
 	r.logger.Info(
 		"cloning",
 		slog.String("repository", c.Git),
 		slog.String("dstDir", targetDir),
 	)
 
-	if _, err := r.appFs.Stat(targetDir); os.IsNotExist(err) {
+	if d, err := r.appFs.Open(targetDir); err != nil {
+		_ = d.Close()
 		if err := r.gitManager.Clone(c.Git, targetDir); err != nil {
 			return targetDir, err
 		}
 	} else {
+		_ = d.Close()
 		r.logger.Info("clone already exists", slog.String("dstDir", targetDir))
 		if err := r.gitManager.Update(targetDir); err != nil {
 			return targetDir, err
@@ -93,8 +93,8 @@ func (r *Repository) CopySources(
 ) error {
 	r.logger.Debug("copy", slog.String("origin", cloneDir))
 	for _, source := range c.Sources {
-		cloneDirWithSrcPath := filepath.Join(cloneDir, source.Src) // join clone dir with head
-		globbedSrc, err := afero.Glob(r.appFs, cloneDirWithSrcPath)
+		cloneDirWithSrcPath := r.appFs.Join(cloneDir, source.Src) // join clone dir with head
+		globbedSrc, err := r.appFs.Glob(cloneDirWithSrcPath)
 		if err != nil {
 			return err
 		}
@@ -112,8 +112,8 @@ func (r *Repository) CopySources(
 					if err := r.appFs.MkdirAll(source.DstDir, 0o755); err != nil {
 						return fmt.Errorf("unable to create dest dir: %s", err)
 					}
-					srcBaseFile := filepath.Base(src)
-					newDst := filepath.Join(source.DstDir, srcBaseFile)
+					srcBaseFile := r.appFs.Base(src)
+					newDst := r.appFs.Join(source.DstDir, srcBaseFile)
 					if err := r.copyManager.CopyFile(src, newDst); err != nil {
 						return err
 					}
