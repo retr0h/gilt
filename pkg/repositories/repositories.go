@@ -24,11 +24,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"path/filepath"
 	"strconv"
 
+	"github.com/avfs/avfs/vfs/osfs"
 	"github.com/danjacques/gofslock/fslock"
-	"github.com/spf13/afero"
 
 	"github.com/retr0h/gilt/v2/internal/exec"
 	"github.com/retr0h/gilt/v2/internal/git"
@@ -43,7 +42,7 @@ func New(
 	c config.Repositories,
 	logger *slog.Logger,
 ) *Repositories {
-	appFs := afero.NewOsFs()
+	appFs := osfs.NewWithNoIdm()
 
 	copyManager := repository.NewCopy(
 		appFs,
@@ -51,6 +50,7 @@ func New(
 	)
 
 	execManager := exec.New(
+		appFs,
 		logger,
 	)
 
@@ -105,7 +105,7 @@ func (r *Repositories) withLock(fn func() error) error {
 		return err
 	}
 
-	lockFile := filepath.Join(lockDir, "gilt.lock")
+	lockFile := r.appFs.Join(lockDir, "gilt.lock")
 	r.logger.Info(
 		"acquiring lock",
 		slog.String("lockfile", lockFile),

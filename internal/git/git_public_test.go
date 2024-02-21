@@ -26,8 +26,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/golang/mock/gomock"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -52,7 +52,7 @@ type GitManagerPublicTestSuite struct {
 
 func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager {
 	return git.New(
-		afero.NewMemMapFs(),
+		memfs.New(),
 		suite.mockExec,
 		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	)

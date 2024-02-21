@@ -22,16 +22,19 @@ package exec
 
 import (
 	"log/slog"
-	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/avfs/avfs"
 )
 
 // New factory to create a new Exec instance.
 func New(
+	appFs avfs.VFS,
 	logger *slog.Logger,
 ) *Exec {
 	return &Exec{
+		appFs:  appFs,
 		logger: logger,
 	}
 }
@@ -79,7 +82,7 @@ func (e *Exec) RunCmdInDir(
 // with the name of the directory as input.  Then it cleans up the temporary
 // directory.
 func (e *Exec) RunInTempDir(dir, pattern string, fn func(string) error) error {
-	tmpDir, err := os.MkdirTemp(dir, pattern)
+	tmpDir, err := e.appFs.MkdirTemp(dir, pattern)
 	if err != nil {
 		return err
 	}
@@ -88,7 +91,7 @@ func (e *Exec) RunInTempDir(dir, pattern string, fn func(string) error) error {
 	// Ignoring errors as there's not much we can do and this is a cleanup function.
 	defer func() {
 		e.logger.Debug("removing tempdir", slog.String("dir", tmpDir))
-		_ = os.RemoveAll(tmpDir)
+		_ = e.appFs.RemoveAll(tmpDir)
 	}()
 
 	// Run the provided function.

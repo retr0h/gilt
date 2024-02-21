@@ -24,11 +24,12 @@ import (
 	"errors"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"testing"
 
+	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/memfs"
+	"github.com/avfs/avfs/vfs/rofs"
 	"github.com/golang/mock/gomock"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -46,7 +47,7 @@ type RepositoryPublicTestSuite struct {
 	mockGit         *git.MockGitManager
 	mockCopyManager *mock_repo.MockCopyManager
 
-	appFs    afero.Fs
+	appFs    avfs.VFS
 	cloneDir string
 	dstDir   string
 	gitURL   string
@@ -71,7 +72,7 @@ func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.mockCopyManager = mock_repo.NewMockCopyManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
-	suite.appFs = afero.NewMemMapFs()
+	suite.appFs = memfs.New()
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 	suite.gitURL = "https://example.com/user/repo.git"
@@ -88,7 +89,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 		Git:     suite.gitURL,
 		Version: suite.gitSHA,
 	}
-	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
+	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
 	gomock.InOrder(
 		suite.mockGit.EXPECT().Clone(suite.gitURL, targetDir).Return(nil),
@@ -122,7 +123,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 		Git:     suite.gitURL,
 		Version: suite.gitSHA,
 	}
-	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
+	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
 	_ = suite.appFs.MkdirAll(targetDir, 0o755)
 	suite.mockGit.EXPECT().Update(targetDir).Return(nil)
@@ -138,7 +139,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneUpdateCloneDirThrowsError() {
 		Git:     suite.gitURL,
 		Version: suite.gitSHA,
 	}
-	targetDir := filepath.Join(suite.cloneDir, suite.cacheDir)
+	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
 	_ = suite.appFs.MkdirAll(targetDir, 0o755)
 	errors := errors.New("tests error")
@@ -153,8 +154,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "subDir"),
-			srcFile: filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
@@ -164,14 +165,14 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
-				Src:    filepath.Base(specs[0].srcDir),
+				Src:    suite.appFs.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
 			},
 		},
 	}
 
 	suite.mockCopyManager.EXPECT().
-		CopyDir(filepath.Join(suite.cloneDir, c.Sources[0].Src), c.Sources[0].DstDir).
+		CopyDir(suite.appFs.Join(suite.cloneDir, c.Sources[0].Src), c.Sources[0].DstDir).
 		Return(nil)
 
 	err := repo.CopySources(c, suite.cloneDir)
@@ -183,8 +184,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsD
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "subDir"),
-			srcFile: filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
@@ -194,7 +195,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsD
 		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
-				Src:    filepath.Base(specs[0].srcDir),
+				Src:    suite.appFs.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
 			},
 		},
@@ -212,8 +213,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "subDir"),
-			srcFile: filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
@@ -223,14 +224,14 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsDirAndDstDi
 		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
-				Src:    filepath.Base(specs[0].srcDir),
+				Src:    suite.appFs.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
 			},
 		},
 	}
 
 	suite.mockCopyManager.EXPECT().
-		CopyDir(filepath.Join(suite.cloneDir, c.Sources[0].Src), c.Sources[0].DstDir).
+		CopyDir(suite.appFs.Join(suite.cloneDir, c.Sources[0].Src), c.Sources[0].DstDir).
 		Return(nil)
 
 	// create dstDir
@@ -243,15 +244,15 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesErrorWhenSourceIsDirAndDs
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir, "subDir"),
-			srcFile: filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir, "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
 	// create dstDir
 	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
@@ -259,7 +260,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesErrorWhenSourceIsDirAndDs
 		Version: suite.gitSHA,
 		Sources: []config.Source{
 			{
-				Src:    filepath.Base(specs[0].srcDir),
+				Src:    suite.appFs.Base(specs[0].srcDir),
 				DstDir: suite.dstDir,
 			},
 		},
@@ -279,22 +280,22 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 	specs := []FileSpec{
 		{
 			appFs:  suite.appFs,
-			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcDir: suite.appFs.Join(suite.cloneDir, "subDir"),
 			srcFiles: []string{
-				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
-				filepath.Join(suite.cloneDir, "subDir", "cinder_manage"),
-				filepath.Join(suite.cloneDir, "subDir", "nova_manage"),
-				filepath.Join(suite.cloneDir, "subDir", "glance_manage"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "cinder_manage"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "nova_manage"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "glance_manage"),
 			},
 		},
 		{
 			appFs:  suite.appFs,
 			srcDir: suite.cloneDir,
 			srcFiles: []string{
-				filepath.Join(suite.cloneDir, "1.txt"),
-				filepath.Join(suite.cloneDir, "cinder_manage"),
-				filepath.Join(suite.cloneDir, "nova_manage"),
-				filepath.Join(suite.cloneDir, "glance_manage"),
+				suite.appFs.Join(suite.cloneDir, "1.txt"),
+				suite.appFs.Join(suite.cloneDir, "cinder_manage"),
+				suite.appFs.Join(suite.cloneDir, "nova_manage"),
+				suite.appFs.Join(suite.cloneDir, "glance_manage"),
 			},
 		},
 	}
@@ -316,23 +317,23 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFilesAndDst
 	}
 
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "subDir", "cinder_manage"), filepath.Join(suite.dstDir, "cinder_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "subDir", "cinder_manage"), suite.appFs.Join(suite.dstDir, "cinder_manage")).
 		Return(nil)
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "subDir", "glance_manage"), filepath.Join(suite.dstDir, "glance_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "subDir", "glance_manage"), suite.appFs.Join(suite.dstDir, "glance_manage")).
 		Return(nil)
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "subDir", "nova_manage"), filepath.Join(suite.dstDir, "nova_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "subDir", "nova_manage"), suite.appFs.Join(suite.dstDir, "nova_manage")).
 		Return(nil)
 
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "cinder_manage"), filepath.Join(suite.dstDir, "cinder_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "cinder_manage"), suite.appFs.Join(suite.dstDir, "cinder_manage")).
 		Return(nil)
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "glance_manage"), filepath.Join(suite.dstDir, "glance_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "glance_manage"), suite.appFs.Join(suite.dstDir, "glance_manage")).
 		Return(nil)
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "nova_manage"), filepath.Join(suite.dstDir, "nova_manage")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "nova_manage"), suite.appFs.Join(suite.dstDir, "nova_manage")).
 		Return(nil)
 
 	err := repo.CopySources(c, suite.cloneDir)
@@ -343,15 +344,15 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	specs := []FileSpec{
 		{
 			appFs:  suite.appFs,
-			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcDir: suite.appFs.Join(suite.cloneDir, "subDir"),
 			srcFiles: []string{
-				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 			},
 		},
 	}
 	createFileSpecs(specs)
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	repo := suite.NewRepositoryManager()
 
 	c := config.Repository{
@@ -379,9 +380,9 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	specs := []FileSpec{
 		{
 			appFs:  suite.appFs,
-			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcDir: suite.appFs.Join(suite.cloneDir, "subDir"),
 			srcFiles: []string{
-				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 			},
 		},
 	}
@@ -410,8 +411,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFileAndDstF
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir),
-			srcFile: filepath.Join(suite.cloneDir, "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir),
+			srcFile: suite.appFs.Join(suite.cloneDir, "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
@@ -422,13 +423,13 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesOkWhenSourceIsFileAndDstF
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",
-				DstFile: filepath.Join(suite.dstDir, "1.txt"),
+				DstFile: suite.appFs.Join(suite.dstDir, "1.txt"),
 			},
 		},
 	}
 
 	suite.mockCopyManager.EXPECT().
-		CopyFile(filepath.Join(suite.cloneDir, "1.txt"), filepath.Join(suite.dstDir, "1.txt")).
+		CopyFile(suite.appFs.Join(suite.cloneDir, "1.txt"), suite.appFs.Join(suite.dstDir, "1.txt")).
 		Return(nil)
 
 	err := repo.CopySources(c, suite.cloneDir)
@@ -440,8 +441,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	specs := []FileSpec{
 		{
 			appFs:   suite.appFs,
-			srcDir:  filepath.Join(suite.cloneDir),
-			srcFile: filepath.Join(suite.cloneDir, "1.txt"),
+			srcDir:  suite.appFs.Join(suite.cloneDir),
+			srcFile: suite.appFs.Join(suite.cloneDir, "1.txt"),
 		},
 	}
 	createFileSpecs(specs)
@@ -452,7 +453,7 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 		Sources: []config.Source{
 			{
 				Src:     "1.txt",
-				DstFile: filepath.Join(suite.dstDir, "1.txt"),
+				DstFile: suite.appFs.Join(suite.dstDir, "1.txt"),
 			},
 		},
 	}
@@ -469,9 +470,9 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorOnGarbagePatt
 	specs := []FileSpec{
 		{
 			appFs:  suite.appFs,
-			srcDir: filepath.Join(suite.cloneDir, "subDir"),
+			srcDir: suite.appFs.Join(suite.cloneDir, "subDir"),
 			srcFiles: []string{
-				filepath.Join(suite.cloneDir, "subDir", "1.txt"),
+				suite.appFs.Join(suite.cloneDir, "subDir", "1.txt"),
 			},
 		},
 	}

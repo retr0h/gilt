@@ -23,7 +23,7 @@ package repositories
 import (
 	"log/slog"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 	"github.com/retr0h/gilt/v2/pkg/config"
@@ -31,7 +31,7 @@ import (
 
 // Repositories perform repository operations.
 type Repositories struct {
-	appFs  afero.Fs
+	appFs  avfs.VFS
 	config config.Repositories
 	logger *slog.Logger
 

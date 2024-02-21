@@ -23,14 +23,14 @@ package repository
 import (
 	"log/slog"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 )
 
 // Repository contains the repository's details for cloning.
 type Repository struct {
-	appFs       afero.Fs
+	appFs       avfs.VFS
 	copyManager CopyManager
 	gitManager  internal.GitManager
 	logger      *slog.Logger
@@ -44,6 +44,6 @@ type CopyManager interface {
 
 // Copy copy implementation.
 type Copy struct {
-	appFs  afero.Fs
+	appFs  avfs.VFS
 	logger *slog.Logger
 }

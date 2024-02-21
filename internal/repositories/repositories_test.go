@@ -25,8 +25,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/memfs"
+	"github.com/avfs/avfs/vfs/rofs"
 	"github.com/golang/mock/gomock"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -42,7 +44,7 @@ type RepositoriesTestSuite struct {
 	mockRepo *repository.MockRepositoryManager
 	mockExec *exec.MockExecManager
 
-	appFs   afero.Fs
+	appFs   avfs.VFS
 	giltDir string
 	logger  *slog.Logger
 }
@@ -72,7 +74,7 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
-	suite.appFs = afero.NewMemMapFs()
+	suite.appFs = memfs.New()
 	suite.giltDir = "/giltDir"
 
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -86,14 +88,14 @@ func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), expectedDir, got)
 
-	exists, err := afero.Exists(suite.appFs, expectedDir)
+	exists, err := avfs.Exists(suite.appFs, expectedDir)
 	assert.NoError(suite.T(), err)
 	assert.True(suite.T(), exists)
 }
 
 func (suite *RepositoriesTestSuite) TestgetCacheDirCannotCreateError() {
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	repos := suite.NewTestRepositories(suite.giltDir)
 
 	got, err := repos.getCacheDir()

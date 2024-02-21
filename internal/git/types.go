@@ -23,14 +23,14 @@ package git
 import (
 	"log/slog"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 )
 
 // Git implementation responsible for Git operations.
 type Git struct {
-	appFs       afero.Fs
+	appFs       avfs.VFS
 	execManager internal.ExecManager
 	logger      *slog.Logger
 }

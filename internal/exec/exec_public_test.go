@@ -25,6 +25,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -38,6 +39,7 @@ type ExecManagerPublicTestSuite struct {
 
 func (suite *ExecManagerPublicTestSuite) NewTestExecManager() internal.ExecManager {
 	return exec.New(
+		memfs.New(),
 		slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})),

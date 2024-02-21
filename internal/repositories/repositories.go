@@ -22,11 +22,9 @@ package repositories
 
 import (
 	"log/slog"
-	"os"
-	"path/filepath"
 	"strings"
 
-	"github.com/spf13/afero"
+	"github.com/avfs/avfs"
 
 	"github.com/retr0h/gilt/v2/internal"
 	intPath "github.com/retr0h/gilt/v2/internal/path"
@@ -35,7 +33,7 @@ import (
 
 // New factory to create a new Repository instance.
 func New(
-	appFs afero.Fs,
+	appFs avfs.VFS,
 	c config.Repositories,
 	repoManager internal.RepositoryManager,
 	execManager internal.ExecManager,
@@ -62,13 +60,13 @@ func (r *Repositories) getCacheDir() (string, error) {
 		return "", err
 	}
 
-	cacheDir := filepath.Join(giltDir, "cache")
-	if _, err := r.appFs.Stat(cacheDir); os.IsNotExist(err) {
-		if err := r.appFs.Mkdir(cacheDir, 0o700); err != nil {
-			return "", err
+	cacheDir := r.appFs.Join(giltDir, "cache")
+	if err := r.appFs.MkdirAll(cacheDir, 0o700); err != nil {
+		if i, e := r.appFs.Stat(cacheDir); e == nil && i.IsDir() {
+			return cacheDir, nil
 		}
+		return "", err
 	}
-
 	return cacheDir, nil
 }
 
@@ -112,7 +110,7 @@ func (r *Repositories) Overlay() error {
 				return err
 			}
 			err = r.execManager.RunInTempDir(giltDir, "tmp", func(tmpDir string) error {
-				tmpClone := filepath.Join(tmpDir, filepath.Base(targetDir))
+				tmpClone := r.appFs.Join(tmpDir, r.appFs.Base(targetDir))
 				if err := r.repoManager.Worktree(c, targetDir, tmpClone); err != nil {
 					return err
 				}

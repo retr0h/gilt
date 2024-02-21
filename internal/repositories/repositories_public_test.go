@@ -24,11 +24,12 @@ import (
 	"errors"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"testing"
 
+	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/memfs"
+	"github.com/avfs/avfs/vfs/rofs"
 	"github.com/golang/mock/gomock"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -46,7 +47,7 @@ type RepositoriesPublicTestSuite struct {
 	mockRepo *repository.MockRepositoryManager
 	mockExec *exec.MockExecManager
 
-	appFs            afero.Fs
+	appFs            avfs.VFS
 	dstDir           string
 	giltDir          string
 	gitURL           string
@@ -80,7 +81,7 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
 	defer suite.ctrl.Finish()
 
-	suite.appFs = afero.NewMemMapFs()
+	suite.appFs = memfs.New()
 	suite.dstDir = "/dstDir"
 	suite.giltDir = "/giltDir"
 	suite.gitURL = "https://example.com/user/repo.git"
@@ -98,7 +99,7 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
-	expected := filepath.Join(suite.giltDir, "cache")
+	expected := suite.appFs.Join(suite.giltDir, "cache")
 
 	suite.mockRepo.EXPECT().
 		Clone(suite.repoConfigDstDir[0], expected).
@@ -113,7 +114,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayErrorWhenDstDir() {
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
-	expected := filepath.Join(suite.giltDir, "cache")
+	expected := suite.appFs.Join(suite.giltDir, "cache")
 	errors := errors.New("tests error")
 
 	suite.mockRepo.EXPECT().
@@ -129,7 +130,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayErrorWhenDstDir() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayCacheDirCreateError() {
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)
@@ -148,10 +149,10 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayDstDirExists() {
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayErrorRemovingDstDir() {
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
-	_ = suite.appFs.MkdirAll(filepath.Join(suite.giltDir, "cache"), 0o700)
+	_ = suite.appFs.MkdirAll(suite.appFs.Join(suite.giltDir, "cache"), 0o700)
 	_ = suite.appFs.MkdirAll(suite.dstDir, 0o755)
 	// Replace the test FS with a read-only copy
-	suite.appFs = afero.NewReadOnlyFs(suite.appFs)
+	suite.appFs = rofs.New(suite.appFs)
 	repos := suite.NewTestRepositoriesManager(suite.repoConfigDstDir)
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)
