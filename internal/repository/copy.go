@@ -104,7 +104,7 @@ func (r *Copy) CopyFile(
 
 // CopyDir recursively copies a directory tree, attempting to preserve permissions.
 // Source directory must exist, destination directory must *not* exist.
-// Symlinks are ignored and skipped.
+// Symlinks are implicitly dereferenced.
 func (r *Copy) CopyDir(
 	src string,
 	dst string,
@@ -149,17 +149,10 @@ func (r *Copy) CopyDir(
 		srcPath := filepath.Join(src, entry.Name())
 		dstPath := filepath.Join(dst, entry.Name())
 
-		// If a symlink, we copy the contents
-		if entry.Mode()&os.ModeSymlink != 0 {
-			target, err := filepath.EvalSymlinks(srcPath)
-			if err != nil {
-				return err
-			}
-
-			entry, err = r.appFs.Stat(target)
-			if err != nil {
-				return err
-			}
+		// Dereference any symlinks and copy their contents instead
+		entry, err = r.appFs.Stat(srcPath)
+		if err != nil {
+			return err
 		}
 
 		if entry.IsDir() {
