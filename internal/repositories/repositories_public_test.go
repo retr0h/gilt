@@ -61,6 +61,7 @@ func (suite *RepositoriesPublicTestSuite) NewTestRepositoriesManager(
 ) internal.RepositoriesManager {
 	reposConfig := config.Repositories{
 		Debug:        false,
+		Parallel:     true,
 		GiltFile:     "Giltfile.yaml",
 		GiltDir:      suite.giltDir,
 		Repositories: repoConfig,
