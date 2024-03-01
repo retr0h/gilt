@@ -45,6 +45,7 @@ func New(
 		repoManager: repoManager,
 		execManager: execManager,
 		logger:      logger,
+		cloneCache:  make(map[string]string),
 	}
 }
 
@@ -72,22 +73,12 @@ func (r *Repositories) getCacheDir() (string, error) {
 
 // Overlay clone and extract the Repository items.
 func (r *Repositories) Overlay() error {
-	cacheDir, err := r.getCacheDir()
-	if err != nil {
-		r.logger.Error(
-			"error expanding dir",
-			slog.String("giltDir", r.config.GiltDir),
-			slog.String("cacheDir", cacheDir),
-			slog.String("err", err.Error()),
-		)
+	if err := r.populateCloneCache(); err != nil {
 		return err
 	}
 
 	for _, c := range r.config.Repositories {
-		targetDir, err := r.repoManager.Clone(c, cacheDir)
-		if err != nil {
-			return err
-		}
+		targetDir := r.cloneCache[c.Git]
 
 		// Easy mode: create a full worktree, directly in DstDir
 		if c.DstDir != "" {
@@ -136,5 +127,31 @@ func (r *Repositories) Overlay() error {
 		}
 	}
 
+	return nil
+}
+
+// populateCloneCache ensure that all named repos exist and are up-to-date
+func (r *Repositories) populateCloneCache() error {
+	cacheDir, err := r.getCacheDir()
+	if err != nil {
+		r.logger.Error(
+			"error expanding dir",
+			slog.String("giltDir", r.config.GiltDir),
+			slog.String("cacheDir", cacheDir),
+			slog.String("err", err.Error()),
+		)
+		return err
+	}
+
+	for _, c := range r.config.Repositories {
+		if _, exists := r.cloneCache[c.Git]; exists {
+			continue
+		}
+		targetDir, err := r.repoManager.Clone(c, cacheDir)
+		if err != nil {
+			return err
+		}
+		r.cloneCache[c.Git] = targetDir
+	}
 	return nil
 }
