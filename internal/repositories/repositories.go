@@ -81,49 +81,19 @@ func (r *Repositories) Overlay() error {
 		targetDir := r.cloneCache[c.Git]
 
 		// Easy mode: create a full worktree, directly in DstDir
-		if c.DstDir != "" {
-			// delete dstDir since `git worktree add` will not replace existing directories
-			if info, err := r.appFs.Stat(c.DstDir); err == nil && info.Mode().IsDir() {
-				if err := r.appFs.RemoveAll(c.DstDir); err != nil {
-					return err
-				}
-			}
-			if err := r.repoManager.Worktree(c, targetDir, c.DstDir); err != nil {
-				return err
-			}
+		if err := r.overlayTree(c, targetDir); err != nil {
+			return err
 		}
 
 		// Hard mode: copy subtrees of the worktree from Repository.Src to
 		// Repository.DstDir (or Repository.DstFile)
-		if len(c.Sources) > 0 {
-			giltDir, err := r.getGiltDir()
-			if err != nil {
-				return err
-			}
-			err = r.execManager.RunInTempDir(giltDir, "tmp", func(tmpDir string) error {
-				tmpClone := r.appFs.Join(tmpDir, r.appFs.Base(targetDir))
-				if err := r.repoManager.Worktree(c, targetDir, tmpClone); err != nil {
-					return err
-				}
-				return r.repoManager.CopySources(c, tmpClone)
-			})
-			if err != nil {
-				return err
-			}
+		if err := r.overlaySubtrees(c, targetDir); err != nil {
+			return err
 		}
 
 		// run post commands
-		if len(c.Commands) > 0 {
-			for _, command := range c.Commands {
-				r.logger.Info(
-					"executing command",
-					slog.String("cmd", command.Cmd),
-					slog.String("args", strings.Join(command.Args, " ")),
-				)
-				if err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
-					return err
-				}
-			}
+		if err := r.runCommands(c); err != nil {
+			return err
 		}
 	}
 
@@ -152,6 +122,60 @@ func (r *Repositories) populateCloneCache() error {
 			return err
 		}
 		r.cloneCache[c.Git] = targetDir
+	}
+	return nil
+}
+
+func (r *Repositories) overlayTree(c config.Repository, targetDir string) error {
+	if c.DstDir == "" {
+		return nil
+	}
+	// delete DstDir since `git worktree add` will not replace existing directories
+	if info, err := r.appFs.Stat(c.DstDir); err == nil && info.IsDir() {
+		if err := r.appFs.RemoveAll(c.DstDir); err != nil {
+			return err
+		}
+	}
+	if err := r.repoManager.Worktree(c, targetDir, c.DstDir); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repositories) overlaySubtrees(c config.Repository, targetDir string) error {
+	if len(c.Sources) == 0 {
+		return nil
+	}
+	giltDir, err := r.getGiltDir()
+	if err != nil {
+		return err
+	}
+	err = r.execManager.RunInTempDir(giltDir, "tmp", func(tmpDir string) error {
+		tmpClone := r.appFs.Join(tmpDir, r.appFs.Base(targetDir))
+		if err := r.repoManager.Worktree(c, targetDir, tmpClone); err != nil {
+			return err
+		}
+		return r.repoManager.CopySources(c, tmpClone)
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repositories) runCommands(c config.Repository) error {
+	if len(c.Commands) == 0 {
+		return nil
+	}
+	for _, command := range c.Commands {
+		r.logger.Info(
+			"executing command",
+			slog.String("cmd", command.Cmd),
+			slog.String("args", strings.Join(command.Args, " ")),
+		)
+		if err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -21,8 +21,10 @@
 package repositories
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
+	"os/user"
 	"testing"
 
 	"github.com/avfs/avfs"
@@ -34,6 +36,7 @@ import (
 
 	"github.com/retr0h/gilt/v2/internal/mocks/exec"
 	"github.com/retr0h/gilt/v2/internal/mocks/repository"
+	"github.com/retr0h/gilt/v2/internal/path"
 	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
@@ -98,6 +101,19 @@ func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 	assert.True(suite.T(), exists)
 }
 
+func (suite *RepositoriesTestSuite) TestgetCacheDirLookupError() {
+	repos := suite.NewTestRepositories("~" + suite.giltDir)
+	originalCurrentUser := path.CurrentUser
+	path.CurrentUser = func() (*user.User, error) {
+		return nil, fmt.Errorf("failed to get current user")
+	}
+	defer func() { path.CurrentUser = originalCurrentUser }()
+
+	got, err := repos.getCacheDir()
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "", got)
+}
+
 func (suite *RepositoriesTestSuite) TestgetCacheDirCannotCreateError() {
 	// Replace the test FS with a read-only copy
 	suite.appFs = rofs.New(suite.appFs)
@@ -119,6 +135,24 @@ func (suite *RepositoriesTestSuite) TestPopulateCloneCacheDedupesCloneCalls() {
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(suite.giltDir, nil).Times(1)
 	err := repos.populateCloneCache()
 	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoriesTestSuite) TestOverlaySubtreesGiltDirLookupError() {
+	repos := suite.NewTestRepositories("~" + suite.giltDir)
+	originalCurrentUser := path.CurrentUser
+	path.CurrentUser = func() (*user.User, error) {
+		return nil, fmt.Errorf("failed to get current user")
+	}
+	defer func() { path.CurrentUser = originalCurrentUser }()
+	repos.config.Repositories = []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: "v1",
+			Sources: []config.Source{{Src: "srcDir", DstDir: "dstDir"}},
+		},
+	}
+	err := repos.overlaySubtrees(repos.config.Repositories[0], suite.giltDir)
+	assert.Error(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create
