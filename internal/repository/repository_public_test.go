@@ -70,7 +70,6 @@ func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockGit = git.NewMockGitManager(suite.ctrl)
 	suite.mockCopyManager = mock_repo.NewMockCopyManager(suite.ctrl)
-	defer suite.ctrl.Finish()
 
 	suite.appFs = memfs.New()
 	suite.cloneDir = "/cloneDir"
@@ -80,6 +79,10 @@ func (suite *RepositoryPublicTestSuite) SetupTest() {
 	suite.gitSHA = "abc123"
 	suite.gitTag = "v1.1"
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+}
+
+func (suite *RepositoryPublicTestSuite) TearDownTest() {
+	defer suite.ctrl.Finish()
 }
 
 func (suite *RepositoryPublicTestSuite) TestCloneOk() {
