@@ -46,6 +46,7 @@ type RepositoriesTestSuite struct {
 
 	appFs   avfs.VFS
 	giltDir string
+	gitURL  string
 	logger  *slog.Logger
 }
 
@@ -75,6 +76,7 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 
 	suite.appFs = memfs.New()
 	suite.giltDir = "/giltDir"
+	suite.gitURL = "https://example.com/user/repo.git"
 
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
@@ -104,6 +106,19 @@ func (suite *RepositoriesTestSuite) TestgetCacheDirCannotCreateError() {
 	got, err := repos.getCacheDir()
 	assert.Error(suite.T(), err)
 	assert.Equal(suite.T(), "", got)
+}
+
+func (suite *RepositoriesTestSuite) TestPopulateCloneCacheDedupesCloneCalls() {
+	repos := suite.NewTestRepositories(suite.giltDir)
+	// The same repository, but two different versions
+	repos.config.Repositories = []config.Repository{
+		{Git: suite.gitURL, Version: "v1"},
+		{Git: suite.gitURL, Version: "v2"},
+	}
+	// .Times(1) is the default behavior, but let's be explicit
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(suite.giltDir, nil).Times(1)
+	err := repos.populateCloneCache()
+	assert.NoError(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create

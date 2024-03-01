@@ -37,4 +37,6 @@ type Repositories struct {
 
 	repoManager internal.RepositoryManager
 	execManager internal.ExecManager
+
+	cloneCache map[string]string
 }
