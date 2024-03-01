@@ -22,7 +22,9 @@ package repositories
 
 import (
 	"log/slog"
+	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/avfs/avfs"
 
@@ -30,6 +32,9 @@ import (
 	intPath "github.com/retr0h/gilt/v2/internal/path"
 	"github.com/retr0h/gilt/v2/pkg/config"
 )
+
+// This should be a nice upper bound for parallel fetches
+const maxSlots = 8
 
 // New factory to create a new Repository instance.
 func New(
@@ -73,7 +78,7 @@ func (r *Repositories) getCacheDir() (string, error) {
 
 // Overlay clone and extract the Repository items.
 func (r *Repositories) Overlay() error {
-	if err := r.populateCloneCache(); err != nil {
+	if err := r.populateCloneCache(r.config.Parallel); err != nil {
 		return err
 	}
 
@@ -101,7 +106,7 @@ func (r *Repositories) Overlay() error {
 }
 
 // populateCloneCache ensure that all named repos exist and are up-to-date
-func (r *Repositories) populateCloneCache() error {
+func (r *Repositories) populateCloneCache(parallel bool) error {
 	cacheDir, err := r.getCacheDir()
 	if err != nil {
 		r.logger.Error(
@@ -113,15 +118,65 @@ func (r *Repositories) populateCloneCache() error {
 		return err
 	}
 
-	for _, c := range r.config.Repositories {
-		if _, exists := r.cloneCache[c.Git]; exists {
-			continue
-		}
-		targetDir, err := r.repoManager.Clone(c, cacheDir)
+	// Run all the clones concurrently (1 coroutine per CPU), up to 8 workers
+	slots := 1
+	if parallel {
+		slots = min(maxSlots, runtime.GOMAXPROCS(0))
+	}
+	var wg sync.WaitGroup
+	var mu sync.Mutex                                       // Mutex to protect cloneCache
+	errChan := make(chan error, len(r.config.Repositories)) // Channel to collect errors
+	semaphore := make(chan struct{}, slots)                 // Semaphore to limit concurrency
+
+	for _, repo := range r.config.Repositories {
+		wg.Add(1)
+		go func(c config.Repository) {
+			defer wg.Done()
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+
+			if err := r.runPopulate(c, cacheDir, &mu); err != nil {
+				errChan <- err
+			}
+		}(repo)
+	}
+
+	// Roll up any errors fetching the above
+	wg.Wait()
+	close(errChan)
+	return r.anyErrors(errChan)
+}
+
+func (r *Repositories) runPopulate(c config.Repository, cacheDir string, mu *sync.Mutex) error {
+	mu.Lock()
+	if _, exists := r.cloneCache[c.Git]; exists {
+		mu.Unlock()
+		return nil
+	}
+	// Set a "stub" value to claim territory
+	// This worker is now responsible for populating the "full" value
+	r.cloneCache[c.Git] = ""
+	mu.Unlock()
+
+	// Initialize and/or update the clone (long-running operation outside the lock)
+	targetDir, err := r.repoManager.Clone(c, cacheDir)
+	if err != nil {
+		return err
+	}
+
+	// Rewrite with the "full" value
+	mu.Lock()
+	r.cloneCache[c.Git] = targetDir
+	mu.Unlock()
+
+	return nil
+}
+
+func (r *Repositories) anyErrors(errChan <-chan error) error {
+	for err := range errChan {
 		if err != nil {
 			return err
 		}
-		r.cloneCache[c.Git] = targetDir
 	}
 	return nil
 }

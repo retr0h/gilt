@@ -24,6 +24,8 @@ package config
 type Repositories struct {
 	// Debug enable or disable debug option set from CLI.
 	Debug bool `mapstruture:"debug"`
+	// Parallel enable or disable concurrent clone fetches.
+	Parallel bool `                           mapstructure:"parallel"`
 	// GiltFile path to Gilt's config file option set from CLI.
 	GiltFile string `                           mapstructure:"giltFile" validate:"required"`
 	// GiltDir path to Gilt's clone dir option set from CLI.

@@ -164,6 +164,7 @@ func (r *Repositories) Overlay() error {
 			slog.String("GiltDir", r.c.GiltDir),
 			slog.String("GiltFile", r.c.GiltFile),
 			slog.Bool("Debug", r.c.Debug),
+			slog.Bool("Parallel", r.c.Parallel),
 			slog.Group("Repository", r.logRepositoriesGroup()...),
 		)
 

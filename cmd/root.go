@@ -69,12 +69,14 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable or disable debug mode")
+	rootCmd.PersistentFlags().BoolP("parallel", "p", true, "Fetch clones in parallel")
 	rootCmd.PersistentFlags().
 		StringP("gilt-dir", "c", "~/.gilt/clone", "Path to Gilt's clone dir")
 	rootCmd.PersistentFlags().
 		StringP("gilt-file", "f", "Giltfile.yaml", "Path to config file")
 
 	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	_ = viper.BindPFlag("parallel", rootCmd.PersistentFlags().Lookup("parallel"))
 	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
 	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
 	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))

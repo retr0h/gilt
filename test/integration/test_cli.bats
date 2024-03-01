@@ -122,6 +122,20 @@ teardown() {
 	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
 }
 
+@test "invoke gilt overlay subcommand with parallelism disabled" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} --debug --parallel=false overlay"
+
+	[ "$status" -eq 0 ]
+	echo "${output}" | grep "Parallel=false"
+}
+
+@test "invoke gilt overlay subcommand with parallelism disabled (short)" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} -d -p=0 overlay"
+
+	[ "$status" -eq 0 ]
+	echo "${output}" | grep "Parallel=false"
+}
+
 @test "invoke gilt overlay when already cloned" {
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} overlay"

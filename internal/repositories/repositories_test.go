@@ -133,7 +133,7 @@ func (suite *RepositoriesTestSuite) TestPopulateCloneCacheDedupesCloneCalls() {
 	}
 	// .Times(1) is the default behavior, but let's be explicit
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(suite.giltDir, nil).Times(1)
-	err := repos.populateCloneCache()
+	err := repos.populateCloneCache(false)
 	assert.NoError(suite.T(), err)
 }
 
