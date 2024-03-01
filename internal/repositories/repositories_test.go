@@ -72,12 +72,15 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockRepo = repository.NewMockRepositoryManager(suite.ctrl)
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
-	defer suite.ctrl.Finish()
 
 	suite.appFs = memfs.New()
 	suite.giltDir = "/giltDir"
 
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+}
+
+func (suite *RepositoriesTestSuite) TearDownTest() {
+	defer suite.ctrl.Finish()
 }
 
 func (suite *RepositoriesTestSuite) TestgetCacheDir() {

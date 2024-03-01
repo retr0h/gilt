@@ -61,7 +61,6 @@ func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager 
 func (suite *GitManagerPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
-	defer suite.ctrl.Finish()
 
 	suite.gitURL = "https://example.com/user/repo.git"
 	suite.gitVersion = "abc123"
@@ -69,6 +68,10 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 	suite.dstDir = "/dstDir"
 
 	suite.gm = suite.NewTestGitManager()
+}
+
+func (suite *GitManagerPublicTestSuite) TearDownTest() {
+	defer suite.ctrl.Finish()
 }
 
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {

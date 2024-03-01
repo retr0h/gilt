@@ -79,7 +79,6 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockRepo = repository.NewMockRepositoryManager(suite.ctrl)
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
-	defer suite.ctrl.Finish()
 
 	suite.appFs = memfs.New()
 	suite.dstDir = "/dstDir"
@@ -95,6 +94,10 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 	}
 
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+}
+
+func (suite *RepositoriesPublicTestSuite) TearDownTest() {
+	defer suite.ctrl.Finish()
 }
 
 func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenDstDir() {
@@ -167,7 +170,6 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCloneErrors
 
 	errors := errors.New("tests error")
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", errors)
-	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)
