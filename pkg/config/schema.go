@@ -24,6 +24,9 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// regsiterValidatorsFn function to switch when testing
+var registerValidatorsFn = registerValidators
+
 // registerValidators register customer validators.
 func registerValidators(v *validator.Validate) error {
 	// noop - hook for future validators
@@ -36,7 +39,7 @@ func Validate(
 ) error {
 	validate := validator.New()
 
-	err := registerValidators(validate)
+	err := registerValidatorsFn(validate)
 	if err != nil {
 		return err
 	}

@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -213,6 +214,28 @@ func (suite *SchemaTestSuite) TestRepositorySchema() {
 			assert.NoError(suite.T(), err)
 		}
 	}
+}
+
+func (suite *SchemaTestSuite) TestValidateRegisterValidatorsReturnsError() {
+	originalRegisterValidatorsFn := registerValidators
+	registerValidatorsFn = func(_ *validator.Validate) error {
+		return fmt.Errorf("failed to register validator")
+	}
+	defer func() { registerValidatorsFn = originalRegisterValidatorsFn }()
+
+	repos := &Repositories{
+		GiltFile: "giltFile",
+		GiltDir:  "giltDir",
+		Repositories: []Repository{
+			{
+				Git:     "gitURL",
+				Version: "abc1234",
+				DstDir:  "dstDir",
+			},
+		},
+	}
+	err := Validate(repos)
+	assert.Error(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create
