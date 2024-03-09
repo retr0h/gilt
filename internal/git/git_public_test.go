@@ -22,6 +22,7 @@ package git_test
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"testing"
@@ -107,6 +108,17 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
 		Return(errors)
+	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
+	originalAbsFn := git.AbsFn
+	git.AbsFn = func(g *git.Git, _ string) (string, error) {
+		return "", fmt.Errorf("failed to get abs path")
+	}
+	defer func() { git.AbsFn = originalAbsFn }()
+
 	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.Error(suite.T(), err)
 }
