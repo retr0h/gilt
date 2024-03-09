@@ -25,8 +25,8 @@ import (
 	"strings"
 )
 
-// CurrentUser function to switch when testing
-var CurrentUser = user.Current
+// CurrentUserFn function to switch when testing
+var CurrentUserFn = user.Current
 
 // ExpandUser on Unix and Windows, return the argument with an initial
 // component of ~ or ~user replaced by that user’s home directory.
@@ -37,7 +37,7 @@ func ExpandUser(
 		return path, nil
 	}
 
-	usr, err := CurrentUser()
+	usr, err := CurrentUserFn()
 	if err != nil {
 		return "", err
 	}

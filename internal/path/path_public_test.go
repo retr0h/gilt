@@ -36,13 +36,13 @@ type PathPublicTestSuite struct {
 }
 
 func (suite *PathPublicTestSuite) TestexpandUserOk() {
-	originalCurrentUser := path.CurrentUser
-	path.CurrentUser = func() (*user.User, error) {
+	originalCurrentUserFn := path.CurrentUserFn
+	path.CurrentUserFn = func() (*user.User, error) {
 		return &user.User{
 			HomeDir: "/testUser",
 		}, nil
 	}
-	defer func() { path.CurrentUser = originalCurrentUser }()
+	defer func() { path.CurrentUserFn = originalCurrentUserFn }()
 
 	got, err := path.ExpandUser("~/foo/bar")
 	assert.NoError(suite.T(), err)
@@ -58,11 +58,11 @@ func (suite *PathPublicTestSuite) TestexpandUserNoop() {
 }
 
 func (suite *PathPublicTestSuite) TestexpandUserReturnsError() {
-	originalCurrentUser := path.CurrentUser
-	path.CurrentUser = func() (*user.User, error) {
+	originalCurrentUserFn := path.CurrentUserFn
+	path.CurrentUserFn = func() (*user.User, error) {
 		return nil, fmt.Errorf("failed to get current user")
 	}
-	defer func() { path.CurrentUser = originalCurrentUser }()
+	defer func() { path.CurrentUserFn = originalCurrentUserFn }()
 
 	_, err := path.ExpandUser("~/foo/bar")
 	assert.Error(suite.T(), err)
