@@ -103,11 +103,11 @@ func (suite *RepositoriesTestSuite) TestgetCacheDir() {
 
 func (suite *RepositoriesTestSuite) TestgetCacheDirLookupError() {
 	repos := suite.NewTestRepositories("~" + suite.giltDir)
-	originalCurrentUser := path.CurrentUser
-	path.CurrentUser = func() (*user.User, error) {
+	originalCurrentUserFn := path.CurrentUserFn
+	path.CurrentUserFn = func() (*user.User, error) {
 		return nil, fmt.Errorf("failed to get current user")
 	}
-	defer func() { path.CurrentUser = originalCurrentUser }()
+	defer func() { path.CurrentUserFn = originalCurrentUserFn }()
 
 	got, err := repos.getCacheDir()
 	assert.Error(suite.T(), err)
@@ -139,11 +139,11 @@ func (suite *RepositoriesTestSuite) TestPopulateCloneCacheDedupesCloneCalls() {
 
 func (suite *RepositoriesTestSuite) TestOverlaySubtreesGiltDirLookupError() {
 	repos := suite.NewTestRepositories("~" + suite.giltDir)
-	originalCurrentUser := path.CurrentUser
-	path.CurrentUser = func() (*user.User, error) {
+	originalCurrentUserFn := path.CurrentUserFn
+	path.CurrentUserFn = func() (*user.User, error) {
 		return nil, fmt.Errorf("failed to get current user")
 	}
-	defer func() { path.CurrentUser = originalCurrentUser }()
+	defer func() { path.CurrentUserFn = originalCurrentUserFn }()
 	repos.config.Repositories = []config.Repository{
 		{
 			Git:     suite.gitURL,
