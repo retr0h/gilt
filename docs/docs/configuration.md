@@ -56,7 +56,7 @@ The config file can be overriden/defined through env vars.
 GILT_GILTFILE=Giltfile.yaml \
 GILT_GILTDIR=~/.gilt/clone \
 GILT_DEBUG=false \
-GILT_PARALLEL=0 \
+GILT_PARALLEL=false \
 gilt overlay
 ```
 
