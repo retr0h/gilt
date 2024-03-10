@@ -118,6 +118,14 @@ func (vfs *FailFS) Chdir(dir string) error {
 }
 
 func (vfs *FailFS) Chmod(name string, mode fs.FileMode) error {
+	if failFn, ok := vfs.failFn["Chmod"]; ok {
+		results := vfs.callFailFn(failFn, name, mode)
+		var err error
+		if !results[0].IsNil() {
+			err, _ = results[0].Interface().(error)
+		}
+		return err
+	}
 	return vfs.baseFS.Chmod(name, mode)
 }
 
@@ -198,6 +206,14 @@ func (vfs *FailFS) Mkdir(name string, perm fs.FileMode) error {
 }
 
 func (vfs *FailFS) MkdirAll(path string, perm fs.FileMode) error {
+	if failFn, ok := vfs.failFn["MkdirAll"]; ok {
+		results := vfs.callFailFn(failFn, path, perm)
+		var err error
+		if !results[0].IsNil() {
+			err, _ = results[0].Interface().(error)
+		}
+		return err
+	}
 	return vfs.baseFS.MkdirAll(path, perm)
 }
 
@@ -206,6 +222,18 @@ func (vfs *FailFS) MkdirTemp(dir, prefix string) (name string, err error) {
 }
 
 func (vfs *FailFS) Open(name string) (avfs.File, error) {
+	if failFn, ok := vfs.failFn["Open"]; ok {
+		results := vfs.callFailFn(failFn, name)
+		var file avfs.File
+		var err error
+		if !results[0].IsNil() {
+			file, _ = results[0].Interface().(avfs.File)
+		}
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return file, err
+	}
 	return vfs.Utils.Open(vfs, name)
 }
 
@@ -214,6 +242,18 @@ func (vfs *FailFS) PathSeparator() uint8 {
 }
 
 func (vfs *FailFS) ReadDir(name string) ([]fs.DirEntry, error) {
+	if failFn, ok := vfs.failFn["ReadDir"]; ok {
+		results := vfs.callFailFn(failFn, name)
+		var entries []fs.DirEntry
+		var err error
+		if !results[0].IsNil() {
+			entries, _ = results[0].Interface().([]fs.DirEntry)
+		}
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return entries, err
+	}
 	return vfs.baseFS.ReadDir(name)
 }
 
@@ -262,6 +302,18 @@ func (vfs *FailFS) SplitAbs(path string) (dir, file string) {
 }
 
 func (vfs *FailFS) Stat(name string) (fs.FileInfo, error) {
+	if failFn, ok := vfs.failFn["Stat"]; ok {
+		results := vfs.callFailFn(failFn, name)
+		var fileInfo fs.FileInfo
+		var err error
+		if !results[0].IsNil() {
+			fileInfo, _ = results[0].Interface().(fs.FileInfo)
+		}
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return fileInfo, err
+	}
 	return vfs.baseFS.Stat(name)
 }
 
@@ -340,7 +392,17 @@ func (f *FailFile) Name() string {
 	return f.baseFile.Name()
 }
 
-func (f *FailFile) Read(b []byte) (n int, err error) {
+func (f *FailFile) Read(b []byte) (int, error) {
+	if failFn, ok := f.vfs.failFn["file.Read"]; ok {
+		results := f.vfs.callFailFn(failFn, b)
+		var n int
+		var err error
+		n, _ = results[0].Interface().(int)
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return n, err
+	}
 	return f.baseFile.Read(b)
 }
 
@@ -365,6 +427,14 @@ func (f *FailFile) Stat() (fs.FileInfo, error) {
 }
 
 func (f *FailFile) Sync() error {
+	if failFn, ok := f.vfs.failFn["file.Sync"]; ok {
+		results := f.vfs.callFailFn(failFn)
+		var err error
+		if !results[0].IsNil() {
+			err, _ = results[0].Interface().(error)
+		}
+		return err
+	}
 	return f.baseFile.Sync()
 }
 
