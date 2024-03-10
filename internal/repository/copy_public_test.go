@@ -21,6 +21,8 @@
 package repository_test
 
 import (
+	"errors"
+	"io/fs"
 	"log/slog"
 	"os"
 	"testing"
@@ -31,6 +33,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	failfs "github.com/retr0h/gilt/v2/internal/mocks/vfs"
 	"github.com/retr0h/gilt/v2/internal/repository"
 )
 
@@ -90,6 +93,33 @@ func (suite *CopyPublicTestSuite) TestCopyFileReturnsError() {
 	assert.False(suite.T(), got)
 }
 
+func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	// Make Stat() calls fail
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Stat": func(string) (fs.FileInfo, error) { return nil, errors.New("FailFS!") },
+		},
+	)
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
 func (suite *CopyPublicTestSuite) TestCopyFileReturnsErrorEPERM() {
 	specs := []FileSpec{
 		{
@@ -106,6 +136,119 @@ func (suite *CopyPublicTestSuite) TestCopyFileReturnsErrorEPERM() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
+}
+
+func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	// Make Chmod() calls fail
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Chmod": func(string, fs.FileMode) error { return errors.New("FailFS!") },
+		},
+	)
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
+	// Make the file unreadable
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"file.Read": func([]byte) (int, error) { return 0, errors.New("FailFS!") },
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	// Make Sync() calls fail
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"file.Sync": func() error { return errors.New("FailFS!") },
+		},
+	)
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	// Make the second Chmod() call fail
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Chmod": func(name string, mode fs.FileMode) error {
+				if mode == 0o600 {
+					return nil
+				}
+				return errors.New("FailFS!")
+			},
+		},
+	)
+	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyFile(specs[0].srcFile, assertFile)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirOk() {
@@ -224,6 +367,128 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorWhenSrcIsNotDir() {
 	assertFile := specs[0].srcFile
 	err := cm.CopyDir(assertFile, suite.dstDir)
 	assert.Error(suite.T(), err)
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCreatingDestDir() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"MkdirAll": func(string, fs.FileMode) error { return errors.New("FailFS!") },
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorReadingSrcDir() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"ReadDir": func(string) ([]fs.DirEntry, error) { return nil, errors.New("FailFS!") },
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCheckingSrcFile() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	// FailFS cannot fall-through, so preload the responses it is expected to give
+	srcDirStat, _ := suite.appFs.Stat(specs[0].srcDir)
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Stat": func(path string) (fs.FileInfo, error) {
+				if path == specs[0].srcDir {
+					return srcDirStat, nil
+				}
+				return nil, errors.New("FailFS!")
+			},
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyDir() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir", "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
+		},
+		{
+			appFs:  suite.appFs,
+			srcDir: suite.dstDir,
+		},
+	}
+	createFileSpecs(specs)
+	dstDirHandle, _ := suite.appFs.Open(suite.dstDir)
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Open": func(path string) (avfs.File, error) {
+				if path == suite.dstDir {
+					return dstDirHandle, errors.New("FailFS!")
+				}
+				return dstDirHandle, nil
+			},
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "destination already exists", err.Error())
+}
+
+func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyFile() {
+	specs := []FileSpec{
+		{
+			appFs:   suite.appFs,
+			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir", "subDir"),
+			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "subDir", "1.txt"),
+		},
+	}
+	createFileSpecs(specs)
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"file.Read": func([]byte) (int, error) { return 0, errors.New("FailFS!") },
+		},
+	)
+	cm := suite.NewTestCopyManager()
+	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
 }
 
 // In order for `go test` to run this suite, we need to create
