@@ -31,13 +31,6 @@ import (
 	"github.com/retr0h/gilt/v2/internal"
 )
 
-// AbsFn function to switch when testing.
-// The only time `Abs` will return an error is when `os.Getwd()` returns an
-// error.  Given this situation is rare, but "it's a weird, wild world out there"
-// opted to retain he error handling, but clumsily swap the test function for
-// coverage++.
-var AbsFn = (*Git).abs
-
 // New factory to create a new Git instance.
 func New(
 	appFs avfs.VFS,
@@ -76,7 +69,7 @@ func (g *Git) Worktree(
 	version string,
 	dstDir string,
 ) error {
-	dst, err := AbsFn(g, dstDir)
+	dst, err := g.appFs.Abs(dstDir)
 	if err != nil {
 		return err
 	}
@@ -100,8 +93,4 @@ func (g *Git) Worktree(
 		_ = g.execManager.RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, cloneDir)
 	}
 	return err
-}
-
-func (g *Git) abs(path string) (string, error) {
-	return g.appFs.Abs(path)
 }

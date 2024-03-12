@@ -22,11 +22,11 @@ package git_test
 
 import (
 	"errors"
-	"fmt"
 	"log/slog"
 	"os"
 	"testing"
 
+	"github.com/avfs/avfs"
 	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -35,6 +35,7 @@ import (
 	"github.com/retr0h/gilt/v2/internal"
 	"github.com/retr0h/gilt/v2/internal/git"
 	"github.com/retr0h/gilt/v2/internal/mocks/exec"
+	failfs "github.com/retr0h/gilt/v2/internal/mocks/vfs"
 )
 
 type GitManagerPublicTestSuite struct {
@@ -42,6 +43,7 @@ type GitManagerPublicTestSuite struct {
 
 	ctrl     *gomock.Controller
 	mockExec *exec.MockExecManager
+	appFs    avfs.VFS
 
 	gitURL     string
 	gitVersion string
@@ -53,7 +55,7 @@ type GitManagerPublicTestSuite struct {
 
 func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager {
 	return git.New(
-		memfs.New(),
+		suite.appFs,
 		suite.mockExec,
 		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 	)
@@ -62,6 +64,7 @@ func (suite *GitManagerPublicTestSuite) NewTestGitManager() internal.GitManager 
 func (suite *GitManagerPublicTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.T())
 	suite.mockExec = exec.NewMockExecManager(suite.ctrl)
+	suite.appFs = memfs.New()
 
 	suite.gitURL = "https://example.com/user/repo.git"
 	suite.gitVersion = "abc123"
@@ -113,14 +116,18 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
 }
 
 func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
-	originalAbsFn := git.AbsFn
-	git.AbsFn = func(g *git.Git, _ string) (string, error) {
-		return "", fmt.Errorf("failed to get abs path")
-	}
-	defer func() { git.AbsFn = originalAbsFn }()
+	// Make Abs() calls fail
+	suite.appFs = failfs.New(
+		suite.appFs,
+		map[string]interface{}{
+			"Abs": func(string) (string, error) { return "", errors.New("FailFS!") },
+		},
+	)
+	gm := suite.NewTestGitManager()
 
-	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
+	err := gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "FailFS!", err.Error())
 }
 
 func (suite *GitManagerPublicTestSuite) TestUpdateOk() {
