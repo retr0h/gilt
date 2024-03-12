@@ -106,6 +106,16 @@ func (vfs *FailFS) SystemDirs(basePath string) []avfs.DirInfo {
 }
 
 func (vfs *FailFS) Abs(path string) (string, error) {
+	if failFn, ok := vfs.failFn["Abs"]; ok {
+		results := vfs.callFailFn(failFn, path)
+		var abs string
+		var err error
+		abs, _ = results[0].Interface().(string)
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return abs, err
+	}
 	return vfs.baseFS.Abs(path)
 }
 
