@@ -102,7 +102,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
 	suite.appFs = failfs.New(
 		suite.appFs,
 		map[string]interface{}{
-			"Stat": func(string) (fs.FileInfo, error) { return nil, errors.New("FailFS!") },
+			"file.Stat": func() (fs.FileInfo, error) { return nil, errors.New("FailFS!") },
 		},
 	)
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
@@ -143,7 +143,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 	suite.appFs = failfs.New(
 		suite.appFs,
 		map[string]interface{}{
-			"Chmod": func(string, fs.FileMode) error { return errors.New("FailFS!") },
+			"file.Chmod": func(fs.FileMode) error { return errors.New("FailFS!") },
 		},
 	)
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
@@ -212,7 +212,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
 	suite.appFs = failfs.New(
 		suite.appFs,
 		map[string]interface{}{
-			"Chmod": func(name string, mode fs.FileMode) error {
+			"file.Chmod": func(mode fs.FileMode) error {
 				if mode == 0o600 {
 					return nil
 				}
