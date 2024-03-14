@@ -100,15 +100,23 @@ func (r *Repository) CopySources(
 		}
 
 		for _, src := range globbedSrc {
-			// The source is a file
-			if info, err := r.appFs.Stat(src); err == nil && info.Mode().IsRegular() {
-				// ... and the dst is declared a directory
+			// The source is a directory
+			if info, err := r.appFs.Stat(src); err == nil && info.IsDir() {
+				// ... and dst dir exists
+				if info, err := r.appFs.Stat(source.DstDir); err == nil && info.IsDir() {
+					if err := r.appFs.RemoveAll(source.DstDir); err != nil {
+						return err
+					}
+				}
+				if err := r.copyManager.CopyDir(src, source.DstDir); err != nil {
+					return err
+				}
+			} else {
 				if source.DstFile != "" {
 					if err := r.copyManager.CopyFile(src, source.DstFile); err != nil {
 						return err
 					}
 				} else if source.DstDir != "" {
-					// ... and create the dst directory
 					if err := r.appFs.MkdirAll(source.DstDir, 0o755); err != nil {
 						return fmt.Errorf("unable to create dest dir: %s", err)
 					}
@@ -117,17 +125,6 @@ func (r *Repository) CopySources(
 					if err := r.copyManager.CopyFile(src, newDst); err != nil {
 						return err
 					}
-				}
-				// The source is a directory
-			} else if info, err := r.appFs.Stat(src); err == nil && info.Mode().IsDir() {
-				// ... and dst dir exists
-				if info, err := r.appFs.Stat(source.DstDir); err == nil && info.Mode().IsDir() {
-					if err := r.appFs.RemoveAll(source.DstDir); err != nil {
-						return err
-					}
-				}
-				if err := r.copyManager.CopyDir(src, source.DstDir); err != nil {
-					return err
 				}
 			}
 		}

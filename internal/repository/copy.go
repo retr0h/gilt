@@ -63,7 +63,7 @@ func (r *Copy) CopyFile(
 	}
 	defer func() { _ = in.Close() }()
 
-	si, err := r.appFs.Stat(src)
+	si, err := in.Stat()
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (r *Copy) CopyFile(
 	}
 	defer func() { _ = out.Close() }()
 
-	err = r.appFs.Chmod(dst, 0o600)
+	err = out.Chmod(0o600)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (r *Copy) CopyFile(
 	}
 
 	// All done; make the permissions match
-	err = r.appFs.Chmod(dst, si.Mode())
+	err = out.Chmod(si.Mode())
 	if err != nil {
 		return err
 	}

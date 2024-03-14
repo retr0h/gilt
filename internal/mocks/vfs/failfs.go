@@ -383,6 +383,14 @@ func (f *FailFile) Chdir() error {
 }
 
 func (f *FailFile) Chmod(mode fs.FileMode) error {
+	if failFn, ok := f.vfs.failFn["file.Chmod"]; ok {
+		results := f.vfs.callFailFn(failFn, mode)
+		var err error
+		if !results[0].IsNil() {
+			err, _ = results[0].Interface().(error)
+		}
+		return err
+	}
 	return f.baseFile.Chmod(mode)
 }
 
@@ -433,6 +441,18 @@ func (f *FailFile) Seek(offset int64, whence int) (ret int64, err error) {
 }
 
 func (f *FailFile) Stat() (fs.FileInfo, error) {
+	if failFn, ok := f.vfs.failFn["file.Stat"]; ok {
+		results := f.vfs.callFailFn(failFn)
+		var fileInfo fs.FileInfo
+		var err error
+		if !results[0].IsNil() {
+			fileInfo, _ = results[0].Interface().(fs.FileInfo)
+		}
+		if !results[1].IsNil() {
+			err, _ = results[1].Interface().(error)
+		}
+		return fileInfo, err
+	}
 	return f.baseFile.Stat()
 }
 
