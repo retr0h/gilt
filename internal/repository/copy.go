@@ -70,6 +70,7 @@ func (r *Copy) CopyFile(
 
 	// Open dest file for writing; make it owner-only perms before putting
 	// anything in it
+	_ = r.appFs.MkdirAll(r.appFs.Dir(dst), si.Mode())
 	out, err := r.appFs.Create(dst)
 	if err != nil {
 		return err

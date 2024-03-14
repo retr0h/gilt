@@ -67,10 +67,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileOk() {
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
-		},
 	}
 	createFileSpecs(specs)
 
@@ -99,10 +95,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
 			appFs:   suite.appFs,
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
-		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
 		},
 	}
 	createFileSpecs(specs)
@@ -145,10 +137,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
-		},
 	}
 	createFileSpecs(specs)
 	// Make Chmod() calls fail
@@ -180,10 +168,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
 		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
-		},
 	}
 	createFileSpecs(specs)
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
@@ -198,10 +182,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
 			appFs:   suite.appFs,
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
-		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
 		},
 	}
 	createFileSpecs(specs)
@@ -225,10 +205,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
 			appFs:   suite.appFs,
 			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
 			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
-		},
-		{
-			appFs:  suite.appFs,
-			srcDir: suite.dstDir,
 		},
 	}
 	createFileSpecs(specs)
