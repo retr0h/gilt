@@ -54,7 +54,7 @@ brews:
   - repository:
       owner: retr0h
       name: homebrew-tap
-    folder: Formula
+    directory: Formula
     goarm: "7"
     homepage: https://github.com/retr0h/gilt
     description: A GIT layering tool
