@@ -1,6 +1,6 @@
 module github.com/retr0h/gilt/v2
 
-go 1.21.0
+go 1.22
 
 require (
 	github.com/avfs/avfs v0.33.0

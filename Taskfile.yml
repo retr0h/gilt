@@ -15,14 +15,14 @@ tasks:
   deps:
     desc: Install dependencies
     cmds:
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
-      - go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@v1.1.0
-      - go install golang.org/x/vuln/cmd/govulncheck@v1.0.1
-      - go install github.com/jstemmer/go-junit-report@v0.9.1
-      - go install github.com/segmentio/golines@v0.11.0
-      - go install github.com/golang/mock/mockgen@v1.6.0
-      - go install github.com/boumenot/gocover-cobertura@v1.2.0
-      - go install mvdan.cc/gofumpt@fd93f1d8818fc86a956b9706ad8b81734c81cc1e
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin latest
+      - go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - go install github.com/jstemmer/go-junit-report@latest
+      - go install github.com/segmentio/golines@latest
+      - go install github.com/golang/mock/mockgen@latest
+      - go install github.com/boumenot/gocover-cobertura@latest
+      - go install mvdan.cc/gofumpt@latest
       - go install github.com/goreleaser/goreleaser@latest
 
   deps:check:
@@ -88,9 +88,12 @@ tasks:
 
   cov:
     desc: Generate coverage
+    env:
+      # https://github.com/golang/go/issues/65570
+      GOEXPERIMENT: nocoverageredesign
     cmds:
       - go test -race -coverprofile=cover.out -v $(go list ./... | grep -v /mocks) 2>&1 | go-junit-report --set-exit-code > result.xml || (cat result.xml && echo "fail" && exit 1)
-      - $(go env GOPATH)/bin/gocover-cobertura < cover.out > cobertura.xml
+      - gocover-cobertura < cover.out > cobertura.xml
       - go tool cover -func=cover.out
 
   cov:map:
