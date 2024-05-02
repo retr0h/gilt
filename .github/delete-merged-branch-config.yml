@@ -1,0 +1,5 @@
+---
+exclude:
+  # dependabot auto deletes it's own branches
+  - dependabot/*
+delete_closed_pr: true
