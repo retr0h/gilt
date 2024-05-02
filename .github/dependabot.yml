@@ -21,3 +21,5 @@ updates:
       interval: "daily"
     commit-message:
       prefix: chore
+    ignore:
+      - dependency-name: ".*"
