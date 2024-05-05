@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/avfs/avfs v0.33.0
+	github.com/caarlos0/go-version v0.1.1
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/golang/mock v1.6.0
@@ -11,7 +12,6 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
-	go.hein.dev/go-version v0.1.0
 	golang.org/x/term v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -45,5 +45,4 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	sigs.k8s.io/yaml v1.4.0 // indirect
 )

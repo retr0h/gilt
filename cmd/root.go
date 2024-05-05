@@ -21,6 +21,8 @@
 package cmd
 
 import (
+	_ "embed"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -37,25 +39,20 @@ import (
 var (
 	logger    *slog.Logger
 	appConfig config.Repositories
+	//go:embed resources/art.txt
+	asciiArt string
+)
+
+const (
+	desc    = "A GIT layering command line tool.\n"
+	website = "https://github.com/retr0h/gilt"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gilt",
 	Short: "A GIT layering command line tool",
-	Long: `
-           o  o
-         o |  |
-    o--o   | -o-
-    |  | | |  |
-    o--O | o  o
-       |
-    o--o
-
-A GIT layering command line tool.
-
-https://github.com/retr0h/gilt
-`,
+	Long:  fmt.Sprintf("%sgilt: %s\n%s", asciiArt, desc, website),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
