@@ -66,7 +66,7 @@ class Wheels:
 
         # Burn a pass through the list to steal some useful bits from the Brew config
         for artifact in self.artifacts:
-            if "BrewConfig" in artifact["extra"]:
+            if artifact["type"] == "Brew Tap":
                 self.description = artifact["extra"]["BrewConfig"]["description"]
                 self.license = artifact["extra"]["BrewConfig"]["license"]
 
