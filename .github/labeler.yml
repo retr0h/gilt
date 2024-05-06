@@ -12,6 +12,10 @@ kind/go:
   - changed-files:
     - any-glob-to-any-file: "**/*.go"
 
+kind/python:
+  - changed-files:
+    - any-glob-to-any-file: "python/*"
+
 kind/yaml:
   - changed-files:
     - any-glob-to-any-file: "**/*.yaml"
