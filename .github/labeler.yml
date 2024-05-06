@@ -30,5 +30,5 @@ github/action:
   - changed-files:
     - any-glob-to-any-file: ".github/**/*.yml"
 
-release:
+next:
     - base-branch: 'main'
