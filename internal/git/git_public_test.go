@@ -132,7 +132,7 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 
 func (suite *GitManagerPublicTestSuite) TestUpdateOk() {
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
+		RunCmdInDir("git", []string{"fetch", "--tags", "--force", "origin", "+refs/heads/*:refs/heads/*"}, suite.cloneDir).
 		Return(nil)
 	err := suite.gm.Update(suite.cloneDir)
 	assert.NoError(suite.T(), err)
@@ -141,7 +141,7 @@ func (suite *GitManagerPublicTestSuite) TestUpdateOk() {
 func (suite *GitManagerPublicTestSuite) TestUpdateError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
+		RunCmdInDir("git", []string{"fetch", "--tags", "--force", "origin", "+refs/heads/*:refs/heads/*"}, suite.cloneDir).
 		Return(errors)
 	err := suite.gm.Update(suite.cloneDir)
 	assert.Error(suite.T(), err)

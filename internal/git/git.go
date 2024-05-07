@@ -58,7 +58,11 @@ func (g *Git) Clone(
 // Update the repo.  Fetch the current HEAD and any new tags that may have
 // appeared, and update the cache.
 func (g *Git) Update(cloneDir string) error {
-	return g.execManager.RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, cloneDir)
+	return g.execManager.RunCmdInDir(
+		"git",
+		[]string{"fetch", "--tags", "--force", "origin", "+refs/heads/*:refs/heads/*"},
+		cloneDir,
+	)
 }
 
 // Worktree create a working tree from the repo in `cloneDir` at `version` in `dstDir`.
