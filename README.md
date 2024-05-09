@@ -5,6 +5,7 @@
 [![build](https://img.shields.io/github/actions/workflow/status/retr0h/gilt/go.yml?style=for-the-badge)](https://github.com/retr0h/gilt/actions/workflows/go.yml)
 [![powered by](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
 [![conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=for-the-badge)](https://conventionalcommits.org)
+![gitHub commit activity](https://img.shields.io/github/commit-activity/m/retr0h/gilt?style=for-the-badge)
 
 # Gilt
 
