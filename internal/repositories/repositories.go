@@ -228,7 +228,7 @@ func (r *Repositories) runCommands(c config.Repository) error {
 			slog.String("cmd", command.Cmd),
 			slog.String("args", strings.Join(command.Args, " ")),
 		)
-		if err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
+		if _, err := r.execManager.RunCmd(command.Cmd, command.Args); err != nil {
 			return err
 		}
 	}

@@ -268,7 +268,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCommands() {
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
 	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	suite.mockExec.EXPECT().RunCmd("touch", []string{"/tmp/foo"}).Return(nil)
+	suite.mockExec.EXPECT().RunCmd("touch", []string{"/tmp/foo"}).Return("", nil)
 
 	err := repos.Overlay()
 	assert.NoError(suite.T(), err)
@@ -294,7 +294,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCommandErro
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
 	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	errors := errors.New("tests error")
-	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return("", errors)
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)

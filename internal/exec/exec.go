@@ -43,22 +43,24 @@ func (e *Exec) RunCmdImpl(
 	name string,
 	args []string,
 	cwd string,
-) error {
+) (string, error) {
 	cmd := exec.Command(name, args...)
 	if cwd != "" {
 		cmd.Dir = cwd
 	}
-
-	commands := strings.Join(cmd.Args, " ")
-	e.logger.Debug("exec", slog.String("command", commands), slog.String("cwd", cwd))
-
 	out, err := cmd.CombinedOutput()
-	e.logger.Debug("result", slog.String("output", string(out)))
+	e.logger.Debug(
+		"exec",
+		slog.String("command", strings.Join(cmd.Args, " ")),
+		slog.String("cwd", cwd),
+		slog.String("output", string(out)),
+		slog.Any("error", err),
+	)
 	if err != nil {
-		return err
+		return string(out), err
 	}
 
-	return nil
+	return string(out), nil
 }
 
 // RunCmd execute the provided command with args.
@@ -66,7 +68,7 @@ func (e *Exec) RunCmdImpl(
 func (e *Exec) RunCmd(
 	name string,
 	args []string,
-) error {
+) (string, error) {
 	return e.RunCmdImpl(name, args, "")
 }
 
@@ -74,7 +76,7 @@ func (e *Exec) RunCmdInDir(
 	name string,
 	args []string,
 	cwd string,
-) error {
+) (string, error) {
 	return e.RunCmdImpl(name, args, cwd)
 }
 
