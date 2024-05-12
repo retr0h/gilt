@@ -100,3 +100,8 @@ func (g *Git) Worktree(
 	}
 	return err
 }
+
+// Return the name of the repo remote.
+func (g *Git) Remote(cloneDir string) (string, error) {
+	return g.execManager.RunCmdInDir("git", []string{"remote"}, cloneDir)
+}

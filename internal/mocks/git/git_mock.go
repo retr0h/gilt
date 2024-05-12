@@ -47,6 +47,21 @@ func (mr *MockGitManagerMockRecorder) Clone(gitURL, cloneDir interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clone", reflect.TypeOf((*MockGitManager)(nil).Clone), gitURL, cloneDir)
 }
 
+// Remote mocks base method.
+func (m *MockGitManager) Remote(cloneDir string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Remote", cloneDir)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Remote indicates an expected call of Remote.
+func (mr *MockGitManagerMockRecorder) Remote(cloneDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remote", reflect.TypeOf((*MockGitManager)(nil).Remote), cloneDir)
+}
+
 // Update mocks base method.
 func (m *MockGitManager) Update(cloneDir string) error {
 	m.ctrl.T.Helper()

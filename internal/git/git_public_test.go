@@ -147,6 +147,21 @@ func (suite *GitManagerPublicTestSuite) TestUpdateError() {
 	assert.Error(suite.T(), err)
 }
 
+func (suite *GitManagerPublicTestSuite) TestRemoteOk() {
+	suite.mockExec.EXPECT().RunCmdInDir("git", []string{"remote"}, suite.cloneDir).Return("", nil)
+	_, err := suite.gm.Remote(suite.cloneDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *GitManagerPublicTestSuite) TestRemoteError() {
+	errors := errors.New("tests error")
+	suite.mockExec.EXPECT().
+		RunCmdInDir("git", []string{"remote"}, suite.cloneDir).
+		Return("", errors)
+	_, err := suite.gm.Remote(suite.cloneDir)
+	assert.Error(suite.T(), err)
+}
+
 // In order for `go test` to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run.
 func TestGitManagerPublicTestSuite(t *testing.T) {
