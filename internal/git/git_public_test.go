@@ -81,7 +81,7 @@ func (suite *GitManagerPublicTestSuite) TearDownTest() {
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 	suite.mockExec.EXPECT().
 		RunCmd("git", []string{"clone", "--bare", "--filter=blob:none", suite.gitURL, suite.cloneDir}).
-		Return(nil)
+		Return("", nil)
 
 	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
 	assert.NoError(suite.T(), err)
@@ -89,7 +89,7 @@ func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 
 func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	errors := errors.New("tests error")
-	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return(errors)
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return("", errors)
 
 	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
 	assert.Error(suite.T(), err)
@@ -98,10 +98,10 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 func (suite *GitManagerPublicTestSuite) TestWorktreeOk() {
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
-		Return(nil)
+		Return("", nil)
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, suite.cloneDir).
-		Return(nil)
+		Return("", nil)
 	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.NoError(suite.T(), err)
 }
@@ -110,7 +110,7 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"worktree", "add", "--force", suite.dstDir, suite.gitVersion}, suite.cloneDir).
-		Return(errors)
+		Return("", errors)
 	err := suite.gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.Error(suite.T(), err)
 }
@@ -133,7 +133,7 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 func (suite *GitManagerPublicTestSuite) TestUpdateOk() {
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
-		Return(nil)
+		Return("", nil)
 	err := suite.gm.Update(suite.cloneDir)
 	assert.NoError(suite.T(), err)
 }
@@ -142,7 +142,7 @@ func (suite *GitManagerPublicTestSuite) TestUpdateError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
-		Return(errors)
+		Return("", errors)
 	err := suite.gm.Update(suite.cloneDir)
 	assert.Error(suite.T(), err)
 }

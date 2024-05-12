@@ -34,11 +34,12 @@ func (m *MockExecManager) EXPECT() *MockExecManagerMockRecorder {
 }
 
 // RunCmd mocks base method.
-func (m *MockExecManager) RunCmd(name string, args []string) error {
+func (m *MockExecManager) RunCmd(name string, args []string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunCmd", name, args)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RunCmd indicates an expected call of RunCmd.
@@ -48,11 +49,12 @@ func (mr *MockExecManagerMockRecorder) RunCmd(name, args interface{}) *gomock.Ca
 }
 
 // RunCmdInDir mocks base method.
-func (m *MockExecManager) RunCmdInDir(name string, args []string, cwd string) error {
+func (m *MockExecManager) RunCmdInDir(name string, args []string, cwd string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunCmdInDir", name, args, cwd)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RunCmdInDir indicates an expected call of RunCmdInDir.

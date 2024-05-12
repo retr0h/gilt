@@ -49,7 +49,7 @@ func (suite *ExecManagerPublicTestSuite) NewTestExecManager() internal.ExecManag
 func (suite *ExecManagerPublicTestSuite) TestRunCmdOk() {
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmd("ls", []string{})
+	_, err := em.RunCmd("ls", []string{})
 	assert.NoError(suite.T(), err)
 }
 
@@ -58,14 +58,14 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdWithDebug() {
 
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmd("echo", []string{"-n", "foo"})
+	_, err := em.RunCmd("echo", []string{"-n", "foo"})
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmd("invalid", []string{"foo"})
+	_, err := em.RunCmd("invalid", []string{"foo"})
 	assert.Error(suite.T(), err)
 	assert.Contains(suite.T(), err.Error(), "not found")
 }
@@ -73,7 +73,7 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirOk() {
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmdInDir("ls", []string{}, "/tmp")
+	_, err := em.RunCmdInDir("ls", []string{}, "/tmp")
 	assert.NoError(suite.T(), err)
 }
 
@@ -82,14 +82,14 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirWithDebug() {
 
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmdInDir("echo", []string{"-n", "foo"}, "/tmp")
+	_, err := em.RunCmdInDir("echo", []string{"-n", "foo"}, "/tmp")
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirReturnsError() {
 	em := suite.NewTestExecManager()
 
-	err := em.RunCmdInDir("invalid", []string{"foo"}, "/tmp")
+	_, err := em.RunCmdInDir("invalid", []string{"foo"}, "/tmp")
 	assert.Error(suite.T(), err)
 	assert.Contains(suite.T(), err.Error(), "not found")
 }

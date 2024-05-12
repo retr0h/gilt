@@ -49,16 +49,18 @@ func (g *Git) Clone(
 	gitURL string,
 	cloneDir string,
 ) error {
-	return g.execManager.RunCmd(
+	_, err := g.execManager.RunCmd(
 		"git",
 		[]string{"clone", "--bare", "--filter=blob:none", gitURL, cloneDir},
 	)
+	return err
 }
 
 // Update the repo.  Fetch the current HEAD and any new tags that may have
 // appeared, and update the cache.
 func (g *Git) Update(cloneDir string) error {
-	return g.execManager.RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, cloneDir)
+	_, err := g.execManager.RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, cloneDir)
+	return err
 }
 
 // Worktree create a working tree from the repo in `cloneDir` at `version` in `dstDir`.
@@ -81,7 +83,7 @@ func (g *Git) Worktree(
 		slog.String("to", dst),
 	)
 
-	err = g.execManager.RunCmdInDir(
+	_, err = g.execManager.RunCmdInDir(
 		"git",
 		[]string{"worktree", "add", "--force", dst, version},
 		cloneDir,
@@ -90,7 +92,11 @@ func (g *Git) Worktree(
 	// this is just junk data in our use case, so get rid of it
 	if err == nil {
 		_ = g.appFs.Remove(g.appFs.Join(dst, ".git"))
-		_ = g.execManager.RunCmdInDir("git", []string{"worktree", "prune", "--verbose"}, cloneDir)
+		_, _ = g.execManager.RunCmdInDir(
+			"git",
+			[]string{"worktree", "prune", "--verbose"},
+			cloneDir,
+		)
 	}
 	return err
 }
