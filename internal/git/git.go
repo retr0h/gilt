@@ -45,21 +45,22 @@ func New(
 }
 
 // Clone the repo.  This is a bare repo, with only metadata to start with.
-func (g *Git) Clone(
-	gitURL string,
-	cloneDir string,
-) error {
+func (g *Git) Clone(gitURL, origin, cloneDir string) error {
 	_, err := g.execManager.RunCmd(
 		"git",
-		[]string{"clone", "--bare", "--filter=blob:none", gitURL, cloneDir},
+		[]string{"clone", "--bare", "--filter=blob:none", "--origin", origin, gitURL, cloneDir},
 	)
 	return err
 }
 
 // Update the repo.  Fetch the current HEAD and any new tags that may have
 // appeared, and update the cache.
-func (g *Git) Update(cloneDir string) error {
-	_, err := g.execManager.RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, cloneDir)
+func (g *Git) Update(origin, cloneDir string) error {
+	_, err := g.execManager.RunCmdInDir(
+		"git",
+		[]string{"fetch", "--tags", "--force", origin, "+refs/heads/*:refs/heads/*"},
+		cloneDir,
+	)
 	return err
 }
 

@@ -94,8 +94,10 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 	}
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
+	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(suite.gitURL, targetDir).Return(nil),
+		suite.mockGit.EXPECT().Remote(targetDir).Return("", errors),
+		suite.mockGit.EXPECT().Clone(suite.gitURL, repository.ORIGIN, targetDir).Return(nil),
 	)
 
 	_, err := repo.Clone(c, suite.cloneDir)
@@ -112,7 +114,8 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenCloneErrors() {
 
 	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any()).Return(errors),
+		suite.mockGit.EXPECT().Remote(gomock.Any()).Return("", errors),
+		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors),
 	)
 
 	_, err := repo.Clone(c, suite.cloneDir)
@@ -128,8 +131,26 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 	}
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
-	_ = suite.appFs.MkdirAll(targetDir, 0o755)
-	suite.mockGit.EXPECT().Update(targetDir).Return(nil)
+	suite.mockGit.EXPECT().Remote(targetDir).Return(repository.ORIGIN, nil)
+	suite.mockGit.EXPECT().Update(repository.ORIGIN, targetDir).Return(nil)
+
+	_, err := repo.Clone(c, suite.cloneDir)
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *RepositoryPublicTestSuite) TestCloneInvalidatesCaches() {
+	repo := suite.NewRepositoryManager()
+
+	c := config.Repository{
+		Git:     suite.gitURL,
+		Version: suite.gitSHA,
+	}
+	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
+
+	gomock.InOrder(
+		suite.mockGit.EXPECT().Remote(targetDir).Return("invalid", nil),
+		suite.mockGit.EXPECT().Clone(suite.gitURL, repository.ORIGIN, targetDir).Return(nil),
+	)
 
 	_, err := repo.Clone(c, suite.cloneDir)
 	assert.NoError(suite.T(), err)
@@ -144,9 +165,9 @@ func (suite *RepositoryPublicTestSuite) TestCloneUpdateCloneDirThrowsError() {
 	}
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
-	_ = suite.appFs.MkdirAll(targetDir, 0o755)
 	errors := errors.New("tests error")
-	suite.mockGit.EXPECT().Update(targetDir).Return(errors)
+	suite.mockGit.EXPECT().Remote(targetDir).Return(repository.ORIGIN, nil)
+	suite.mockGit.EXPECT().Update(repository.ORIGIN, targetDir).Return(errors)
 
 	_, err := repo.Clone(c, suite.cloneDir)
 	assert.Error(suite.T(), err)

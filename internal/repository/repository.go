@@ -21,6 +21,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -30,6 +31,8 @@ import (
 	"github.com/retr0h/gilt/v2/internal"
 	"github.com/retr0h/gilt/v2/pkg/config"
 )
+
+const ORIGIN = "gilt"
 
 // We'll use this to normalize Git URLs as "safe" filenames
 var replacer = strings.NewReplacer("/", "-", ":", "-")
@@ -55,25 +58,27 @@ func (r *Repository) Clone(
 	cloneDir string,
 ) (string, error) {
 	targetDir := r.appFs.Join(cloneDir, replacer.Replace(c.Git))
-	r.logger.Info(
-		"cloning",
-		slog.String("repository", c.Git),
-		slog.String("dstDir", targetDir),
-	)
-
-	if d, err := r.appFs.Open(targetDir); err != nil {
-		_ = d.Close()
-		if err := r.gitManager.Clone(c.Git, targetDir); err != nil {
+	remote, err := r.gitManager.Remote(targetDir)
+	if err == nil && !strings.Contains(remote, ORIGIN) {
+		r.logger.Info(
+			"remote does not exist in clone, invalidating cache",
+			slog.Any("remote", ORIGIN),
+			slog.String("dstDir", targetDir),
+		)
+		_ = r.appFs.RemoveAll(targetDir)
+		err = errors.New("cache does not exist")
+	}
+	if err != nil {
+		r.logger.Info("cloning", slog.String("repository", c.Git), slog.String("dstDir", targetDir))
+		if err := r.gitManager.Clone(c.Git, ORIGIN, targetDir); err != nil {
 			return targetDir, err
 		}
 	} else {
-		_ = d.Close()
 		r.logger.Info("clone already exists", slog.String("dstDir", targetDir))
-		if err := r.gitManager.Update(targetDir); err != nil {
+		if err := r.gitManager.Update(ORIGIN, targetDir); err != nil {
 			return targetDir, err
 		}
 	}
-
 	return targetDir, nil
 }
 

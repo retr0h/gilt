@@ -47,6 +47,7 @@ type GitManagerPublicTestSuite struct {
 
 	gitURL     string
 	gitVersion string
+	origin     string
 	cloneDir   string
 	dstDir     string
 
@@ -68,6 +69,7 @@ func (suite *GitManagerPublicTestSuite) SetupTest() {
 
 	suite.gitURL = "https://example.com/user/repo.git"
 	suite.gitVersion = "abc123"
+	suite.origin = "gilt"
 	suite.cloneDir = "/cloneDir"
 	suite.dstDir = "/dstDir"
 
@@ -80,10 +82,10 @@ func (suite *GitManagerPublicTestSuite) TearDownTest() {
 
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"clone", "--bare", "--filter=blob:none", suite.gitURL, suite.cloneDir}).
+		RunCmd("git", []string{"clone", "--bare", "--filter=blob:none", "--origin", suite.origin, suite.gitURL, suite.cloneDir}).
 		Return("", nil)
 
-	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
+	err := suite.gm.Clone(suite.gitURL, suite.origin, suite.cloneDir)
 	assert.NoError(suite.T(), err)
 }
 
@@ -91,7 +93,7 @@ func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return("", errors)
 
-	err := suite.gm.Clone(suite.gitURL, suite.cloneDir)
+	err := suite.gm.Clone(suite.gitURL, suite.origin, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
 
@@ -132,18 +134,18 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 
 func (suite *GitManagerPublicTestSuite) TestUpdateOk() {
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
+		RunCmdInDir("git", []string{"fetch", "--tags", "--force", suite.origin, "+refs/heads/*:refs/heads/*"}, suite.cloneDir).
 		Return("", nil)
-	err := suite.gm.Update(suite.cloneDir)
+	err := suite.gm.Update(suite.origin, suite.cloneDir)
 	assert.NoError(suite.T(), err)
 }
 
 func (suite *GitManagerPublicTestSuite) TestUpdateError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().
-		RunCmdInDir("git", []string{"fetch", "--tags", "--force"}, suite.cloneDir).
+		RunCmdInDir("git", []string{"fetch", "--tags", "--force", suite.origin, "+refs/heads/*:refs/heads/*"}, suite.cloneDir).
 		Return("", errors)
-	err := suite.gm.Update(suite.cloneDir)
+	err := suite.gm.Update(suite.origin, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
 
