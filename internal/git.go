@@ -22,8 +22,8 @@ package internal
 
 // GitManager manager responsible for Git operations.
 type GitManager interface {
-	Clone(gitURL string, cloneDir string) error
-	Worktree(cloneDir string, version string, dstDir string) error
-	Update(cloneDir string) error
+	Clone(gitURL, origin, cloneDir string) error
+	Worktree(cloneDir, version, dstDir string) error
+	Update(origin, cloneDir string) error
 	Remote(cloneDir string) (string, error)
 }
