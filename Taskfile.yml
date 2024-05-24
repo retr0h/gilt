@@ -30,7 +30,7 @@ tasks:
     cmds:
       - echo "Dependency check OK"
     preconditions:
-      - sh: "[ '{{OS}}' = 'darwin' ]"
+      - sh: "case '{{OS}}' in darwin|linux) true ;; *) false ;; esac"
         msg: Operating System '{{OS}}' not supported
 
       - sh: command -v jq
