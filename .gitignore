@@ -5,3 +5,4 @@ dist/
 result.xml
 .task/
 test/integration/tmp/
+test/integration/vendor/
