@@ -230,3 +230,8 @@ teardown() {
 	run stat /tmp/initGiltfile.yaml
 	[ "$status" = 0 ]
 }
+
+@test "concurrent gilt overlay will block/wait" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; (for x in {1..8}; do go run ${GILT_PROGRAM} overlay & done ; wait) 2>&1 | grep ERR"
+	[ "$status" -eq 1 ]
+}

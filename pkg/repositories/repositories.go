@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"github.com/avfs/avfs/vfs/osfs"
 	"github.com/danjacques/gofslock/fslock"
@@ -105,13 +106,16 @@ func (r *Repositories) withLock(fn func() error) error {
 		return err
 	}
 
+	blocker := func() error {
+		time.Sleep(time.Millisecond)
+		return nil
+	}
 	lockFile := r.appFs.Join(lockDir, "gilt.lock")
 	r.logger.Info(
 		"acquiring lock",
 		slog.String("lockfile", lockFile),
 	)
-
-	err = fslock.With(lockFile, fn)
+	err = fslock.WithBlocking(lockFile, blocker, fn)
 	if err != nil {
 		if errors.Is(err, fslock.ErrLockHeld) {
 			return fmt.Errorf("could not acquire lock on %s: %s", lockFile, err)
