@@ -30,6 +30,14 @@ Display the git commands being executed.
 gilt --debug overlay
 ```
 
+### Skipping post-commands
+
+Overlay files only, but run no other commands.
+
+```bash
+gilt overlay --no-commands
+```
+
 ## Package
 
 ### Overlay Repository

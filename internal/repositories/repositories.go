@@ -97,6 +97,10 @@ func (r *Repositories) Overlay() error {
 		}
 
 		// run post commands
+		if r.config.SkipCommands {
+			r.logger.Info("skipping running post-commands")
+			continue
+		}
 		if err := r.runCommands(c); err != nil {
 			return err
 		}
