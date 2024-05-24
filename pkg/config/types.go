@@ -26,6 +26,8 @@ type Repositories struct {
 	Debug bool `mapstruture:"debug"`
 	// Parallel enable or disable concurrent clone fetches.
 	Parallel bool `                           mapstructure:"parallel"`
+	// SkipCommands run post-commands as part of the overlay process
+	SkipCommands bool
 	// GiltFile path to Gilt's config file option set from CLI.
 	GiltFile string `                           mapstructure:"giltFile" validate:"required"`
 	// GiltDir path to Gilt's clone dir option set from CLI.

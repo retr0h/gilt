@@ -53,6 +53,7 @@ type RepositoriesPublicTestSuite struct {
 	gitURL           string
 	gitVersion       string
 	repoConfigDstDir []config.Repository
+	SkipCommands     bool
 	logger           *slog.Logger
 }
 
@@ -62,6 +63,7 @@ func (suite *RepositoriesPublicTestSuite) NewTestRepositoriesManager(
 	reposConfig := config.Repositories{
 		Debug:        false,
 		Parallel:     true,
+		SkipCommands: suite.SkipCommands,
 		GiltFile:     "Giltfile.yaml",
 		GiltDir:      suite.giltDir,
 		Repositories: repoConfig,
@@ -93,7 +95,7 @@ func (suite *RepositoriesPublicTestSuite) SetupTest() {
 			DstDir:  suite.dstDir,
 		},
 	}
-
+	suite.SkipCommands = false
 	suite.logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
@@ -298,6 +300,33 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCommandErro
 
 	err := repos.Overlay()
 	assert.Error(suite.T(), err)
+}
+
+func (suite *RepositoriesPublicTestSuite) TestOverlaySkipsCommands() {
+	suite.SkipCommands = true
+	repoConfig := []config.Repository{
+		{
+			Git:     suite.gitURL,
+			Version: suite.gitVersion,
+			DstDir:  suite.dstDir,
+			Commands: []config.Command{
+				{
+					Cmd:  "touch",
+					Args: []string{"/tmp/foo"},
+				},
+			},
+		},
+	}
+
+	repos := suite.NewTestRepositoriesManager(repoConfig)
+
+	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
+	suite.mockRepo.EXPECT().Worktree(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	// Explicitly check that RunCmd is never called
+	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Times(0)
+
+	err := repos.Overlay()
+	assert.NoError(suite.T(), err)
 }
 
 // In order for `go test` to run this suite, we need to create

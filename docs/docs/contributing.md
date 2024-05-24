@@ -60,8 +60,8 @@ should have an 80 character line wrap limit (enforced by Prettier).
 
 ### Writing tests
 
-When making a changes, consider whether new tests are required. These tests
-should ensure that the functionality you are adding will continue to work in the
+When making changes, consider whether new tests are required. These tests should
+ensure that the functionality you are adding will continue to work in the
 future. Existing tests may also need updating if you have changed Gilt's
 behavior.
 
