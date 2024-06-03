@@ -6,7 +6,7 @@ require (
 	github.com/avfs/avfs v0.33.0
 	github.com/caarlos0/go-version v0.1.1
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
-	github.com/go-playground/validator/v10 v10.20.0
+	github.com/go-playground/validator/v10 v10.21.0
 	github.com/golang/mock v1.6.0
 	github.com/lmittmann/tint v1.0.4
 	github.com/spf13/cobra v1.8.0
@@ -17,7 +17,6 @@ require (
 )
 
 require (
-	github.com/bats-core/bats-core v1.11.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
