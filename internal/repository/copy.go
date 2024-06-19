@@ -68,9 +68,13 @@ func (r *Copy) CopyFile(
 		return err
 	}
 
+	// Ensure target directory exists; it will be created with the same mode as
+	// the target file, plus x-bits.
+	dirMode := si.Mode() & 0o777
+	dirMode |= ((dirMode & 0o444) >> 2) | ((dirMode & 0o222) >> 1)
+	_ = r.appFs.MkdirAll(r.appFs.Dir(dst), dirMode)
 	// Open dest file for writing; make it owner-only perms before putting
 	// anything in it
-	_ = r.appFs.MkdirAll(r.appFs.Dir(dst), si.Mode())
 	out, err := r.appFs.Create(dst)
 	if err != nil {
 		return err
