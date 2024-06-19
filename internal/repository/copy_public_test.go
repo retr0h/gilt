@@ -76,6 +76,10 @@ func (suite *CopyPublicTestSuite) TestCopyFileOk() {
 
 	got, _ := avfs.Exists(suite.appFs, assertFile)
 	assert.True(suite.T(), got)
+	// ensure target dir is created with sensible permissions — expressed
+	// in "canonical" form here so the test result is legible
+	parent, _ := suite.appFs.Stat(suite.dstDir)
+	assert.Equal(suite.T(), fs.FileMode(0o20000000755), parent.Mode())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyFileReturnsError() {
