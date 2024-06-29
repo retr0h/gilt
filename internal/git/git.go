@@ -48,8 +48,24 @@ func New(
 func (g *Git) Clone(gitURL, origin, cloneDir string) error {
 	_, err := g.execManager.RunCmd(
 		"git",
-		[]string{"clone", "--bare", "--filter=blob:none", "--origin", origin, gitURL, cloneDir},
+		[]string{
+			"-c", "clone.defaultRemoteName=" + origin,
+			"clone", "--bare", "--filter=blob:none", gitURL, cloneDir,
+		},
 	)
+	// NOTE(nic): Workaround truly ancient versions of git that do not support
+	//  `clone.defaultRemoteName`, and explicitly rename the remote to "our" value.
+	//  The `git remote rename` command will report a fatal error here, but will
+	//  actually still rename the remote.  On newer versions, the remote name will
+	//  already be set by `git clone`, and the command will fail.  So either way,
+	//  we want to throw out the result.
+	if err == nil {
+		_, _ = g.execManager.RunCmdInDir(
+			"git",
+			[]string{"remote", "rename", "origin", origin},
+			cloneDir,
+		)
+	}
 	return err
 }
 
