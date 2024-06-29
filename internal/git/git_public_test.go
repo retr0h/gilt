@@ -82,7 +82,13 @@ func (suite *GitManagerPublicTestSuite) TearDownTest() {
 
 func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 	suite.mockExec.EXPECT().
-		RunCmd("git", []string{"clone", "--bare", "--filter=blob:none", "--origin", suite.origin, suite.gitURL, suite.cloneDir}).
+		RunCmd("git", []string{
+			"-c", "clone.defaultRemoteName=" + suite.origin,
+			"clone", "--bare", "--filter=blob:none", suite.gitURL, suite.cloneDir,
+		}).
+		Return("", nil)
+	suite.mockExec.EXPECT().
+		RunCmdInDir("git", []string{"remote", "rename", "origin", suite.origin}, suite.cloneDir).
 		Return("", nil)
 
 	err := suite.gm.Clone(suite.gitURL, suite.origin, suite.cloneDir)
@@ -92,6 +98,8 @@ func (suite *GitManagerPublicTestSuite) TestCloneOk() {
 func (suite *GitManagerPublicTestSuite) TestCloneReturnsError() {
 	errors := errors.New("tests error")
 	suite.mockExec.EXPECT().RunCmd(gomock.Any(), gomock.Any()).Return("", errors)
+	// `git remote rename` is not called if the clone throws errors
+	suite.mockExec.EXPECT().RunCmdInDir("git", gomock.Any(), suite.cloneDir).Times(0)
 
 	err := suite.gm.Clone(suite.gitURL, suite.origin, suite.cloneDir)
 	assert.Error(suite.T(), err)
