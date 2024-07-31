@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Configuration
 
-Gilt uses [Viper][] to load configuation through multpile methods.
+Gilt uses [Viper][] to load configuation through multiple methods.
 
 ## Config File
 
