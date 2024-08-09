@@ -112,8 +112,10 @@ commit hash may be used.
 
 The local directory to copy files into. All files in the repository will be
 copied. Relative paths will be installed into the directory where `gilt` was
-invoked. To copy only a subset of files, use the `repositories.sources` option
-instead.
+invoked. If `dstDir` already exists, it will be destroyed and overwritten; as
+such, `.` and `..` are not allowed.
+
+To copy only a subset of files, use the `repositories.sources` option instead.
 
 This option cannot be used with `repositories.sources`.
 
@@ -145,7 +147,8 @@ The pathname of the source file/directory to copy.
 The pathname of the destination directory. If `src` is a file, it will be placed
 inside the named directory. If `src` is a directory, its contents will be copied
 into the named directory. All parent directories will be created if they do not
-exist.
+exist. If `dstDir` already exists, it will be destroyed and overwritten; as
+such, `.` and `..` are not allowed.
 
 This option cannot be used with `repositories[].sources[].dstFile`.
 

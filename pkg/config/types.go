@@ -43,7 +43,7 @@ type Source struct {
 	// DstFile destination of file copy.
 	DstFile string `mapstructure:"dstFile" validate:"required_without=DstDir,excluded_with=DstDir"`
 	// DstDir destination of directory copy.
-	DstDir string `mapstructure:"dstDir"  validate:"required_without=DstFile,excluded_with=DstFile"`
+	DstDir string `mapstructure:"dstDir"  validate:"required_without=DstFile,excluded_with=DstFile,ne=.,ne=.."`
 }
 
 //  Water string `validate:"required_without=Fire,excluded_with=Fire"`
@@ -61,7 +61,7 @@ type Repository struct {
 	// Version the commit SHA or tag to use.
 	Version string `mapstructure:"version"  validate:"required"`
 	// DstDir destination directory to copy clone to.
-	DstDir string `mapstructure:"dstDir"   validate:"required_without=Sources,excluded_with=Sources"`
+	DstDir string `mapstructure:"dstDir"   validate:"required_without=Sources,excluded_with=Sources,ne=.,ne=.."`
 	// Sources containing files and/or directories to copy.
 	Sources []Source `mapstructure:"sources"  validate:"dive,required_without=DstDir,excluded_with=DstDir"`
 	// Commands commands to execute on Repository.
