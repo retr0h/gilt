@@ -119,6 +119,14 @@ func (suite *SchemaTestSuite) TestSourceSchema() {
 			DstFile: "dstFile",
 			DstDir:  "dstDir",
 		}, "Key: 'Source.DstFile' Error:Field validation for 'DstFile' failed on the 'excluded_with' tag\nKey: 'Source.DstDir' Error:Field validation for 'DstDir' failed on the 'excluded_with' tag"},
+		{&Source{
+			Src:    "src",
+			DstDir: ".",
+		}, "Key: 'Source.DstDir' Error:Field validation for 'DstDir' failed on the 'ne' tag"},
+		{&Source{
+			Src:    "src",
+			DstDir: "..",
+		}, "Key: 'Source.DstDir' Error:Field validation for 'DstDir' failed on the 'ne' tag"},
 	}
 
 	for _, test := range tests {
@@ -203,6 +211,16 @@ func (suite *SchemaTestSuite) TestRepositorySchema() {
 				},
 			},
 		}, "Key: 'Repository.DstDir' Error:Field validation for 'DstDir' failed on the 'excluded_with' tag\nKey: 'Repository.Sources[0]' Error:Field validation for 'Sources[0]' failed on the 'excluded_with' tag"},
+		{&Repository{
+			Git:     "gitURL",
+			Version: "abc1234",
+			DstDir:  ".",
+		}, "Key: 'Repository.DstDir' Error:Field validation for 'DstDir' failed on the 'ne' tag"},
+		{&Repository{
+			Git:     "gitURL",
+			Version: "abc1234",
+			DstDir:  "..",
+		}, "Key: 'Repository.DstDir' Error:Field validation for 'DstDir' failed on the 'ne' tag"},
 	}
 
 	for _, test := range tests {
