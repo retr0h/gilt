@@ -23,7 +23,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -56,33 +55,17 @@ current working directory.`,
 		ye := yaml.NewEncoder(&b)
 		ye.SetIndent(2)
 		if err := ye.Encode(c); err != nil {
-			logFatal(
-				"failed to encode file",
-				slog.Group("",
-					slog.String("err", err.Error()),
-				),
-			)
+			logFatal("failed to encode file", err)
 		}
 
 		configFile := viper.GetString("giltFile")
 		_, err := os.Stat(configFile)
 		if err == nil {
-			logFatal(
-				"file already exists",
-				slog.Group("",
-					slog.String("Giltfile", configFile),
-				),
-			)
+			logFatal("file already exists", err, "Giltfile", viper.ConfigFileUsed())
 		}
 
 		if err := os.WriteFile(configFile, b.Bytes(), 0o644); err != nil {
-			logFatal(
-				"failed to write file",
-				slog.Group("",
-					slog.String("Giltfile", viper.ConfigFileUsed()),
-					slog.String("err", err.Error()),
-				),
-			)
+			logFatal("failed to write file", err, "Giltfile", viper.ConfigFileUsed())
 		}
 
 		fmt.Printf("wrote %s\n", configFile)

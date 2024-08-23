@@ -40,9 +40,6 @@ destinations.`,
 		// We are logging errors, no need for cobra to re-log the error
 		cmd.SilenceErrors = true
 
-		initConfig()
-		initLogger()
-
 		repos := repositories.New(
 			appConfig,
 			logger,

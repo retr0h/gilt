@@ -37,7 +37,7 @@ import (
 )
 
 var (
-	logger    *slog.Logger
+	logger    = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	appConfig config.Repositories
 	//go:embed resources/art.txt
 	asciiArt string
@@ -65,6 +65,8 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(initConfig, initLogger)
+
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable or disable debug mode")
 	rootCmd.PersistentFlags().BoolP("parallel", "p", true, "Fetch clones in parallel")
 	rootCmd.PersistentFlags().Bool("no-commands", false, "Skip post-commands when overlaying")
@@ -79,14 +81,17 @@ func init() {
 	_ = viper.BindPFlag("giltFile", rootCmd.PersistentFlags().Lookup("gilt-file"))
 	_ = viper.BindPFlag("giltDir", rootCmd.PersistentFlags().Lookup("gilt-dir"))
 	_ = viper.BindPFlag("repositories", rootCmd.PersistentFlags().Lookup("repositories"))
-
-	cobra.OnInitialize(initLogger)
 }
 
-func logFatal(message string, logGroup any) {
+// logFatal logs a fatal error message along with optional structured data
+// and then exits the program with a status code of 1.
+func logFatal(message string, err error, kvPairs ...any) {
+	if err != nil {
+		kvPairs = append(kvPairs, "error", err)
+	}
 	logger.Error(
 		message,
-		logGroup,
+		kvPairs...,
 	)
 
 	os.Exit(1)
@@ -116,33 +121,15 @@ func initConfig() {
 	viper.SetConfigFile(viper.GetString("giltFile"))
 
 	if err := viper.ReadInConfig(); err != nil {
-		logFatal(
-			"failed to read config",
-			slog.Group("",
-				slog.String("Giltfile", viper.ConfigFileUsed()),
-				slog.String("err", err.Error()),
-			),
-		)
+		logFatal("failed to read config", err, "Giltfile", viper.ConfigFileUsed())
 	}
 
 	if err := viper.Unmarshal(&appConfig); err != nil {
-		logFatal(
-			"failed to unmarshal config",
-			slog.Group("",
-				slog.String("Giltfile", viper.ConfigFileUsed()),
-				slog.String("err", err.Error()),
-			),
-		)
+		logFatal("failed to unmarshal config", err, "Giltfile", viper.ConfigFileUsed())
 	}
 
 	err := config.Validate(&appConfig)
 	if err != nil {
-		logFatal(
-			"validation failed",
-			slog.Group("",
-				slog.String("Giltfile", viper.ConfigFileUsed()),
-				slog.String("err", err.Error()),
-			),
-		)
+		logFatal("validation failed ", err, "Giltfile", viper.ConfigFileUsed())
 	}
 }
