@@ -1,5 +1,5 @@
-github.com/avfs/avfs v0.33.0 h1:5WQXbUbr6VS7aani39ZN2Vrd/s3wLnyih1Sc4ExWTxs=
-github.com/avfs/avfs v0.33.0/go.mod h1:Q59flcFRYe9KYkNMfrLUJney3yeKGQpcWRyxsDBW7vI=
+github.com/avfs/avfs v0.33.1-0.20240914121800-614029c843ff h1:kNLtLYnnDNVCJg9l41F5rSL29AdxHPRicqlVCjA+BUY=
+github.com/avfs/avfs v0.33.1-0.20240914121800-614029c843ff/go.mod h1:LnzrUO5acMU5NCkohHcUN15YrnkxiJ/lRLQOZSp39ow=
 github.com/caarlos0/go-version v0.1.1 h1:1bikKHkGGVIIxqCmufhSSs3hpBScgHGacrvsi8FuIfc=
 github.com/caarlos0/go-version v0.1.1/go.mod h1:Ze5Qx4TsBBi5FyrSKVg1Ibc44KGV/llAaKGp86oTwZ0=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=

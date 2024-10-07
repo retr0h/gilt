@@ -1,8 +1,8 @@
 module example.com/client
 
-go 1.22
+go 1.23
 
-toolchain go1.22.2
+toolchain go1.23.2
 
 replace github.com/retr0h/gilt/v2 => ../../../gilt/
 

@@ -1,9 +1,9 @@
 module github.com/retr0h/gilt/v2
 
-go 1.22
+go 1.23
 
 require (
-	github.com/avfs/avfs v0.33.0
+	github.com/avfs/avfs v0.33.1-0.20240914121800-614029c843ff
 	github.com/caarlos0/go-version v0.1.1
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
 	github.com/go-playground/validator/v10 v10.22.1

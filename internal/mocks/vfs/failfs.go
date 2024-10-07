@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/avfs/avfs"
-	"github.com/avfs/avfs/idm/dummyidm"
 )
 
 type FailFS struct {
@@ -177,10 +176,6 @@ func (vfs *FailFS) Getwd() (dir string, err error) {
 
 func (vfs *FailFS) Glob(pattern string) (matches []string, err error) {
 	return vfs.baseFS.Glob(pattern)
-}
-
-func (vfs *FailFS) Idm() avfs.IdentityMgr {
-	return dummyidm.NotImplementedIdm
 }
 
 func (vfs *FailFS) IsAbs(path string) bool {
