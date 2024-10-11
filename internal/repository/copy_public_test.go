@@ -28,12 +28,12 @@ import (
 	"testing"
 
 	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/failfs"
 	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/avfs/avfs/vfs/rofs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	failfs "github.com/retr0h/gilt/v2/internal/mocks/vfs"
 	"github.com/retr0h/gilt/v2/internal/repository"
 )
 
@@ -103,12 +103,15 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
 	}
 	createFileSpecs(specs)
 	// Make Stat() calls fail
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Stat": func() (fs.FileInfo, error) { return nil, errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnFileStat {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
@@ -144,12 +147,15 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 	}
 	createFileSpecs(specs)
 	// Make Chmod() calls fail
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Chmod": func(fs.FileMode) error { return errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnFileChmod {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
@@ -159,12 +165,15 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 
 func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
 	// Make the file unreadable
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Read": func([]byte) (int, error) { return 0, errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnFileRead {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	cm := suite.NewTestCopyManager()
 	specs := []FileSpec{
 		{
@@ -190,12 +199,15 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
 	}
 	createFileSpecs(specs)
 	// Make Sync() calls fail
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Sync": func() error { return errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnFileSync {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
@@ -213,17 +225,18 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
 	}
 	createFileSpecs(specs)
 	// Make the second Chmod() call fail
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Chmod": func(mode fs.FileMode) error {
-				if mode == 0o600 {
-					return nil
-				}
-				return errors.New("FailFS!")
-			},
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, fp *failfs.FailParam) error {
+		if fn == avfs.FnFileChmod {
+			if fp.Perm == 0o600 {
+				return nil
+			}
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
@@ -358,12 +371,15 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCreatingDestDir() {
 		},
 	}
 	createFileSpecs(specs)
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"MkdirAll": func(string, fs.FileMode) error { return errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnMkdirAll {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
@@ -379,12 +395,15 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorReadingSrcDir() {
 		},
 	}
 	createFileSpecs(specs)
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"ReadDir": func(string) ([]fs.DirEntry, error) { return nil, errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnReadDir {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
@@ -400,19 +419,18 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCheckingSrcFile() {
 		},
 	}
 	createFileSpecs(specs)
-	// FailFS cannot fall-through, so preload the responses it is expected to give
-	srcDirStat, _ := suite.appFs.Stat(specs[0].srcDir)
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"Stat": func(path string) (fs.FileInfo, error) {
-				if path == specs[0].srcDir {
-					return srcDirStat, nil
-				}
-				return nil, errors.New("FailFS!")
-			},
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, fp *failfs.FailParam) error {
+		if fn == avfs.FnStat {
+			if fp.Path == specs[0].srcDir {
+				return nil
+			}
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
@@ -432,18 +450,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyDir() {
 		},
 	}
 	createFileSpecs(specs)
-	dstDirHandle, _ := suite.appFs.Open(suite.dstDir)
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"Open": func(path string) (avfs.File, error) {
-				if path == suite.dstDir {
-					return dstDirHandle, errors.New("FailFS!")
-				}
-				return dstDirHandle, nil
-			},
-		},
-	)
+
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
 	assert.Error(suite.T(), err)
@@ -459,12 +466,15 @@ func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyFile() {
 		},
 	}
 	createFileSpecs(specs)
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"file.Read": func([]byte) (int, error) { return 0, errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnFileRead {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
 	assert.Error(suite.T(), err)

@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/avfs/avfs"
+	"github.com/avfs/avfs/vfs/failfs"
 	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +36,6 @@ import (
 	"github.com/retr0h/gilt/v2/internal"
 	"github.com/retr0h/gilt/v2/internal/git"
 	"github.com/retr0h/gilt/v2/internal/mocks/exec"
-	failfs "github.com/retr0h/gilt/v2/internal/mocks/vfs"
 )
 
 type GitManagerPublicTestSuite struct {
@@ -127,12 +127,15 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeError() {
 
 func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 	// Make Abs() calls fail
-	suite.appFs = failfs.New(
-		suite.appFs,
-		map[string]interface{}{
-			"Abs": func(string) (string, error) { return "", errors.New("FailFS!") },
-		},
-	)
+	vfs := failfs.New(suite.appFs)
+	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
+		if fn == avfs.FnAbs {
+			return errors.New("FailFS!")
+		}
+		return nil
+	})
+	suite.appFs = vfs
+
 	gm := suite.NewTestGitManager()
 
 	err := gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
