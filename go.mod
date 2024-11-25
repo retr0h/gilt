@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/avfs/avfs v0.35.0
-	github.com/caarlos0/go-version v0.1.1
+	github.com/caarlos0/go-version v0.2.0
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/golang/mock v1.6.0
