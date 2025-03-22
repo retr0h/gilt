@@ -1,6 +1,9 @@
 module github.com/retr0h/gilt/v2
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.3
+
 require (
 	github.com/avfs/avfs v0.35.0
 	github.com/caarlos0/go-version v0.2.0
