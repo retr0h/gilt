@@ -10,7 +10,7 @@ require (
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/golang/mock v1.6.0
-	github.com/lmittmann/tint v1.1.1
+	github.com/lmittmann/tint v1.1.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
