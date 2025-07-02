@@ -8,7 +8,7 @@ require (
 	github.com/avfs/avfs v0.35.0
 	github.com/caarlos0/go-version v0.2.1
 	github.com/danjacques/gofslock v0.0.0-20230728142113-ae8f59f9e88b
-	github.com/go-playground/validator/v10 v10.26.0
+	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/mock v1.6.0
 	github.com/lmittmann/tint v1.1.2
 	github.com/spf13/cobra v1.9.1
