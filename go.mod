@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/avfs/avfs v0.35.0
-	github.com/caarlos0/go-version v0.2.1
+	github.com/caarlos0/go-version v0.2.2
 	github.com/danjacques/gofslock v0.0.0-20240212154529-d899e02bfe22
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/mock v1.6.0
