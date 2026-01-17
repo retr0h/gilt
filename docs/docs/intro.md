@@ -6,7 +6,7 @@ title: Home
 
 # Gilt
 
-<img src="img/gilt.png" align="left" width="250px" height="250px" />
+<img src="img/gilt.png" align="left" width="250px" height="250px" alt="" />
 
 Gilt is a tool which aims to make repo management, manageable. Gilt clones
 repositories at a particular version, then overlays the repository to the
@@ -29,14 +29,14 @@ this. Currently, this is proving useful for overlaying [Helm charts][].
 ## History
 
 This project is a golang port of [Gilt][py-gilt], and aims to correct poor
-decisions made in the python version, primarially around config syntax,
+decisions made in the python version, primarily around config syntax,
 portability, and reproducibility.
 
 <!-- prettier-ignore-start -->
 [Galaxy]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
 [Helm charts]: https://helm.sh/docs/topics/charts/
-[Repo]: https://gerrit.googlesource.com/git-repo/+/refs/heads/master/README.md
+[Repo]: https://gerrit.googlesource.com/git-repo/+/refs/heads/main/README.md
 [Git submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
-[Git subtree]: https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt
+[Git subtree]: https://github.com/git/git/blob/master/contrib/subtree/git-subtree.adoc
 [py-gilt]: http://gilt.readthedocs.io/en/latest/
 <!-- prettier-ignore-end -->
