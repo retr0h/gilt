@@ -23,7 +23,7 @@ tasks:
       - go install github.com/golang/mock/mockgen@latest
       - go install github.com/boumenot/gocover-cobertura@latest
       - go install mvdan.cc/gofumpt@latest
-      - go install github.com/goreleaser/goreleaser@latest
+      - go install github.com/goreleaser/goreleaser/v2@latest
       - go get github.com/bats-core/bats-core@latest
       - bash $(go env GOMODCACHE)/$(go list -m github.com/bats-core/bats-core | tr ' ' @)/install.sh ./test/integration/vendor/bats
 
@@ -90,9 +90,6 @@ tasks:
 
   cov:
     desc: Generate coverage
-    env:
-      # https://github.com/golang/go/issues/65570
-      GOEXPERIMENT: nocoverageredesign
     cmds:
       - go test -race -coverprofile=cover.out -v $(go list ./... | grep -v /mocks)
       - gocover-cobertura < cover.out > cobertura.xml
