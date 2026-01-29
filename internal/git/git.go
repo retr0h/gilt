@@ -25,6 +25,7 @@ package git
 
 import (
 	"log/slog"
+	"strings"
 
 	"github.com/avfs/avfs"
 
@@ -118,7 +119,11 @@ func (g *Git) Worktree(
 	return err
 }
 
-// Return the name of the repo remote.
-func (g *Git) Remote(cloneDir string) (string, error) {
-	return g.execManager.RunCmdInDir("git", []string{"remote"}, cloneDir)
+// Check if the remote exists in the given cloneDir.
+func (g *Git) RemoteExists(cloneDir string, remote string) (bool, error) {
+	retVal, err := g.execManager.RunCmdInDir("git", []string{"remote"}, cloneDir)
+	if err != nil {
+		return false, err
+	}
+	return strings.Contains(retVal, remote), nil
 }

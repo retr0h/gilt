@@ -58,8 +58,8 @@ func (r *Repository) Clone(
 	cloneDir string,
 ) (string, error) {
 	targetDir := r.appFs.Join(cloneDir, replacer.Replace(c.Git))
-	remote, err := r.gitManager.Remote(targetDir)
-	if err == nil && !strings.Contains(remote, ORIGIN) {
+	remote, err := r.gitManager.RemoteExists(targetDir, ORIGIN)
+	if !remote && err == nil {
 		r.logger.Info(
 			"remote does not exist in clone, invalidating cache",
 			slog.Any("remote", ORIGIN),
