@@ -194,7 +194,14 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
 	repos := suite.NewTestRepositoriesManager(repoConfig)
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
-	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockExec.EXPECT().
+		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
+		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+			if fn != nil {
+				return fn("stub")
+			}
+			return nil
+		})
 	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().CopySources(repoConfig[0], gomock.Any()).Return(nil)
 
@@ -219,7 +226,14 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySources
 	errors := errors.New("tests error")
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
-	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockExec.EXPECT().
+		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
+		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+			if fn != nil {
+				return fn("stub")
+			}
+			return nil
+		})
 	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(nil)
 	suite.mockRepo.EXPECT().CopySources(gomock.Any(), gomock.Any()).Return(errors)
 
@@ -244,7 +258,14 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayErrorCreatingCopySourcesWor
 	errors := errors.New("tests error")
 
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
-	suite.mockExec.EXPECT().RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	suite.mockExec.EXPECT().
+		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
+		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+			if fn != nil {
+				return fn("stub")
+			}
+			return nil
+		})
 	suite.mockRepo.EXPECT().Worktree(repoConfig[0], gomock.Any(), gomock.Any()).Return(errors)
 
 	err := repos.Overlay()
