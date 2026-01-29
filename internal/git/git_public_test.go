@@ -162,7 +162,7 @@ func (suite *GitManagerPublicTestSuite) TestUpdateError() {
 
 func (suite *GitManagerPublicTestSuite) TestRemoteOk() {
 	suite.mockExec.EXPECT().RunCmdInDir("git", []string{"remote"}, suite.cloneDir).Return("", nil)
-	_, err := suite.gm.Remote(suite.cloneDir)
+	_, err := suite.gm.RemoteExists(suite.cloneDir, suite.origin)
 	assert.NoError(suite.T(), err)
 }
 
@@ -171,7 +171,7 @@ func (suite *GitManagerPublicTestSuite) TestRemoteError() {
 	suite.mockExec.EXPECT().
 		RunCmdInDir("git", []string{"remote"}, suite.cloneDir).
 		Return("", errors)
-	_, err := suite.gm.Remote(suite.cloneDir)
+	_, err := suite.gm.RemoteExists(suite.cloneDir, suite.origin)
 	assert.Error(suite.T(), err)
 }
 
