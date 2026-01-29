@@ -1,4 +1,6 @@
 ---
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -17,11 +19,12 @@ builds:
       - -X {{ .ModulePath }}/cmd.treestate={{ .IsGitDirty }}
 
 archives:
-  - format: binary
+  - formats: 
+    - binary
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}.dev"
+  version_template: "{{ incpatch .Version }}.dev"
 changelog:
   sort: asc
   filters:
