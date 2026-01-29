@@ -23,3 +23,12 @@ updates:
       prefix: chore
     ignore:
       - dependency-name: ".*"
+
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: chore
+    ignore:
+      - dependency-name: "*"
