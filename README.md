@@ -1,4 +1,5 @@
 [![release](https://img.shields.io/github/release/retr0h/gilt.svg?style=for-the-badge)](https://github.com/retr0h/gilt/releases/latest)
+[![pypi](https://img.shields.io/pypi/v/python-gilt?style=for-the-badge)](https://pypi.org/project/python-gilt/)
 [![codecov](https://img.shields.io/codecov/c/github/retr0h/gilt?token=clAMnFQCEQ&style=for-the-badge)](https://codecov.io/gh/retr0h/gilt)
 [![go report card](https://goreportcard.com/badge/github.com/retr0h/gilt?style=for-the-badge)](https://goreportcard.com/report/github.com/retr0h/gilt/v2)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE)
