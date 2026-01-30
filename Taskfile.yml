@@ -91,7 +91,8 @@ tasks:
   cov:
     desc: Generate coverage
     cmds:
-      - go test -race -coverprofile=cover.out -v $(go list ./... | grep -v /mocks)
+      # NOTE(nic): Exclude mocks and code covered by integration tests from coverage
+      - go test -race -coverprofile=cover.out -v $(go list ./... | grep -v /mocks | grep -v /cmd | grep -v /pkg/repositories | egrep -v 'v2$')
       - gocover-cobertura < cover.out > cobertura.xml
       - go tool cover -func=cover.out
 
