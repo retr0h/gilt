@@ -25,9 +25,11 @@ package git
 
 import (
 	"log/slog"
-	"strings"
 
 	"github.com/avfs/avfs"
+	"github.com/go-git/go-git/v6"
+	"github.com/go-git/go-git/v6/config"
+	"github.com/go-git/go-git/v6/plumbing/protocol/packp"
 
 	"github.com/retr0h/gilt/v2/internal"
 )
@@ -47,37 +49,48 @@ func New(
 
 // Clone the repo.  This is a bare repo, with only metadata to start with.
 func (g *Git) Clone(gitURL, origin, cloneDir string) error {
-	_, err := g.execManager.RunCmd(
-		"git",
-		[]string{
-			"-c", "clone.defaultRemoteName=" + origin,
-			"clone", "--bare", "--filter=blob:none", gitURL, cloneDir,
-		},
+	_, err := git.PlainClone(cloneDir, &git.CloneOptions{
+		URL:        gitURL,
+		RemoteName: origin,
+		Bare:       true,
+		NoCheckout: true,
+		Filter:     packp.FilterBlobNone(),
+	})
+	g.logger.Debug(
+		"git.Clone",
+		slog.String("gitURL", gitURL),
+		slog.String("origin", origin),
+		slog.String("cloneDir", cloneDir),
+		slog.Any("err", err),
 	)
-	// NOTE(nic): Workaround truly ancient versions of git that do not support
-	//  `clone.defaultRemoteName`, and explicitly rename the remote to "our" value.
-	//  The `git remote rename` command will report a fatal error here, but will
-	//  actually still rename the remote.  On newer versions, the remote name will
-	//  already be set by `git clone`, and the command will fail.  So either way,
-	//  we want to throw out the result.
-	if err == nil {
-		_, _ = g.execManager.RunCmdInDir(
-			"git",
-			[]string{"remote", "rename", "origin", origin},
-			cloneDir,
-		)
-	}
 	return err
 }
 
 // Update the repo.  Fetch the current HEAD and any new tags that may have
 // appeared, and update the cache.
 func (g *Git) Update(origin, cloneDir string) error {
-	_, err := g.execManager.RunCmdInDir(
-		"git",
-		[]string{"fetch", "--tags", "--force", origin, "+refs/heads/*:refs/heads/*"},
-		cloneDir,
+	repo, err := git.PlainOpen(cloneDir)
+	if err != nil {
+		return err
+	}
+	err = repo.Fetch(&git.FetchOptions{
+		RemoteName: origin,
+		RefSpecs: []config.RefSpec{
+			"+refs/heads/*:refs/heads/*",
+			"+refs/tags/*:refs/tags/*",
+		},
+		Tags:  git.AllTags,
+		Force: true,
+	})
+	g.logger.Debug(
+		"git.Update",
+		slog.String("cloneDir", cloneDir),
+		slog.String("origin", origin),
+		slog.Any("error", err),
 	)
+	if err == git.NoErrAlreadyUpToDate {
+		return nil
+	}
 	return err
 }
 
@@ -121,9 +134,22 @@ func (g *Git) Worktree(
 
 // Check if the remote exists in the given cloneDir.
 func (g *Git) RemoteExists(cloneDir string, remote string) (bool, error) {
-	retVal, err := g.execManager.RunCmdInDir("git", []string{"remote"}, cloneDir)
+	repo, err := git.PlainOpen(cloneDir)
 	if err != nil {
 		return false, err
 	}
-	return strings.Contains(retVal, remote), nil
+	_, err = repo.Remote(remote)
+	if err != nil {
+		g.logger.Debug(
+			"git.RemoteExists",
+			slog.String("cloneDir", cloneDir),
+			slog.String("remote", remote),
+			slog.Any("error", err),
+		)
+		if err == git.ErrRemoteNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
