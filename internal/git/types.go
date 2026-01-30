@@ -24,13 +24,15 @@ import (
 	"log/slog"
 
 	"github.com/avfs/avfs"
-
-	"github.com/retr0h/gilt/v2/internal"
+	gogit "github.com/go-git/go-git/v6"
+	gogitstorage "github.com/go-git/go-git/v6/storage"
 )
 
 // Git implementation responsible for Git operations.
 type Git struct {
 	appFs       avfs.VFS
-	execManager internal.ExecManager
 	logger      *slog.Logger
+	gitClone    func(string, *gogit.CloneOptions) (*gogit.Repository, error)
+	gitOpen     func(string) (*gogit.Repository, error)
+	gitWorktree func(gogitstorage.Storer) (Worktree, error)
 }
