@@ -24,6 +24,5 @@ package mocks
 // ExecManager manager responsible for exec operations.
 type ExecManager interface {
 	RunCmd(name string, args []string) error
-	RunCmdInDir(name string, args []string, cwd string) error
 	RunInTempDir(dir, pattern string, fn func(string) error) error
 }

@@ -24,6 +24,5 @@ package internal
 // ExecManager manager responsible for exec operations.
 type ExecManager interface {
 	RunCmd(name string, args []string) (string, error)
-	RunCmdInDir(name string, args []string, cwd string) (string, error)
 	RunInTempDir(dir, pattern string, fn func(string) error) error
 }
