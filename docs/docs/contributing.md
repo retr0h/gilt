@@ -57,9 +57,9 @@ To run Gilt with working changes, you can use `go run main.go overlay`.
 
 Gilt uses [Docusaurus][] to host a documentation server. The code for this is
 located in the Gilt repository. This can be setup and run locally by using
-`task docs:start` (requires `nodejs` & `yarn`). All content is written in
-Markdown and is located in the `docs/docs` directory. All Markdown documents
-should have an 80 character line wrap limit (enforced by Prettier).
+`task docs:start` (requires `bun`). All content is written in Markdown and is
+located in the `docs/docs` directory. All Markdown documents should have an 80
+character line wrap limit (enforced by Prettier).
 
 ### Writing tests
 
