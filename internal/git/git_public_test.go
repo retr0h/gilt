@@ -130,7 +130,7 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnAbs {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -140,7 +140,7 @@ func (suite *GitManagerPublicTestSuite) TestWorktreeErrorWhenAbsErrors() {
 
 	err := gm.Worktree(suite.cloneDir, suite.gitVersion, suite.dstDir)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *GitManagerPublicTestSuite) TestUpdateOk() {

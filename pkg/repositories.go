@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package pkg defines the public API interfaces for gilt.
 package pkg
 
 // RepositoriesManager manager responsible for public Repositories operations.

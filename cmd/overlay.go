@@ -32,7 +32,7 @@ var overlayCmd = &cobra.Command{
 	Short: "Install Gilt dependencies",
 	Long: `Overlay the repositories from the Giltfile into their respective
 destinations.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		// By the time we reach this point, we know that the arguments were
 		// properly parsed, and we don't want to show the usage if an error
 		// occurs

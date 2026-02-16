@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package repositories is the public entry point for repository operations.
 package repositories
 
 import (
@@ -130,7 +131,7 @@ func (r *Repositories) logRepositoriesGroup() []any {
 	logGroups := make([]any, 0, len(r.c.Repositories))
 
 	for i, repo := range r.c.Repositories {
-		var sourceGroups []any
+		sourceGroups := make([]any, 0, len(repo.Sources))
 		for i, s := range repo.Sources {
 			group := slog.Group(strconv.Itoa(i),
 				slog.String("Src", s.Src),
@@ -139,7 +140,7 @@ func (r *Repositories) logRepositoriesGroup() []any {
 			)
 			sourceGroups = append(sourceGroups, group)
 		}
-		var cmdGroups []any
+		cmdGroups := make([]any, 0, len(repo.Commands))
 		for i, s := range repo.Commands {
 			group := slog.Group(strconv.Itoa(i),
 				slog.String("Cmd", s.Cmd),

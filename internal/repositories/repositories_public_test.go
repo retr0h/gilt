@@ -196,7 +196,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayOkWhenCopySources() {
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
 	suite.mockExec.EXPECT().
 		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
-		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+		DoAndReturn(func(_ string, _ string, fn func(string) error) error {
 			if fn != nil {
 				return fn("stub")
 			}
@@ -228,7 +228,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayReturnsErrorWhenCopySources
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
 	suite.mockExec.EXPECT().
 		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
-		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+		DoAndReturn(func(_ string, _ string, fn func(string) error) error {
 			if fn != nil {
 				return fn("stub")
 			}
@@ -260,7 +260,7 @@ func (suite *RepositoriesPublicTestSuite) TestOverlayErrorCreatingCopySourcesWor
 	suite.mockRepo.EXPECT().Clone(gomock.Any(), gomock.Any()).Return("", nil)
 	suite.mockExec.EXPECT().
 		RunInTempDir(gomock.Any(), gomock.Any(), gomock.Any()).
-		DoAndReturn(func(dir string, pattern string, fn func(string) error) error {
+		DoAndReturn(func(_ string, _ string, fn func(string) error) error {
 			if fn != nil {
 				return fn("stub")
 			}

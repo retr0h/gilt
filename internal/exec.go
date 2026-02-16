@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package internal defines interfaces for gilt's internal components.
 package internal
 
 // ExecManager manager responsible for exec operations.
