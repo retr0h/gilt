@@ -1,40 +1,40 @@
 version: "3"
 
 tasks:
-  yarn:install:
+  bun:install:
     desc: Setup Docusaurus locally
     cmds:
-      - yarn install
+      - bun install
     sources:
       - package.json
-      - yarn.lock
+      - bun.lock
 
   build:
     desc: Build website
     deps:
-      - yarn:install
+      - bun:install
     cmds:
-      - yarn docusaurus build
+      - bun docusaurus build
 
   start:
     desc: Start website
     deps:
-      - yarn:install
+      - bun:install
     vars:
       HOST: '{{default "localhost" .HOST}}'
       PORT: '{{default "3001" .PORT}}'
     cmds:
-      - yarn docusaurus start --no-open --host={{.HOST}} --port={{.PORT}}
+      - bun docusaurus start --no-open --host={{.HOST}} --port={{.PORT}}
 
   serve:
     desc: Preview website
     deps:
-      - yarn:install
+      - bun:install
     vars:
       HOST: '{{default "localhost" .HOST}}'
       PORT: '{{default "3001" .PORT}}'
     cmds:
-      - yarn docusaurus serve --no-open --host={{.HOST}} --port={{.PORT}}
+      - bun docusaurus serve --no-open --host={{.HOST}} --port={{.PORT}}
 
   clean:
     desc: Clean temp directories
@@ -46,7 +46,7 @@ tasks:
     vars:
       VERSION: '{{.VERSION}}'
     cmds:
-      - yarn docusaurus docs:version {{.VERSION}}
+      - bun docusaurus docs:version {{.VERSION}}
     requires:
       vars:
         - VERSION
@@ -55,18 +55,18 @@ tasks:
     desc: Build and deploy Docusaurus
     summary: Requires GIT_USER and GIT_PASS envs to be previous set
     cmds:
-      - yarn docusaurus deploy
+      - bun docusaurus deploy
 
   fmt:
     desc: Reformat files whose formatting differs from `prettier`
     deps:
-      - yarn:install
+      - bun:install
     cmds:
-      - yarn prettier docs --write --config prettier.config.js
+      - bun prettier docs --write --config prettier.config.js
 
   fmt:check:
     desc: Check files whose formatting differs from `prettier`
     deps:
-      - yarn:install
+      - bun:install
     cmds:
-      - yarn prettier docs --check --config prettier.config.js
+      - bun prettier docs --check --config prettier.config.js

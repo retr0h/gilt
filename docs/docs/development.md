@@ -74,7 +74,7 @@ Markdown and located in the `docs/docs` directory. All Markdown documents should
 have an 80 character line wrap limit (enforced by Prettier).
 
 ```bash
-task docs:start    # Start local docs server (requires Node.js & yarn)
+task docs:start    # Start local docs server (requires bun)
 ```
 
 ## Testing
