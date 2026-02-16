@@ -106,7 +106,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnFileStat {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -116,7 +116,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorStat() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyFileReturnsErrorEPERM() {
@@ -150,7 +150,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnFileChmod {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -160,7 +160,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSettingDestfilePerms() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
@@ -168,7 +168,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnFileRead {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -186,7 +186,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
 	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
@@ -202,7 +202,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnFileSync {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -212,7 +212,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
@@ -231,7 +231,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
 			if fp.Perm == 0o600 {
 				return nil
 			}
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -241,7 +241,7 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyFile(specs[0].srcFile, assertFile)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirOk() {
@@ -374,7 +374,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCreatingDestDir() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnMkdirAll {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -383,7 +383,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCreatingDestDir() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorReadingSrcDir() {
@@ -398,7 +398,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorReadingSrcDir() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnReadDir {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -407,7 +407,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorReadingSrcDir() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCheckingSrcFile() {
@@ -425,7 +425,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCheckingSrcFile() {
 			if fp.Path == specs[0].srcDir {
 				return nil
 			}
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -434,7 +434,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirReturnsErrorCheckingSrcFile() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(specs[0].srcDir, suite.dstDir)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyDir() {
@@ -469,7 +469,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyFile() {
 	vfs := failfs.New(suite.appFs)
 	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
 		if fn == avfs.FnFileRead {
-			return errors.New("FailFS!")
+			return errors.New("failFS")
 		}
 		return nil
 	})
@@ -478,7 +478,7 @@ func (suite *CopyPublicTestSuite) TestCopyDirNestedReturnsErrorOnCopyFile() {
 	cm := suite.NewTestCopyManager()
 	err := cm.CopyDir(suite.appFs.Join(suite.cloneDir, "srcDir"), suite.dstDir)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "FailFS!", err.Error())
+	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
 // In order for `go test` to run this suite, we need to create

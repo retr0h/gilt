@@ -61,7 +61,7 @@ var (
 	versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "Display the version of tool",
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			version := buildVersion(version, commit, date, builtBy, treeState)
 
 			jsonOut, _ := version.JSONString()

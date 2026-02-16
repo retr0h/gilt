@@ -12,18 +12,34 @@ includes:
     dir: ./docs
 
 tasks:
+  _fmt-deps:
+    internal: true
+    cmds:
+      - go get -tool mvdan.cc/gofumpt
+      - go get -tool github.com/segmentio/golines
+
+  _vet-deps:
+    internal: true
+    cmds:
+      - go get -tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+
+  _cov-deps:
+    internal: true
+    cmds:
+      - go get -tool github.com/boumenot/gocover-cobertura
+
+  _mockgen-deps:
+    internal: true
+    cmds:
+      - go get -tool github.com/golang/mock/mockgen
+
   deps:
     desc: Install dependencies
     cmds:
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-      - go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
-      - go install golang.org/x/vuln/cmd/govulncheck@latest
-      - go install github.com/jstemmer/go-junit-report@latest
-      - go install github.com/segmentio/golines@latest
-      - go install github.com/golang/mock/mockgen@latest
-      - go install github.com/boumenot/gocover-cobertura@latest
-      - go install mvdan.cc/gofumpt@latest
-      - go install github.com/goreleaser/goreleaser/v2@latest
+      - task: _fmt-deps
+      - task: _vet-deps
+      - task: _cov-deps
+      - task: _mockgen-deps
       - go get github.com/bats-core/bats-core@latest
       - bash $(go env GOMODCACHE)/$(go list -m github.com/bats-core/bats-core | tr ' ' @)/install.sh ./test/integration/vendor/bats
 
@@ -49,13 +65,15 @@ tasks:
 
   vet:
     desc: Report likely mistakes in packages
+    deps:
+      - _vet-deps
     cmds:
-      - $(go env GOPATH)/bin/golangci-lint run --config {{ .GIT_ROOT }}/.golangci.yml
+      - go tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --config {{ .GIT_ROOT }}/.golangci.yml
 
   vuln:
     desc: Run Go's vulnerability scanner
     cmds:
-      - govulncheck ./...
+      - go tool golang.org/x/vuln/cmd/govulncheck ./...
 
   run:
     desc: Compile and run Go program
@@ -77,7 +95,6 @@ tasks:
     cmds:
       - ./test/integration/vendor/bats/bin/bats test/integration
 
-
   test:
     desc: Test all
     cmds:
@@ -90,10 +107,12 @@ tasks:
 
   cov:
     desc: Generate coverage
+    deps:
+      - _cov-deps
     cmds:
       # NOTE(nic): Exclude mocks and code covered by integration tests from coverage
       - go test -race -coverprofile=cover.out -v $(go list ./... | grep -v /mocks | grep -v /cmd | grep -v /pkg/repositories | egrep -v 'v2$')
-      - gocover-cobertura < cover.out > cobertura.xml
+      - go tool github.com/boumenot/gocover-cobertura < cover.out > cobertura.xml
       - go tool cover -func=cover.out
 
   cov:map:
@@ -104,16 +123,20 @@ tasks:
 
   fmt:
     desc: Reformat files whose formatting differs from `go_fmt_command`
+    deps:
+      - _fmt-deps
     cmds:
-      - gofumpt -l -w .
-      - golines --base-formatter=gofumpt -w .
+      - go tool mvdan.cc/gofumpt -l -w .
+      - go tool github.com/segmentio/golines --base-formatter="go tool mvdan.cc/gofumpt" -w .
 
   fmt:check:
     desc: Check files whose formatting differs from `go_fmt_command`
+    deps:
+      - _fmt-deps
     cmds:
       # https://github.com/mvdan/gofumpt/issues/114
-      - test -z "$(gofumpt -d -e . | tee /dev/stderr)"
-      - test -z "$(golines -l --dry-run --base-formatter=gofumpt -w .)"
+      - test -z "$(go tool mvdan.cc/gofumpt -d -e . | tee /dev/stderr)"
+      - test -z "$(go tool github.com/segmentio/golines --dry-run --base-formatter="go tool mvdan.cc/gofumpt" -l | tee /dev/stderr)"
 
   build:
     desc: Build ARCH compatible binary.
@@ -127,8 +150,10 @@ tasks:
 
   mockgen:
     desc: Generate mock for interface
+    deps:
+      - _mockgen-deps
     cmds:
-      - mockgen -source=internal/git.go -destination=internal/mocks/git/git_mock.go -package=git
-      - mockgen -source=internal/repository.go -destination=internal/mocks/repository/repository_mock.go -package=repository
-      - mockgen -source=internal/exec.go -destination=internal/mocks/exec/exec_mock.go -package=exec
-      - mockgen -source=internal/repository/types.go -destination=internal/mocks/repository/copy_mock.go -package=repository
+      - go tool github.com/golang/mock/mockgen -source=internal/git.go -destination=internal/mocks/git/git_mock.go -package=git
+      - go tool github.com/golang/mock/mockgen -source=internal/repository.go -destination=internal/mocks/repository/repository_mock.go -package=repository
+      - go tool github.com/golang/mock/mockgen -source=internal/exec.go -destination=internal/mocks/exec/exec_mock.go -package=exec
+      - go tool github.com/golang/mock/mockgen -source=internal/repository/types.go -destination=internal/mocks/repository/copy_mock.go -package=repository

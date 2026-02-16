@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package cmd implements the CLI commands for gilt.
 package cmd
 
 import (
@@ -39,7 +40,7 @@ var initCmd = &cobra.Command{
 	Short: "Initialize Gilt with a Giltfile",
 	Long: `Initializes Gilt by creating a default config file in the shell's
 current working directory.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		var b bytes.Buffer
 
 		// set configFile defaults

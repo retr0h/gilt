@@ -18,6 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+// Package exec provides command execution abstractions.
 package exec
 
 import (
@@ -39,6 +40,7 @@ func New(
 	}
 }
 
+// RunCmdImpl executes a command with optional working directory.
 func (e *Exec) RunCmdImpl(
 	name string,
 	args []string,
@@ -72,6 +74,7 @@ func (e *Exec) RunCmd(
 	return e.RunCmdImpl(name, args, "")
 }
 
+// RunCmdInDir executes a command in the given working directory.
 func (e *Exec) RunCmdInDir(
 	name string,
 	args []string,

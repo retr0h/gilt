@@ -1,6 +1,8 @@
 # Refer to golangci-lint's example config file for more options and information:
 # https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
 
+version: 2
+
 run:
   timeout: 5m
   modules-download-mode: readonly
@@ -9,22 +11,32 @@ linters:
   enable:
     - errcheck
     - errname
-    - goimports
     - govet
     - prealloc
     - predeclared
     - revive
     - staticcheck
+    - unused
+  exclusions:
+    rules:
+      - linters:
+          - revive
+        path: internal/exec/
+        text: "var-naming: avoid package names that conflict with Go standard library package names"
+      - linters:
+          - revive
+        path: internal/path/
+        text: "var-naming: avoid package names that conflict with Go standard library package names"
+
+formatters:
+  enable:
+    - goimports
 
 linters-settings:
   revive:
-    rules:
-      - name: package-comments
-        disabled: true
+    enable-all-rules: true
 
 issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-dirs:
-    - .asdf

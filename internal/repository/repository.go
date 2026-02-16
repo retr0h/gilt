@@ -32,6 +32,7 @@ import (
 	"github.com/retr0h/gilt/v2/pkg/config"
 )
 
+// ORIGIN is the name used for the git remote added by gilt.
 const ORIGIN = "gilt"
 
 // We'll use this to normalize Git URLs as "safe" filenames
