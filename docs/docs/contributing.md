@@ -26,6 +26,9 @@ This document applies to the [Gilt][] repository.
 
 ## 1. Setup
 
+See the [Development](development.md) page for full prerequisites and setup
+instructions.
+
 - **Go** - Gilt is written in [Go][]. We always support the latest two major Go
   versions, so make sure your version is recent enough.
 - **Node.js** - [Node.js][] is used to host Gilt's documentation server and is
@@ -72,6 +75,9 @@ The unit tests should follow the Go convention of being location in a file named
 Integration tests are located in the `tests` directory and executed by [Bats][].
 
 ## 3. Committing your code
+
+See the [Development](development.md#branching) page for branching conventions
+and [commit message format](development.md#commit-messages).
 
 Try to write meaningful commit messages and avoid having too many commits on the
 PR. Most PRs should likely have a single commit (although for bigger PRs it may
