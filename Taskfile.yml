@@ -136,7 +136,7 @@ tasks:
     cmds:
       # https://github.com/mvdan/gofumpt/issues/114
       - test -z "$(go tool mvdan.cc/gofumpt -d -e . | tee /dev/stderr)"
-      - test -z "$(go tool github.com/segmentio/golines --dry-run --base-formatter="go tool mvdan.cc/gofumpt" -l | tee /dev/stderr)"
+      - test -z "$(go tool github.com/segmentio/golines --dry-run --base-formatter="go tool mvdan.cc/gofumpt" -l . | tee /dev/stderr)"
 
   build:
     desc: Build ARCH compatible binary.
