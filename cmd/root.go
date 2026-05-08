@@ -118,7 +118,8 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		logFatal(
 			"failed to read config",
-			slog.Group("",
+			slog.Group(
+				"",
 				slog.String("Giltfile", viper.ConfigFileUsed()),
 				slog.String("err", err.Error()),
 			),
@@ -128,7 +129,8 @@ func initConfig() {
 	if err := viper.Unmarshal(&appConfig); err != nil {
 		logFatal(
 			"failed to unmarshal config",
-			slog.Group("",
+			slog.Group(
+				"",
 				slog.String("Giltfile", viper.ConfigFileUsed()),
 				slog.String("err", err.Error()),
 			),
@@ -139,7 +141,8 @@ func initConfig() {
 	if err != nil {
 		logFatal(
 			"validation failed",
-			slog.Group("",
+			slog.Group(
+				"",
 				slog.String("Giltfile", viper.ConfigFileUsed()),
 				slog.String("err", err.Error()),
 			),

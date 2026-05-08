@@ -294,7 +294,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesErrorWhenSourceIsDirAndDs
 	suite.mockCopyManager.EXPECT().CopyDir(gomock.Any(), gomock.Any()).Do(
 		func(_ interface{}, _ interface{}) {
 			suite.T().Fatal("CopyDir was not expected to be called")
-		}).AnyTimes()
+		},
+	).AnyTimes()
 	err := repo.CopySources(c, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
@@ -394,7 +395,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorWhenSourceIsF
 	suite.mockCopyManager.EXPECT().CopyFile(gomock.Any(), gomock.Any()).Do(
 		func(_ interface{}, _ interface{}) {
 			suite.T().Fatal("CopyFile was not expected to be called")
-		}).AnyTimes()
+		},
+	).AnyTimes()
 	err := repo.CopySources(c, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }
@@ -517,7 +519,8 @@ func (suite *RepositoryPublicTestSuite) TestCopySourcesReturnsErrorOnGarbagePatt
 	suite.mockCopyManager.EXPECT().CopyFile(gomock.Any(), gomock.Any()).Do(
 		func(_ interface{}, _ interface{}) {
 			suite.T().Fatal("CopyFile was not expected to be called")
-		}).AnyTimes()
+		},
+	).AnyTimes()
 	err := repo.CopySources(c, suite.cloneDir)
 	assert.Error(suite.T(), err)
 }

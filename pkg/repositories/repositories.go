@@ -133,7 +133,8 @@ func (r *Repositories) logRepositoriesGroup() []any {
 	for i, repo := range r.c.Repositories {
 		sourceGroups := make([]any, 0, len(repo.Sources))
 		for i, s := range repo.Sources {
-			group := slog.Group(strconv.Itoa(i),
+			group := slog.Group(
+				strconv.Itoa(i),
 				slog.String("Src", s.Src),
 				slog.String("DstFile", s.DstFile),
 				slog.String("DstDir", s.DstDir),
@@ -142,13 +143,15 @@ func (r *Repositories) logRepositoriesGroup() []any {
 		}
 		cmdGroups := make([]any, 0, len(repo.Commands))
 		for i, s := range repo.Commands {
-			group := slog.Group(strconv.Itoa(i),
+			group := slog.Group(
+				strconv.Itoa(i),
 				slog.String("Cmd", s.Cmd),
 			)
 			cmdGroups = append(cmdGroups, group)
 		}
 
-		group := slog.Group(strconv.Itoa(i),
+		group := slog.Group(
+			strconv.Itoa(i),
 			slog.String("Git", repo.Git),
 			slog.String("Version", repo.Version),
 			slog.String("DstDir", repo.DstDir),

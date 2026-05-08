@@ -59,7 +59,8 @@ current working directory.`,
 		if err := ye.Encode(c); err != nil {
 			logFatal(
 				"failed to encode file",
-				slog.Group("",
+				slog.Group(
+					"",
 					slog.String("err", err.Error()),
 				),
 			)
@@ -70,7 +71,8 @@ current working directory.`,
 		if err == nil {
 			logFatal(
 				"file already exists",
-				slog.Group("",
+				slog.Group(
+					"",
 					slog.String("Giltfile", configFile),
 				),
 			)
@@ -79,7 +81,8 @@ current working directory.`,
 		if err := os.WriteFile(configFile, b.Bytes(), 0o644); err != nil {
 			logFatal(
 				"failed to write file",
-				slog.Group("",
+				slog.Group(
+					"",
 					slog.String("Giltfile", viper.ConfigFileUsed()),
 					slog.String("err", err.Error()),
 				),
