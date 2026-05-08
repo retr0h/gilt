@@ -64,11 +64,11 @@ class Wheels:
     def create_all(self):
         """Generate a Python wheel for every artifact in artifacts.json."""
 
-        # Burn a pass through the list to steal some useful bits from the Brew config
+        # Burn a pass through the list to steal some useful bits from the Cask config
         for artifact in self.artifacts:
-            if artifact["type"] == "Homebrew Formula":
-                self.description = artifact["extra"]["BrewConfig"]["description"]
-                self.license = artifact["extra"]["BrewConfig"]["license"]
+            if artifact["type"] == "Homebrew Cask":
+                self.description = artifact["extra"]["BrewCaskConfig"]["description"]
+                self.license = artifact["extra"]["BrewCaskConfig"]["license"]
 
         # We're looking for "internal_type: 2" artifacts, but being an internal
         # type, we'll avoid leaning on implementation details if we don't have to
