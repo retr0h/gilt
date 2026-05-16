@@ -10,6 +10,7 @@
 # These packages should be included in the Python stdlib.  Nothing
 # other than a basic Python interpreter should be needed.
 import base64
+import functools
 import hashlib
 import json
 import os
@@ -21,7 +22,7 @@ import zipfile
 WHEEL_TEMPLATE = """Wheel-Version: 1.0
 Generator: dist2wheel.py
 Root-Is-Purelib: false
-Tag: {py_tag}-{abi_tag}-{platform_tag}
+Tag: {platform_tag}
 """
 METADATA_TEMPLATE = """Metadata-Version: 2.1
 Name: {distribution}
@@ -86,58 +87,39 @@ class Wheels:
             os.makedirs(self.wheel_dir, exist_ok=True)
             self._emit()
 
-    def _matrix(self):
+    @functools.cached_property
+    def platform_map(self):
+        """Map the Go platform/arch names to the Python equivalent(s)."""
+
+        _DARWIN_PLATFORMS = ("macosx_10_15",)
+        _LINUX_PLATFORMS = ("manylinux2014", "manylinux_2_17", "musllinux_1_1")
+
+        def _entry(prefixes, arch):
+            return {
+                "platform": ".".join(f"{p}_{arch}" for p in prefixes),
+                "tags": [f"{self.py_tag}-{self.abi_tag}-{p}_{arch}" for p in prefixes],
+            }
+
         return {
             "darwin": {
-                "all": {
-                    "arch": "all",
-                    "platform": "macosx_10_15_universal2",
-                    "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-macosx_10_15_universal2",
-                    ],
-                },
+                "all": _entry(_DARWIN_PLATFORMS, "universal2"),
             },
             "linux": {
-                "amd64": {
-                    "arch": "x86_64",
-                    "platform": "manylinux2014_x86_64.manylinux_2_17_x86_64.musllinux_1_1_x86_64",
-                    "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_x86_64",
-                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_x86_64",
-                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_x86_64",
-                    ],
-                },
-                "arm64": {
-                    "arch": "aarch64",
-                    "platform": "manylinux2014_aarch64.manylinux_2_17_aarch64.musllinux_1_1_aarch64",
-                    "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_aarch64",
-                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_aarch64",
-                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_aarch64",
-                    ],
-                },
-                "386": {
-                    "arch": "i686",
-                    "platform": "manylinux2014_i686.manylinux_2_17_i686.musllinux_1_1_i686",
-                    "tags": [
-                        f"{self.py_tag}-{self.abi_tag}-manylinux2014_i686",
-                        f"{self.py_tag}-{self.abi_tag}-manylinux_2_17_i686",
-                        f"{self.py_tag}-{self.abi_tag}-musllinux_1_1_i686",
-                    ],
-                },
+                "amd64": _entry(_LINUX_PLATFORMS, "x86_64"),
+                "arm64": _entry(_LINUX_PLATFORMS, "aarch64"),
+                "386": _entry(_LINUX_PLATFORMS, "i686"),
             },
         }
 
     def _set_platform_props(self, artifact):
         """Convert Go binary nomenclature to Python wheel nomenclature."""
 
-        _map = self._matrix()
         _platform = artifact["goos"]
         _goarch = artifact["goarch"]
 
-        platform = _map[_platform][_goarch]["platform"]
+        platform = self.platform_map[_platform][_goarch]["platform"]
         self.platform = f"{platform}"
-        self.platform_tag = "\nTag: ".join(_map[_platform][_goarch]["tags"])
+        self.platform_tag = "\nTag: ".join(self.platform_map[_platform][_goarch]["tags"])
 
     @staticmethod
     def _fix_checksum(checksum):
