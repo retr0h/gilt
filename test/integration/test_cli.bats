@@ -109,7 +109,7 @@ teardown() {
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
-	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
+	echo "${output}" | grep -E ".*repo.ResolveRevision version=77a95b7"
 }
 
 @test "invoke gilt overlay subcommand with debug config" {
@@ -119,7 +119,7 @@ teardown() {
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
-	echo "${output}" | grep -E ".*Preparing worktree.*HEAD is now at 77a95b7"
+	echo "${output}" | grep -E ".*repo.ResolveRevision version=77a95b7"
 }
 
 @test "invoke gilt overlay subcommand with parallelism disabled" {
