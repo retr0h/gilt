@@ -30,9 +30,9 @@ import (
 	"github.com/avfs/avfs"
 	"github.com/avfs/avfs/vfs/memfs"
 	"github.com/avfs/avfs/vfs/rofs"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 
 	"github.com/retr0h/gilt/v2/internal/mocks/exec"
 	"github.com/retr0h/gilt/v2/internal/mocks/repository"
