@@ -4,11 +4,11 @@ go 1.26.4
 
 tool (
 	github.com/boumenot/gocover-cobertura
-	github.com/golang/mock/mockgen
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 	github.com/jstemmer/go-junit-report
 	github.com/princjef/gomarkdoc/cmd/gomarkdoc
 	github.com/segmentio/golines
+	go.uber.org/mock/mockgen
 	golang.org/x/vuln/cmd/govulncheck
 	mvdan.cc/gofumpt
 )
@@ -18,11 +18,11 @@ require (
 	github.com/caarlos0/go-version v0.2.2
 	github.com/danjacques/gofslock v0.0.0-20240212154529-d899e02bfe22
 	github.com/go-playground/validator/v10 v10.30.3
-	github.com/golang/mock v1.7.0-rc.1
 	github.com/lmittmann/tint v1.1.3
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
+	go.uber.org/mock v0.6.0
 	golang.org/x/term v0.44.0
 	gopkg.in/yaml.v3 v3.0.1
 )

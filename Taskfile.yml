@@ -31,7 +31,7 @@ tasks:
   _mockgen-deps:
     internal: true
     cmds:
-      - go get -tool github.com/golang/mock/mockgen
+      - go get -tool go.uber.org/mock/mockgen
 
   deps:
     desc: Install dependencies
@@ -153,7 +153,7 @@ tasks:
     deps:
       - _mockgen-deps
     cmds:
-      - go tool github.com/golang/mock/mockgen -source=internal/git.go -destination=internal/mocks/git/git_mock.go -package=git
-      - go tool github.com/golang/mock/mockgen -source=internal/repository.go -destination=internal/mocks/repository/repository_mock.go -package=repository
-      - go tool github.com/golang/mock/mockgen -source=internal/exec.go -destination=internal/mocks/exec/exec_mock.go -package=exec
-      - go tool github.com/golang/mock/mockgen -source=internal/repository/types.go -destination=internal/mocks/repository/copy_mock.go -package=repository
+      - go tool go.uber.org/mock/mockgen -source=internal/git.go -destination=internal/mocks/git/git_mock.go -package=git
+      - go tool go.uber.org/mock/mockgen -source=internal/repository.go -destination=internal/mocks/repository/repository_mock.go -package=repository
+      - go tool go.uber.org/mock/mockgen -source=internal/exec.go -destination=internal/mocks/exec/exec_mock.go -package=exec
+      - go tool go.uber.org/mock/mockgen -source=internal/repository/types.go -destination=internal/mocks/repository/copy_mock.go -package=repository
