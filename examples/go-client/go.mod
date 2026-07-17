@@ -5,7 +5,7 @@ go 1.26.4
 replace github.com/retr0h/gilt/v2 => ../../../gilt/
 
 require (
-	github.com/lmittmann/tint v1.1.3
+	github.com/lmittmann/tint v1.2.0
 	github.com/retr0h/gilt/v2 v2.2.5
 )
 

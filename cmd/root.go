@@ -99,11 +99,14 @@ func initLogger() {
 	}
 
 	logger = slog.New(
-		tint.NewHandler(os.Stderr, &tint.Options{
-			Level:      logLevel,
-			TimeFormat: time.Kitchen,
-			NoColor:    !term.IsTerminal(int(os.Stdout.Fd())),
-		}),
+		tint.NewTextHandler(
+			os.Stderr,
+			&tint.Options{
+				Level:      logLevel,
+				TimeFormat: time.Kitchen,
+				NoColor:    !term.IsTerminal(int(os.Stdout.Fd())),
+			},
+		),
 	)
 }
 
