@@ -6,3 +6,5 @@ result.xml
 .task/
 test/integration/tmp/
 test/integration/vendor/
+go.work
+go.work.sum

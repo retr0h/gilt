@@ -27,56 +27,122 @@ import (
 	"log/slog"
 
 	"github.com/avfs/avfs"
+	"github.com/go-git/go-billy/v6"
+	"github.com/go-git/go-billy/v6/osfs"
+	"github.com/go-git/go-git/v6"
+	"github.com/go-git/go-git/v6/config"
+	"github.com/go-git/go-git/v6/plumbing"
+	"github.com/go-git/go-git/v6/plumbing/protocol/packp"
+	"github.com/go-git/go-git/v6/storage"
 
-	"github.com/retr0h/gilt/v2/internal"
+	xworktree "github.com/go-git/go-git/v6/x/plumbing/worktree"
 )
+
+// Worktree is a minimalist interface for the go-git worktree
+// operations we actually use, that we may stub them out in tests.
+type Worktree interface {
+	Add(billy.Filesystem, string, ...xworktree.Option) error
+	Remove(string) error
+}
+
+// NewWorktree wraps the go-git worktree constructor for use with our interface
+func NewWorktree(s storage.Storer) (Worktree, error) {
+	return xworktree.New(s)
+}
 
 // New factory to create a new Git instance.
 func New(
 	appFs avfs.VFS,
-	execManager internal.ExecManager,
 	logger *slog.Logger,
 ) *Git {
 	return &Git{
 		appFs:       appFs,
-		execManager: execManager,
 		logger:      logger,
+		gitClone:    git.PlainClone,
+		gitOpen:     git.PlainOpen,
+		gitWorktree: NewWorktree,
 	}
+}
+
+// NewWithOverrides for testing with fixtures.
+func NewWithOverrides(
+	appFs avfs.VFS,
+	logger *slog.Logger,
+	gitClone func(string, *git.CloneOptions) (*git.Repository, error),
+	gitOpen func(string) (*git.Repository, error),
+	gitWorktree func(storer storage.Storer) (Worktree, error),
+) *Git {
+	g := New(appFs, logger)
+	g.gitClone = gitClone
+	g.gitOpen = gitOpen
+	g.gitWorktree = gitWorktree
+	return g
 }
 
 // Clone the repo.  This is a bare repo, with only metadata to start with.
 func (g *Git) Clone(gitURL, origin, cloneDir string) error {
-	_, err := g.execManager.RunCmd(
-		"git",
-		[]string{
-			"-c", "clone.defaultRemoteName=" + origin,
-			"clone", "--bare", "--filter=blob:none", gitURL, cloneDir,
-		},
-	)
-	// NOTE(nic): Workaround truly ancient versions of git that do not support
-	//  `clone.defaultRemoteName`, and explicitly rename the remote to "our" value.
-	//  The `git remote rename` command will report a fatal error here, but will
-	//  actually still rename the remote.  On newer versions, the remote name will
-	//  already be set by `git clone`, and the command will fail.  So either way,
-	//  we want to throw out the result.
-	if err == nil {
-		_, _ = g.execManager.RunCmdInDir(
-			"git",
-			[]string{"remote", "rename", "origin", origin},
-			cloneDir,
-		)
+	opts := &git.CloneOptions{
+		URL:        gitURL,
+		RemoteName: origin,
+		Bare:       true,
+		NoCheckout: true,
+		Filter:     packp.FilterBlobNone(),
 	}
+	// NOTE(nic): blobless clones don't work quite right yet, so turn them off for
+	//  now.  This regression makes Gilt nigh-unusable, but we can knock all the
+	//  rough edges off of everything else while we wait for upstream to finish
+	//  implementing lazy-fetches
+	opts.Filter = packp.Filter("")
+	repo, err := g.gitClone(cloneDir, opts)
+	g.logger.Debug(
+		"git.Clone",
+		slog.String("gitURL", gitURL),
+		slog.String("origin", origin),
+		slog.String("cloneDir", cloneDir),
+		slog.Any("repo", repo),
+		slog.Any("err", err),
+	)
+	if err != nil {
+		return err
+	}
+	// NOTE(nic): the above clone should have set these, but doesn't.  Future
+	//  versions of go-git will likely fix this, but work around for now
+	cfg, err := repo.Storer.Config()
+	if err != nil {
+		return err
+	}
+	cfg.Raw.Section("remote").Subsection(origin).
+		SetOption("promisor", "true").
+		SetOption("partialclonefilter", string(opts.Filter))
+	err = repo.Storer.SetConfig(cfg)
 	return err
 }
 
 // Update the repo.  Fetch the current HEAD and any new tags that may have
 // appeared, and update the cache.
 func (g *Git) Update(origin, cloneDir string) error {
-	_, err := g.execManager.RunCmdInDir(
-		"git",
-		[]string{"fetch", "--tags", "--force", origin, "+refs/heads/*:refs/heads/*"},
-		cloneDir,
+	repo, err := g.gitOpen(cloneDir)
+	if err != nil {
+		return err
+	}
+	err = repo.Fetch(&git.FetchOptions{
+		RemoteName: origin,
+		RefSpecs: []config.RefSpec{
+			`+refs/heads/*:refs/heads/*`,
+			`+refs/tags/*:refs/tags/*`,
+		},
+		Tags:  git.AllTags,
+		Force: true,
+	})
+	g.logger.Debug(
+		"git.Update",
+		slog.String("cloneDir", cloneDir),
+		slog.String("origin", origin),
+		slog.Any("error", err),
 	)
+	if err == git.NoErrAlreadyUpToDate {
+		return nil
+	}
 	return err
 }
 
@@ -100,25 +166,61 @@ func (g *Git) Worktree(
 		slog.String("to", dst),
 	)
 
-	_, err = g.execManager.RunCmdInDir(
-		"git",
-		[]string{"worktree", "add", "--force", dst, version},
-		cloneDir,
-	)
-	// `git worktree add` creates a breadcrumb file back to the original repo;
-	// this is just junk data in our use case, so get rid of it
-	if err == nil {
-		_ = g.appFs.Remove(g.appFs.Join(dst, ".git"))
-		_, _ = g.execManager.RunCmdInDir(
-			"git",
-			[]string{"worktree", "prune", "--verbose"},
-			cloneDir,
-		)
+	repo, err := g.gitOpen(cloneDir)
+	if err != nil {
+		return err
 	}
+
+	hash, err := repo.ResolveRevision(plumbing.Revision(version))
+	g.logger.Debug(
+		"repo.ResolveRevision",
+		slog.String("version", version),
+		slog.String("hash", hash.String()),
+		slog.Any("err", err),
+	)
+	if err != nil {
+		return err
+	}
+
+	// Create a worktree for `version` at `dst`.  We'll call it `gilt` since it
+	// needs a name; the lock file should prevent collisions
+	const worktreeName = "gilt"
+	wt, err := g.gitWorktree(repo.Storer)
+	if err != nil {
+		return err
+	}
+	_ = wt.Remove(worktreeName)
+
+	_ = g.appFs.RemoveAll(dst)
+	dstFS := osfs.New(dst)
+	err = wt.Add(dstFS, worktreeName, xworktree.WithCommit(*hash), xworktree.WithDetachedHead())
+	// NOTE(nic): we never need to track these, so remove the worktree and .git breadcrumb
+	defer func() {
+		_ = wt.Remove(worktreeName)
+		_ = dstFS.Remove(git.GitDirName)
+	}()
+	g.logger.Debug("wt.Add", slog.Any("hash", hash), slog.Any("err", err))
 	return err
 }
 
-// Remote returns the name of the repo remote.
-func (g *Git) Remote(cloneDir string) (string, error) {
-	return g.execManager.RunCmdInDir("git", []string{"remote"}, cloneDir)
+// RemoteExists checks if the remote exists in the given cloneDir.
+func (g *Git) RemoteExists(cloneDir string, remote string) (bool, error) {
+	repo, err := g.gitOpen(cloneDir)
+	if err != nil {
+		return false, err
+	}
+	_, err = repo.Remote(remote)
+	if err != nil {
+		g.logger.Debug(
+			"git.RemoteExists",
+			slog.String("cloneDir", cloneDir),
+			slog.String("remote", remote),
+			slog.Any("error", err),
+		)
+		if err == git.ErrRemoteNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
