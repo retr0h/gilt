@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 
 	"github.com/avfs/avfs"
 )
@@ -76,23 +77,13 @@ func (r *Copy) CopyFile(
 	_ = r.appFs.MkdirAll(r.appFs.Dir(dst), dirMode)
 	// Open dest file for writing; make it owner-only perms before putting
 	// anything in it
-	out, err := r.appFs.Create(dst)
-	if err != nil {
-		return err
-	}
+	out, err := r.appFs.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o200)
 	defer func() { _ = out.Close() }()
-
-	err = out.Chmod(0o600)
 	if err != nil {
 		return err
 	}
 
 	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-
-	err = out.Sync()
 	if err != nil {
 		return err
 	}

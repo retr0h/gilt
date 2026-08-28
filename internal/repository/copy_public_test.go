@@ -189,61 +189,6 @@ func (suite *CopyPublicTestSuite) TestCopyFileErrorCopy() {
 	assert.Equal(suite.T(), "failFS", err.Error())
 }
 
-func (suite *CopyPublicTestSuite) TestCopyFileErrorSync() {
-	specs := []FileSpec{
-		{
-			appFs:   suite.appFs,
-			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
-			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
-		},
-	}
-	createFileSpecs(specs)
-	// Make Sync() calls fail
-	vfs := failfs.New(suite.appFs)
-	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, _ *failfs.FailParam) error {
-		if fn == avfs.FnFileSync {
-			return errors.New("failFS")
-		}
-		return nil
-	})
-	suite.appFs = vfs
-
-	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
-	cm := suite.NewTestCopyManager()
-	err := cm.CopyFile(specs[0].srcFile, assertFile)
-	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "failFS", err.Error())
-}
-
-func (suite *CopyPublicTestSuite) TestCopyFileErrorFinalizingDestfilePerms() {
-	specs := []FileSpec{
-		{
-			appFs:   suite.appFs,
-			srcDir:  suite.appFs.Join(suite.cloneDir, "srcDir"),
-			srcFile: suite.appFs.Join(suite.cloneDir, "srcDir", "1.txt"),
-		},
-	}
-	createFileSpecs(specs)
-	// Make the second Chmod() call fail
-	vfs := failfs.New(suite.appFs)
-	_ = vfs.SetFailFunc(func(_ avfs.VFSBase, fn avfs.FnVFS, fp *failfs.FailParam) error {
-		if fn == avfs.FnFileChmod {
-			if fp.Perm == 0o600 {
-				return nil
-			}
-			return errors.New("failFS")
-		}
-		return nil
-	})
-	suite.appFs = vfs
-
-	assertFile := suite.appFs.Join(suite.dstDir, "1.txt")
-	cm := suite.NewTestCopyManager()
-	err := cm.CopyFile(specs[0].srcFile, assertFile)
-	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "failFS", err.Error())
-}
-
 func (suite *CopyPublicTestSuite) TestCopyDirOk() {
 	cm := suite.NewTestCopyManager()
 
