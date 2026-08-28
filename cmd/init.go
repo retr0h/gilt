@@ -67,18 +67,18 @@ current working directory.`,
 		}
 
 		configFile := viper.GetString("giltFile")
-		_, err := os.Stat(configFile)
-		if err == nil {
+		configFileHandle, err := os.OpenFile(configFile, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o644)
+		if err != nil {
 			logFatal(
-				"file already exists",
+				"could not create file",
 				slog.Group(
 					"",
 					slog.String("Giltfile", configFile),
+					slog.String("err", err.Error()),
 				),
 			)
 		}
-
-		if err := os.WriteFile(configFile, b.Bytes(), 0o644); err != nil {
+		if _, err = configFileHandle.Write(b.Bytes()); err != nil {
 			logFatal(
 				"failed to write file",
 				slog.Group(
@@ -88,7 +88,7 @@ current working directory.`,
 				),
 			)
 		}
-
+		_ = configFileHandle.Close()
 		fmt.Printf("wrote %s\n", configFile)
 	},
 }
