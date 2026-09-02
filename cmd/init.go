@@ -27,9 +27,9 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
 
 	"github.com/retr0h/gilt/v2/pkg/config"
 )
@@ -41,7 +41,8 @@ var initCmd = &cobra.Command{
 	Long: `Initializes Gilt by creating a default config file in the shell's
 current working directory.`,
 	Run: func(_ *cobra.Command, _ []string) {
-		var b bytes.Buffer
+		// Force the document separator to appear
+		b := bytes.NewBufferString("---\n")
 
 		// set configFile defaults
 		repo := []config.Repository{
@@ -54,8 +55,7 @@ current working directory.`,
 		viper.SetDefault("repositories", repo)
 		c := viper.AllSettings()
 
-		ye := yaml.NewEncoder(&b)
-		ye.SetIndent(2)
+		ye := yaml.NewEncoder(b)
 		if err := ye.Encode(c); err != nil {
 			logFatal(
 				"failed to encode file",
@@ -67,18 +67,18 @@ current working directory.`,
 		}
 
 		configFile := viper.GetString("giltFile")
-		_, err := os.Stat(configFile)
-		if err == nil {
+		configFileHandle, err := os.OpenFile(configFile, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o644)
+		if err != nil {
 			logFatal(
-				"file already exists",
+				"could not create file",
 				slog.Group(
 					"",
 					slog.String("Giltfile", configFile),
+					slog.String("err", err.Error()),
 				),
 			)
 		}
-
-		if err := os.WriteFile(configFile, b.Bytes(), 0o644); err != nil {
+		if _, err = configFileHandle.Write(b.Bytes()); err != nil {
 			logFatal(
 				"failed to write file",
 				slog.Group(
@@ -88,7 +88,7 @@ current working directory.`,
 				),
 			)
 		}
-
+		_ = configFileHandle.Close()
 		fmt.Printf("wrote %s\n", configFile)
 	},
 }

@@ -226,9 +226,15 @@ teardown() {
 
 @test "invoke gilt init" {
 	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; go run ${GILT_PROGRAM} init -f /tmp/initGiltfile.yaml"
+	[ "$status" = 0 ]
 
 	run stat /tmp/initGiltfile.yaml
 	[ "$status" = 0 ]
+}
+
+@test "invoke gilt init failure" {
+	run bash -c "cd ${GILT_TEST_BASE_TMP_DIR}; touch /tmp/initGiltfile.yaml; go run ${GILT_PROGRAM} init -f /tmp/initGiltfile.yaml"
+	[ "$status" = 1 ]
 }
 
 @test "concurrent gilt overlay will block/wait" {

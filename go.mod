@@ -18,13 +18,13 @@ require (
 	github.com/caarlos0/go-version v0.2.2
 	github.com/danjacques/gofslock v0.0.0-20240212154529-d899e02bfe22
 	github.com/go-playground/validator/v10 v10.30.3
+	github.com/goccy/go-yaml v1.19.2
 	github.com/lmittmann/tint v1.2.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
 	golang.org/x/term v0.45.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -217,7 +217,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
 	github.com/sashamelentyev/usestdlibvars v1.29.0 // indirect
-	github.com/securego/gosec/v2 v2.29.0 // indirect
+	github.com/securego/gosec/v2 v2.28.0 // indirect
 	github.com/segmentio/golines v0.13.0 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
@@ -269,6 +269,7 @@ require (
 	golang.org/x/vuln v1.7.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.8.1 // indirect
 	mvdan.cc/gofumpt v0.11.0 // indirect
 	mvdan.cc/unparam v0.0.0-20260823230713-2fa3d841b0c8 // indirect
