@@ -69,10 +69,11 @@ future. Existing tests may also need updating if you have changed Gilt's
 behavior.
 
 You may also consider adding unit tests for any new functions you have added.
-The unit tests should follow the Go convention of being location in a file named
+The unit tests should follow the Go convention of being located in a file named
 `*_test.go` in the same package as the code being tested.
 
-Integration tests are located in the `tests` directory and executed by [Bats][].
+Integration tests are located in the `test/integration` directory and executed
+by [Bats][].
 
 ## 3. Committing your code
 
