@@ -224,7 +224,7 @@ Setting `GIT_PARALLEL=false` will cause Gilt to fetch each clone one-at-a-time.
 
 ### `GILT_GILTFILE`
 
-- Default: `./Giltfile.yaml`
+- Default: `Giltfile.yaml`
 
 Configuration file to use.
 
@@ -265,7 +265,7 @@ Path to Gilt's clone dir. (default `~/.gilt/clone`)
 
 ### `-f`, `--gilt-file`
 
-Path to config file. (default `./Giltfile.yaml`)
+Path to config file. (default `Giltfile.yaml`)
 
 ### `--no-commands`
 
