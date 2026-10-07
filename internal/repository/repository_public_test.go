@@ -96,7 +96,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneOk() {
 
 	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Remote(targetDir).Return("", errors),
+		suite.mockGit.EXPECT().RemoteExists(targetDir, repository.ORIGIN).Return(false, errors),
 		suite.mockGit.EXPECT().Clone(suite.gitURL, repository.ORIGIN, targetDir).Return(nil),
 	)
 
@@ -114,7 +114,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneReturnsErrorWhenCloneErrors() {
 
 	errors := errors.New("tests error")
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Remote(gomock.Any()).Return("", errors),
+		suite.mockGit.EXPECT().RemoteExists(gomock.Any(), gomock.Any()).Return(false, errors),
 		suite.mockGit.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors),
 	)
 
@@ -131,7 +131,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneDoesNotCloneWhenCloneDirExists(
 	}
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
-	suite.mockGit.EXPECT().Remote(targetDir).Return(repository.ORIGIN, nil)
+	suite.mockGit.EXPECT().RemoteExists(targetDir, repository.ORIGIN).Return(true, nil)
 	suite.mockGit.EXPECT().Update(repository.ORIGIN, targetDir).Return(nil)
 
 	_, err := repo.Clone(c, suite.cloneDir)
@@ -148,7 +148,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneInvalidatesCaches() {
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
 	gomock.InOrder(
-		suite.mockGit.EXPECT().Remote(targetDir).Return("invalid", nil),
+		suite.mockGit.EXPECT().RemoteExists(targetDir, repository.ORIGIN).Return(false, nil),
 		suite.mockGit.EXPECT().Clone(suite.gitURL, repository.ORIGIN, targetDir).Return(nil),
 	)
 
@@ -166,7 +166,7 @@ func (suite *RepositoryPublicTestSuite) TestCloneUpdateCloneDirThrowsError() {
 	targetDir := suite.appFs.Join(suite.cloneDir, suite.cacheDir)
 
 	errors := errors.New("tests error")
-	suite.mockGit.EXPECT().Remote(targetDir).Return(repository.ORIGIN, nil)
+	suite.mockGit.EXPECT().RemoteExists(targetDir, repository.ORIGIN).Return(true, nil)
 	suite.mockGit.EXPECT().Update(repository.ORIGIN, targetDir).Return(errors)
 
 	_, err := repo.Clone(c, suite.cloneDir)
