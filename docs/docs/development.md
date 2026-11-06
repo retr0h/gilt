@@ -53,6 +53,14 @@ task fmt           # Auto-fix formatting
 task vet           # Run linter
 ```
 
+The linters that run are declared in `.golangci.yml`. Beyond what they enforce:
+
+- Wrap errors with context: `fmt.Errorf("context: %w", err)`.
+- Return early rather than nesting the successful path inside conditionals.
+- Rename an unused parameter to `_`.
+- Order imports as standard library, third party, then local, separated by blank
+  lines.
+
 ## Running your changes
 
 To run Gilt with working changes:
@@ -85,13 +93,15 @@ See the [Testing](testing.md) page for details on running tests.
 task test          # Run all tests (lint + unit + coverage + bats)
 task unit          # Run unit tests only
 task unit:int      # Run integration tests only (Bats)
+go test -run TestName -v ./internal/...  # Run a single test
 ```
 
 Unit tests should follow the Go convention of being located in a file named
 `*_test.go` in the same package as the code being tested. Public API tests use
 the `*_public_test.go` convention with an external test package (e.g.,
 `package git_test`). Integration tests are located in the `test/integration`
-directory and executed by [Bats][].
+directory and executed by [Bats][]. Assertions use [testify][]'s `assert` and
+`require`.
 
 ## Branching
 
@@ -138,4 +148,5 @@ be reasonable to split it in a few). Git squash and rebase is your friend!
 [Docusaurus]: https://docusaurus.io
 [Conventional Commits]: https://www.conventionalcommits.org
 [Bats]: https://github.com/bats-core/bats-core
+[testify]: https://github.com/stretchr/testify
 <!-- prettier-ignore-end -->

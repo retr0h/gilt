@@ -26,10 +26,13 @@ this.  Currently, this is proving useful for overlaying [Helm charts][].
 
 ## Documentation
 
-[Installation][] | [Usage][] | [Documentation][]
+[Installation][] | [Usage][] | [Documentation][] | [Development][] |
+[Contributing][]
 
 [Installation]: https://retr0h.github.io/gilt/installation
 [Usage]: https://retr0h.github.io/gilt/usage
+[Development]: https://retr0h.github.io/gilt/development
+[Contributing]: https://retr0h.github.io/gilt/contributing
 [Documentation]: https://retr0h.github.io/gilt/
 
 ## License
