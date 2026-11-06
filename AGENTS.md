@@ -26,14 +26,6 @@ The symptom is a check that fails here and passes in continuous integration, on
 a file nobody edited. When that happens, establish which version ran before
 treating the failure as real.
 
-## Task tracking
-
-Work is tracked as markdown files in `.tasks/`, in the format
-[.tasks/README.md](.tasks/README.md) describes. At the start of a session, check
-`.tasks/in-progress/` for ongoing work and `.tasks/backlog/` for what is next.
-Move a task file between directories as its status changes, and log the
-session's work in `.tasks/sessions/YYYY-MM-DD.md`.
-
 ## Commit trailer
 
 When committing via Claude Code, end the message with:
