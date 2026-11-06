@@ -5,6 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     commit-message:
       prefix: chore
 
@@ -12,6 +15,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     commit-message:
       prefix: chore
 
@@ -19,6 +25,9 @@ updates:
     directory: "examples/go-client/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     commit-message:
       prefix: chore
     ignore:
@@ -28,6 +37,9 @@ updates:
     directory: "/docs"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     commit-message:
       prefix: chore
     ignore:
