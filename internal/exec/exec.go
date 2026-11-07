@@ -40,47 +40,20 @@ func New(
 	}
 }
 
-// RunCmdImpl executes a command with optional working directory.
-func (e *Exec) RunCmdImpl(
-	name string,
-	args []string,
-	cwd string,
-) (string, error) {
-	cmd := exec.Command(name, args...)
-	if cwd != "" {
-		cmd.Dir = cwd
-	}
-	out, err := cmd.CombinedOutput()
-	e.logger.Debug(
-		"exec",
-		slog.String("command", strings.Join(cmd.Args, " ")),
-		slog.String("cwd", cwd),
-		slog.String("output", string(out)),
-		slog.Any("error", err),
-	)
-	if err != nil {
-		return string(out), err
-	}
-
-	return string(out), nil
-}
-
 // RunCmd execute the provided command with args.
-// Yeah, yeah, yeah, I know I cheated by using Exec in this package.
 func (e *Exec) RunCmd(
 	name string,
 	args []string,
 ) (string, error) {
-	return e.RunCmdImpl(name, args, "")
-}
-
-// RunCmdInDir executes a command in the given working directory.
-func (e *Exec) RunCmdInDir(
-	name string,
-	args []string,
-	cwd string,
-) (string, error) {
-	return e.RunCmdImpl(name, args, cwd)
+	cmd := exec.Command(name, args...)
+	out, err := cmd.CombinedOutput()
+	e.logger.Debug(
+		"exec",
+		slog.String("command", strings.Join(cmd.Args, " ")),
+		slog.String("output", string(out)),
+		slog.Any("error", err),
+	)
+	return string(out), err
 }
 
 // RunInTempDir creates a temporary directory, and runs the provided function

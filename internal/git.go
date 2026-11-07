@@ -25,5 +25,5 @@ type GitManager interface {
 	Clone(gitURL, origin, cloneDir string) error
 	Worktree(cloneDir, version, dstDir string) error
 	Update(origin, cloneDir string) error
-	Remote(cloneDir string) (string, error)
+	RemoteExists(cloneDir string, remote string) (bool, error)
 }
