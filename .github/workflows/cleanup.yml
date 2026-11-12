@@ -5,6 +5,10 @@ on:
   pull_request:
     types: [closed]
 
+# Deletes the branch of a merged pull request.
+permissions:
+  contents: write
+
 jobs:
   delete-branch:
     runs-on: ubuntu-latest
