@@ -58,7 +58,6 @@ func New(
 
 	gitManager := git.New(
 		appFs,
-		execManager,
 		logger,
 	)
 
