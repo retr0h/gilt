@@ -1,0 +1,4 @@
+[install]
+# Skip packages published less than 7 days ago, matching the Dependabot
+# cooldown. A hijacked release is usually found and pulled within days.
+minimumReleaseAge = 604800
