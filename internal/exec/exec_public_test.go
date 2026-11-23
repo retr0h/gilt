@@ -70,30 +70,6 @@ func (suite *ExecManagerPublicTestSuite) TestRunCmdReturnsError() {
 	assert.Contains(suite.T(), err.Error(), "not found")
 }
 
-func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirOk() {
-	em := suite.NewTestExecManager()
-
-	_, err := em.RunCmdInDir("ls", []string{}, "/tmp")
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirWithDebug() {
-	suite.T().Skip("cannot seem to capture Stdout when logging in em")
-
-	em := suite.NewTestExecManager()
-
-	_, err := em.RunCmdInDir("echo", []string{"-n", "foo"}, "/tmp")
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *ExecManagerPublicTestSuite) TestRunCmdInDirReturnsError() {
-	em := suite.NewTestExecManager()
-
-	_, err := em.RunCmdInDir("invalid", []string{"foo"}, "/tmp")
-	assert.Error(suite.T(), err)
-	assert.Contains(suite.T(), err.Error(), "not found")
-}
-
 func (suite *ExecManagerPublicTestSuite) TestRunInTempDirOk() {
 	em := suite.NewTestExecManager()
 

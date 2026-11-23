@@ -48,21 +48,6 @@ func (mr *MockExecManagerMockRecorder) RunCmd(name, args interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmd", reflect.TypeOf((*MockExecManager)(nil).RunCmd), name, args)
 }
 
-// RunCmdInDir mocks base method.
-func (m *MockExecManager) RunCmdInDir(name string, args []string, cwd string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RunCmdInDir", name, args, cwd)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RunCmdInDir indicates an expected call of RunCmdInDir.
-func (mr *MockExecManagerMockRecorder) RunCmdInDir(name, args, cwd interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCmdInDir", reflect.TypeOf((*MockExecManager)(nil).RunCmdInDir), name, args, cwd)
-}
-
 // RunInTempDir mocks base method.
 func (m *MockExecManager) RunInTempDir(dir, pattern string, fn func(string) error) error {
 	m.ctrl.T.Helper()
